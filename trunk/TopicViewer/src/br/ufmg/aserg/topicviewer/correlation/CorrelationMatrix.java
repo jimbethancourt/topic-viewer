@@ -11,6 +11,21 @@ public class CorrelationMatrix {
 	
 	protected DoubleMatrix2D correlationMatrix;
 	
-	
+	public CorrelationMatrix(Map<String, Integer> xEntityIds, Map<String, Integer> yEntityIds, DoubleMatrix2D matrix) {
+		this.xEntityIds = xEntityIds;
+		this.yEntityIds = yEntityIds;
+		this.correlationMatrix = matrix;
+	}
 
+	public Map<String, Integer> getXEntityIds() {
+		return xEntityIds;
+	}
+
+	public Map<String, Integer> getyEntityIds() {
+		return yEntityIds;
+	}
+
+	public DoubleMatrix2D getCorrelationMatrix() {
+		return correlationMatrix;
+	}
 }
