@@ -5,34 +5,31 @@ import java.util.Vector;
 
 import javax.swing.JFileChooser;
 
-import br.ufmg.aserg.topicviewer.extraction.VocabularyExtractor;
+import br.ufmg.aserg.topicviewer.control.extraction.VocabularyExtractionController;
+import br.ufmg.aserg.topicviewer.gui.AbstractView;
+import br.ufmg.aserg.topicviewer.util.Properties;
 
-public class ExtractVocabularyView extends javax.swing.JInternalFrame {
+public class ExtractVocabularyView extends AbstractView {
 
 	private static final long serialVersionUID = 5793200312207254298L;
 	
-    private javax.swing.JButton startExtractionButton;
-    private javax.swing.JList projectList;
+    @SuppressWarnings("rawtypes")
+	private javax.swing.JList projectList;
     private javax.swing.JButton selectProjectsButton;
     private javax.swing.JLabel projectSelectionLabel;
     private javax.swing.JPanel projectSelectionPanel;
     private javax.swing.JScrollPane projectScrollPane;
-    private javax.swing.JProgressBar extractionProgressBar;
 	
-	private Thread progressMonitorThread;
     private File[] sourceCodePaths;
     
-    private VocabularyExtractor vocabularyExtractor;
-
     public ExtractVocabularyView() {
+    	super();
         initComponents();
         initListeners();
-        
-        this.vocabularyExtractor = new VocabularyExtractor();
         this.pack();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("rawtypes")
     private void initComponents() {
 
         projectSelectionPanel = new javax.swing.JPanel();
@@ -40,17 +37,14 @@ public class ExtractVocabularyView extends javax.swing.JInternalFrame {
         selectProjectsButton = new javax.swing.JButton();
         projectScrollPane = new javax.swing.JScrollPane();
         projectList = new javax.swing.JList();
-        extractionProgressBar = new javax.swing.JProgressBar();
+        progressBar = new javax.swing.JProgressBar();
         startExtractionButton = new javax.swing.JButton();
 
-        setClosable(true);
         setTitle("Vocabulary Extraction");
         setName("extractVocabulary");
-        setVisible(true);
 
         projectSelectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true), " Project Selection "));
         projectSelectionLabel.setText("Projects");
-
         selectProjectsButton.setText("Select");
 
         projectScrollPane.setViewportView(projectList);
@@ -80,7 +74,7 @@ public class ExtractVocabularyView extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
-        extractionProgressBar.setStringPainted(true);
+        progressBar.setStringPainted(true);
 
         startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
         startExtractionButton.setText("Start");
@@ -92,7 +86,7 @@ public class ExtractVocabularyView extends javax.swing.JInternalFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(extractionProgressBar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(progressBar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(projectSelectionPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(startExtractionButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -105,7 +99,7 @@ public class ExtractVocabularyView extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(startExtractionButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(extractionProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -124,7 +118,7 @@ public class ExtractVocabularyView extends javax.swing.JInternalFrame {
     	
     	startExtractionButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btStartActionPerformed(evt);
+                startExtractionActionPerformed(evt);
             }
         });
     }
@@ -133,6 +127,7 @@ public class ExtractVocabularyView extends javax.swing.JInternalFrame {
 	private void selectProjectsActionPerformed(java.awt.event.ActionEvent evt) {                                         
         JFileChooser chooser = new JFileChooser();
         chooser.setMultiSelectionEnabled(true);
+        chooser.setCurrentDirectory(new File(Properties.getProperty(Properties.WORKSPACE)));
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         
         if (chooser.showDialog(this, "Open") != JFileChooser.CANCEL_OPTION) {
@@ -147,56 +142,32 @@ public class ExtractVocabularyView extends javax.swing.JInternalFrame {
     }                                        
 
     @SuppressWarnings("deprecation")
-	private void btStartActionPerformed(java.awt.event.ActionEvent evt) {                                        
+	private void startExtractionActionPerformed(java.awt.event.ActionEvent evt) {                                        
         if (sourceCodePaths != null) {
             if (!startExtractionButton.getText().trim().isEmpty()) {
-//            	this.projectList.get
-//                this.controller = new MetricsController(new File(pathSaida.getText().trim()), sourceCodePaths);
-//                this.progressMonitorThread = new Thread(this.controller);
-//                startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/wait.gif")));
-//                startExtractionButton.setText("");
-//                this.repaint();
-//                this.pack();
-//                this.progressMonitorThread.start();
-//                new Thread(new PanelUpdater()).start();
+                this.controller = new VocabularyExtractionController(sourceCodePaths);
+                this.progressMonitorThread = new Thread(this.controller);
+                startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/wait.gif")));
+                startExtractionButton.setText("");
+                this.repaint();
+                this.pack();
+                this.progressMonitorThread.start();
+                new Thread(new PanelUpdater()).start();
             } else {
                 startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
                 startExtractionButton.setText("Start");
                 startExtractionButton.repaint();
-                this.progressMonitorThread.stop();
+                progressMonitorThread.stop();
             }
         }
-    }                                       
-
-    private class PanelUpdater implements Runnable {
-
-        private double value;
-
-        @Override
-        public void run() {
-
-//            while (progressMonitorThread != null && progressMonitorThread.isAlive()) {
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(ExtractVocabularyView.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                
-//                value = ((double) controller.getAnalisados() / controller.getNumProjetos()) * 100;
-//                extractionProgressBar.setValue((int) value);
-//                extractionProgressBar.repaint();
-//            }
-//            
-//            if (!controller.getErros().isEmpty()) {
-//                StringBuilder sb = new StringBuilder();
-//                for (File f : controller.getErros()) {
-//                    sb.append("* ").append(f.getName());
-//                    sb.append("\n");
-//                }
-//                JOptionPane.showMessageDialog(null, "Erro ocorrido nos seguintes projetos:\n" + sb.toString() + "Favor verificar os logs!", "Erro", JOptionPane.ERROR_MESSAGE);
-//            }
-            startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/start.png")));
-            startExtractionButton.setText("Start");
-        }
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public void refresh() {
+    	this.sourceCodePaths = null;
+    	this.projectList.setListData(new Vector<File>());
+    	this.progressBar.setValue(0);
+    	this.repaint();
     }
 }

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 
 import br.ufmg.aserg.topicviewer.gui.extraction.ExtractVocabularyView;
@@ -32,14 +31,14 @@ public class TopicViewer extends javax.swing.JFrame {
     private javax.swing.JMenuItem extractVocabularyMenuItem;
     private javax.swing.JMenuItem exitMenuItem;
     
-    private Map<String, JInternalFrame> internalFrames;
+    private Map<String, AbstractView> internalFrames;
 	
 	public TopicViewer() {
         initComponents();
         initListeners();	
         verifyProperties();
         
-        this.internalFrames = new HashMap<String, JInternalFrame>();
+        this.internalFrames = new HashMap<String, AbstractView>();
     }
 
     private void initComponents() {
@@ -107,7 +106,7 @@ public class TopicViewer extends javax.swing.JFrame {
     	
     	exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuSairActionPerformed(evt);
+                menuExitActionPerformed(evt);
             }
         });
     }
@@ -120,7 +119,7 @@ public class TopicViewer extends javax.swing.JFrame {
         if (chooser.showDialog(this, "Open Workspace") != JFileChooser.CANCEL_OPTION) {
         	Properties.setProperty(Properties.WORKSPACE, chooser.getSelectedFile().getAbsolutePath());
         	enableButtons(true);
-        	JOptionPane.showMessageDialog(this, "Workspace has just been configures.", "", JOptionPane.INFORMATION_MESSAGE);
+        	JOptionPane.showMessageDialog(this, "Workspace has just been configured.", "", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -128,12 +127,11 @@ public class TopicViewer extends javax.swing.JFrame {
     	if (!invokeView(EXTRACT_VOCABULARY_PANEL)) {
     		ExtractVocabularyView extractVocabulary = new ExtractVocabularyView();
     		this.internalFrames.put(EXTRACT_VOCABULARY_PANEL, extractVocabulary);
-    		this.desktop.add(extractVocabulary);
+    		this.desktop.add(extractVocabulary, javax.swing.JLayeredPane.DEFAULT_LAYER);
     	}
-        System.gc();
     }
 
-    private void menuSairActionPerformed(java.awt.event.ActionEvent evt) {
+    private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {
         System.gc();
         System.exit(0);
     }
@@ -145,13 +143,14 @@ public class TopicViewer extends javax.swing.JFrame {
     }
     
     private void enableButtons(boolean enable) {
-//    	extractVocabularyMenuItem.setEnabled(enable);
+    	extractVocabularyMenuItem.setEnabled(enable);
     	// TODO
     }
     
     private boolean invokeView(String viewId) {
     	if (this.internalFrames.containsKey(viewId)) {
-    		this.internalFrames.get(viewId).setVisible(true);
+    		this.internalFrames.get(viewId).refresh();
+    		this.internalFrames.get(viewId).show();
     		return true;
     	}
     	else return false;

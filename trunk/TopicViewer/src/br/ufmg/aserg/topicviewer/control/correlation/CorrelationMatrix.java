@@ -1,4 +1,4 @@
-package br.ufmg.aserg.topicviewer.correlation;
+package br.ufmg.aserg.topicviewer.control.correlation;
 
 import java.util.Map;
 
