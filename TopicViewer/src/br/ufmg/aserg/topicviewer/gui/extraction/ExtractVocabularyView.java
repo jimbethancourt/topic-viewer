@@ -37,8 +37,6 @@ public class ExtractVocabularyView extends AbstractView {
         selectProjectsButton = new javax.swing.JButton();
         projectScrollPane = new javax.swing.JScrollPane();
         projectList = new javax.swing.JList();
-        progressBar = new javax.swing.JProgressBar();
-        startExtractionButton = new javax.swing.JButton();
 
         setTitle("Vocabulary Extraction");
         setName("extractVocabulary");
@@ -76,8 +74,8 @@ public class ExtractVocabularyView extends AbstractView {
 
         progressBar.setStringPainted(true);
 
-        startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
-        startExtractionButton.setText("Start");
+        startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
+        startExecutionButton.setText("Start");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -88,7 +86,7 @@ public class ExtractVocabularyView extends AbstractView {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(progressBar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(projectSelectionPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(startExtractionButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(startExecutionButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -97,7 +95,7 @@ public class ExtractVocabularyView extends AbstractView {
                 .addContainerGap()
                 .addComponent(projectSelectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(startExtractionButton)
+                .addComponent(startExecutionButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -116,7 +114,7 @@ public class ExtractVocabularyView extends AbstractView {
             }
         });
     	
-    	startExtractionButton.addActionListener(new java.awt.event.ActionListener() {
+    	startExecutionButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startExtractionActionPerformed(evt);
             }
@@ -144,19 +142,19 @@ public class ExtractVocabularyView extends AbstractView {
     @SuppressWarnings("deprecation")
 	private void startExtractionActionPerformed(java.awt.event.ActionEvent evt) {                                        
         if (sourceCodePaths != null) {
-            if (!startExtractionButton.getText().trim().isEmpty()) {
+            if (!startExecutionButton.getText().trim().isEmpty()) {
                 this.controller = new VocabularyExtractionController(sourceCodePaths);
                 this.progressMonitorThread = new Thread(this.controller);
-                startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/wait.gif")));
-                startExtractionButton.setText("");
+                startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/wait.gif")));
+                startExecutionButton.setText("");
                 this.repaint();
                 this.pack();
                 this.progressMonitorThread.start();
                 new Thread(new PanelUpdater()).start();
             } else {
-                startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
-                startExtractionButton.setText("Start");
-                startExtractionButton.repaint();
+                startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
+                startExecutionButton.setText("Start");
+                startExecutionButton.repaint();
                 progressMonitorThread.stop();
             }
         }

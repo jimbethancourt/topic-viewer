@@ -13,7 +13,7 @@ public class VocabularyExtractionController extends AbstractController {
 	
 	private VocabularyExtractor extractor;
 	private File[] projects;
-	private String resultFileName;
+	private String resultFolderName;
 	
 	public VocabularyExtractionController(File[] projects) {
 		super();
@@ -21,8 +21,8 @@ public class VocabularyExtractionController extends AbstractController {
 		this.projects = projects;
 		this.setAllProjectCount(this.projects.length);
 		
-		this.resultFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.VOCABULARY_OUTPUT;
-		checkResultFolder(this.resultFileName);
+		this.resultFolderName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.VOCABULARY_OUTPUT;
+		checkResultFolder(this.resultFolderName);
 	}
 	
 	@Override
@@ -33,7 +33,7 @@ public class VocabularyExtractionController extends AbstractController {
 				
 				this.extractor = new VocabularyExtractor(projectName, "");
 				this.extractor.extractTermsFromJavaFolder(project.getAbsolutePath(),
-						this.resultFileName + File.separator + projectName + ".vxl", "", new LinkedList<LOCParameters>());
+						this.resultFolderName + File.separator + projectName + ".vxl", "", new LinkedList<LOCParameters>());
 			} catch (Exception e) {
 				this.failedProjects.add(project);
 			}
