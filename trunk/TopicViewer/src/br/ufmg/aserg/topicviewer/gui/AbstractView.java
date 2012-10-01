@@ -16,7 +16,7 @@ public abstract class AbstractView extends JInternalFrame {
 	
 	protected Thread progressMonitorThread;
 	protected javax.swing.JProgressBar progressBar;
-	protected javax.swing.JButton startExtractionButton;
+	protected javax.swing.JButton startExecutionButton;
 	
 	protected AbstractController controller;
 
@@ -25,6 +25,11 @@ public abstract class AbstractView extends JInternalFrame {
 		setClosable(true);
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        
+        progressBar = new javax.swing.JProgressBar();
+        startExecutionButton = new javax.swing.JButton();
+        startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
+        startExecutionButton.setText("Start");
 	}
 	
 	public abstract void refresh();
@@ -32,12 +37,10 @@ public abstract class AbstractView extends JInternalFrame {
     protected class PanelUpdater implements Runnable {
 
         private double value;
-
         public PanelUpdater() {}
 
 		@Override
         public void run() {
-
             while (progressMonitorThread != null && progressMonitorThread.isAlive()) {
                 try {
                     Thread.sleep(1000);
@@ -59,8 +62,8 @@ public abstract class AbstractView extends JInternalFrame {
                 JOptionPane.showMessageDialog(null, "Projects Failed:\n" + sb.toString() + "\nPlease check log file!", "Erro", JOptionPane.ERROR_MESSAGE);
             }
             
-            startExtractionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../img/start.png")));
-            startExtractionButton.setText("Start");
+            startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../img/start.png")));
+            startExecutionButton.setText("Start");
         }
     }
 }
