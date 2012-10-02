@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public class Properties {
 
@@ -39,13 +40,23 @@ public class Properties {
 		}
 	}
 	
+	public static boolean containsProperty(String property) {
+		return prop.containsKey(property);
+	}
+	
 	public static String getProperty(String property) {
 		String value = prop.getProperty(property);
 		return value != null ? value.trim() : null;
 	}
+	
+	public static java.util.Properties getProperties() {
+		java.util.Properties properties = new java.util.Properties();
+		properties.putAll(prop);
+		return properties;
+	}
 
-	public static void setProperty(String property, String value) {
-		prop.setProperty(property, value);
+	public static void setProperties(Map<String, String> properties) {
+		prop.putAll(properties);
 		
 		try {
 			FileOutputStream outputStream = new FileOutputStream(new File(PROPERTIES_FILE));

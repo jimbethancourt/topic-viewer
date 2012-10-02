@@ -129,7 +129,9 @@ public class TopicViewer extends javax.swing.JFrame {
         chooser.setMultiSelectionEnabled(false);
 
         if (chooser.showDialog(this, "Open Workspace") != JFileChooser.CANCEL_OPTION) {
-        	Properties.setProperty(Properties.WORKSPACE, chooser.getSelectedFile().getAbsolutePath());
+        	Map<String, String> properties = new HashMap<String, String>();
+        	properties.put(Properties.WORKSPACE, chooser.getSelectedFile().getAbsolutePath());
+        	Properties.setProperties(properties);
         	enableButtons(true);
         	JOptionPane.showMessageDialog(this, "Workspace has just been configured.", "", JOptionPane.INFORMATION_MESSAGE);
         }
