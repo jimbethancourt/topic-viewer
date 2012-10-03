@@ -1,7 +1,52 @@
 package br.ufmg.aserg.topicviewer.util;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.splabs.vocabulary.iR.info.RetrievedInfoIF;
 
 public class FileUtilities {
+	
+	public static void saveTermDocumentMatrix(RetrievedInfoIF retrievedInfo, String resultFileName) {
+		
+		final String separator = System.getProperty("line.separator");
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append(retrievedInfo.getAllTerms().size() + " " + retrievedInfo.getAllDocumentIds().size() + separator);
+		
+		List<Entry<String, Integer>> allTerms = new LinkedList<Entry<String, Integer>>();
+		allTerms.addAll(retrievedInfo.getAllTermIdsMap().entrySet());
+		Collections.sort(allTerms, getEntrySetComparator());
+		
+		// TODO salvar matriz de transformação
+		
+		
+		
+		
+		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(resultFileName));
+			writer.write(buffer.toString());
+			writer.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	private static Comparator<Entry<String, Integer>> getEntrySetComparator() {
+		return new Comparator<Entry<String, Integer>>() {
+			@Override
+			public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
+				return o1.getValue().compareTo(o2.getValue());
+			}
+		};
+	}
 
 //	public static void saveTXTFile(String fileName, ShortenedSparseGraph g) {
 //		final String separator = System.getProperty("line.separator");
