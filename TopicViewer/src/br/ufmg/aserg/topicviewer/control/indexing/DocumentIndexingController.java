@@ -13,7 +13,6 @@ import org.splabs.vocabulary.filter.IdentifierFilter;
 import org.splabs.vocabulary.iR.IR;
 import org.splabs.vocabulary.iR.IRPropertyKeys;
 import org.splabs.vocabulary.iR.info.LSIInfo;
-import org.splabs.vocabulary.iR.info.RetrievedInfo;
 import org.splabs.vocabulary.vxl.VXLReader;
 import org.splabs.vocabulary.vxl.iterator.VXLIterator;
 import org.splabs.vocabulary.vxl.iterator.javamodel.ContainerEntity;
@@ -30,11 +29,14 @@ public class DocumentIndexingController extends AbstractController {
 	
 	private VXLReader vxlReader;
 	private IdentifierFilter identifierFilter;
-	private RetrievedInfo retrievedInfo;
+	private LSIInfo retrievedInfo;
 	
 	private String resultFolderName;
 	
+	private java.util.Properties props;
+	
 	// TODO later: implementar a inserção de vocabulário de superclasse para subclasse, segundo Adrian Kuhn
+	// TODO setar no LSIInfo o valor padrão como (m.n)^0.2
 	
 	public DocumentIndexingController(File[] vocabularyFiles, String weightFunction, String tfVariant, Integer lowRank) {
 		super();
@@ -51,6 +53,10 @@ public class DocumentIndexingController extends AbstractController {
 		properties.put(IRPropertyKeys.TERM_FREQUENCY_VARIANT_TYPE, tfVariant);
 		properties.put(IRPropertyKeys.LSI_LOW_RANK_VALUE, lowRank.toString());
 		Properties.setProperties(properties);
+		
+		props = Properties.getProperties();
+		this.vxlReader = new VXLReader(props);
+		this.identifierFilter = new IdentifierFilter(props);
 	}
 	
 	private void loadVXLFile(String vxlFileName) {
@@ -79,8 +85,8 @@ public class DocumentIndexingController extends AbstractController {
 			termsEntitiesMap.put(container.getEntityIdentifier(), currentEntityTerms);
 		}
 		
-		IR ir = new IR(termsEntitiesMap, Properties.getProperties());
-		retrievedInfo = new LSIInfo(ir.calculate(), Properties.getProperties());
+		IR ir = new IR(termsEntitiesMap, props);
+		retrievedInfo = new LSIInfo(ir.calculate(), props);
 	}
 	
 	private void checkDefaultProperties() {
@@ -123,9 +129,13 @@ public class DocumentIndexingController extends AbstractController {
 				this.loadVXLFile(vocabularyFile.getAbsolutePath());
 				this.createIRInfoTermsPerEntity();
 				
-				FileUtilities.saveTermDocumentMatrix(this.retrievedInfo, this.resultFolderName + File.separator + projectName + ".matrix");
+				FileUtilities.saveTermDocumentInfo(this.retrievedInfo, this.resultFolderName + File.separator + projectName + ".ids");
+				FileUtilities.saveMatrix(this.retrievedInfo.getTermDocumentMatrix(), this.resultFolderName + File.separator + projectName + ".matrix");
+				FileUtilities.saveMatrix(this.retrievedInfo.getLsiTermDocumentMatrix(), this.resultFolderName + File.separator + projectName + "-lsi.matrix");
+				FileUtilities.saveMatrix(this.retrievedInfo.getLsiTransformMatrix(), this.resultFolderName + File.separator + projectName + ".lsi");
 			} catch (Exception e) {
 				this.failedProjects.add(vocabularyFile);
+				e.printStackTrace();
 			}
 			
 			this.addAnalyzedProject();

@@ -8,35 +8,55 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.splabs.vocabulary.iR.info.RetrievedInfoIF;
 
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+
 public class FileUtilities {
 	
-	public static void saveTermDocumentMatrix(RetrievedInfoIF retrievedInfo, String resultFileName) {
-		
-		final String separator = System.getProperty("line.separator");
+	private static final String SEPARATOR = System.getProperty("line.separator");
+	
+	public static void saveTermDocumentInfo(RetrievedInfoIF retrievedInfo, String resultFileName) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(getSortedEntrySet(retrievedInfo.getAllTermIdsMap().entrySet()));
+		buffer.append(getSortedEntrySet(retrievedInfo.getAllDocumentIdsMap().entrySet()));
+		saveBuffer(buffer, resultFileName);
+	}
+	
+	private static String getSortedEntrySet(Set<Entry<String, Integer>> entrySet) {
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append(retrievedInfo.getAllTerms().size() + " " + retrievedInfo.getAllDocumentIds().size() + separator);
+		List<Entry<String, Integer>> setList = new LinkedList<Entry<String, Integer>>(entrySet);
+		Collections.sort(setList, getEntrySetComparator());
 		
-		List<Entry<String, Integer>> allTerms = new LinkedList<Entry<String, Integer>>();
-		allTerms.addAll(retrievedInfo.getAllTermIdsMap().entrySet());
-		Collections.sort(allTerms, getEntrySetComparator());
+		for (Entry<String, Integer> term : setList)
+			buffer.append(term.getKey() + " ");
+		buffer.append(SEPARATOR);
 		
-		// TODO salvar matriz de transformação
+		return buffer.toString();
+	}
+	
+	public static void saveMatrix(DoubleMatrix2D matrix, String resultFileName) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(matrix.rows() + " " + matrix.columns() + SEPARATOR);
+		buffer.append(getMatrixAsString(matrix));
+		saveBuffer(buffer, resultFileName);
+	}
+	
+	private static String getMatrixAsString(DoubleMatrix2D matrix) {
+		StringBuffer buffer = new StringBuffer();
 		
-		
-		
-		
-		
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(resultFileName));
-			writer.write(buffer.toString());
-			writer.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		for (int i = 0; i < matrix.rows(); i++) {
+			DoubleMatrix1D row = matrix.viewRow(i);
+			for (int j = 0; j < row.size(); j++)
+				buffer.append(row.get(j) + " ");
+			buffer.append(SEPARATOR);
 		}
+		
+		return buffer.toString();
 	}
 	
 	private static Comparator<Entry<String, Integer>> getEntrySetComparator() {
@@ -46,6 +66,16 @@ public class FileUtilities {
 				return o1.getValue().compareTo(o2.getValue());
 			}
 		};
+	}
+	
+	private static void saveBuffer(StringBuffer buffer, String resultFileName) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(resultFileName));
+			writer.write(buffer.toString());
+			writer.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 //	public static void saveTXTFile(String fileName, ShortenedSparseGraph g) {

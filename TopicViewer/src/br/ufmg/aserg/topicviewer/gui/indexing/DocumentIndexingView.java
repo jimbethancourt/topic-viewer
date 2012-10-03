@@ -3,11 +3,15 @@ package br.ufmg.aserg.topicviewer.gui.indexing;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
+import javax.swing.JRadioButton;
 
+import br.ufmg.aserg.topicviewer.control.indexing.DocumentIndexingController;
 import br.ufmg.aserg.topicviewer.gui.AbstractView;
 import br.ufmg.aserg.topicviewer.util.Properties;
 
@@ -20,10 +24,12 @@ public class DocumentIndexingView extends AbstractView {
 	private javax.swing.JRadioButton weightingTFRadioButton;
 	private javax.swing.JRadioButton weightingIDFRadioButton;
 	private javax.swing.JRadioButton weightingTFIDFRadioButton;
+	private List<JRadioButton> weightingButtonList;
 	private javax.swing.JSeparator panelSeparator1;
 	private javax.swing.JLabel termFrequencyLabel;
 	private javax.swing.JRadioButton termFrequencyAbsRadioButton;
 	private javax.swing.JRadioButton termFrequencyRelRadioButton;
+	private List<JRadioButton> termFrequencyButtonList;
 	private javax.swing.JSeparator panelSeparator2;
 	private javax.swing.JLabel lowRankLabel;
 	private javax.swing.JTextField lowRankTextField;
@@ -37,6 +43,8 @@ public class DocumentIndexingView extends AbstractView {
     private javax.swing.JScrollPane projectScrollPane;
 	
     private File[] vocabularyFiles;
+
+
     
     public DocumentIndexingView() {
     	super();
@@ -77,21 +85,33 @@ public class DocumentIndexingView extends AbstractView {
         
         weightingLabel.setText("Term Weighting");
         weightingTFRadioButton.setText("TF");
+        weightingTFRadioButton.setName("TF");
         weightingIDFRadioButton.setText("IDF");
+        weightingIDFRadioButton.setName("IDF");
         weightingTFIDFRadioButton.setText("TF-IDF");
+        weightingTFIDFRadioButton.setName("TFIDF");
         
         ButtonGroup weightingButtonGroup = new ButtonGroup();
+        weightingButtonList = new LinkedList<JRadioButton>();
         weightingButtonGroup.add(weightingTFRadioButton);
         weightingButtonGroup.add(weightingIDFRadioButton);
         weightingButtonGroup.add(weightingTFIDFRadioButton);
+        weightingButtonList.add(weightingTFRadioButton);
+        weightingButtonList.add(weightingIDFRadioButton);
+        weightingButtonList.add(weightingTFIDFRadioButton);
         
         termFrequencyLabel.setText("Term Frequency");
         termFrequencyAbsRadioButton.setText("Absolute");
+        termFrequencyAbsRadioButton.setName("ABSOLUTE");
         termFrequencyRelRadioButton.setText("Relative");
+        termFrequencyRelRadioButton.setName("RELATIVE");
         
         ButtonGroup termFrequencyButtonGroup = new ButtonGroup();
+        termFrequencyButtonList = new LinkedList<JRadioButton>();
         termFrequencyButtonGroup.add(termFrequencyAbsRadioButton);
         termFrequencyButtonGroup.add(termFrequencyRelRadioButton);
+        termFrequencyButtonList.add(termFrequencyAbsRadioButton);
+        termFrequencyButtonList.add(termFrequencyRelRadioButton);
         
         lowRankLabel.setText("Low-Rank");
 
@@ -257,43 +277,52 @@ public class DocumentIndexingView extends AbstractView {
     	termFrequencyRelRadioButton.setSelected(true);
     	lowRankTextField.setText("");
     }
+    
+    private String getWeightFunctionValue() {
+    	for (JRadioButton button : weightingButtonList)
+    		if (button.isSelected()) return button.getName();
+    	return null;
+    }
+    
+    private String getTFVariantValue() {
+    	for (JRadioButton button : termFrequencyButtonList)
+    		if (button.isSelected()) return button.getName();
+    	return null;
+    }
+    
+    private Integer getLowRankValue() {
+    	try {
+			return Integer.parseInt(lowRankTextField.getText());
+		} catch (NumberFormatException e) {
+			return 0; // TODO mensagem de erro
+		}
+    }
 
     @SuppressWarnings("deprecation")
 	private void startIndexingActionPerformed(java.awt.event.ActionEvent evt) {                                        
-//        if (vocabularyFiles != null) {
-//            if (!startExecutionButton.getText().trim().isEmpty()) {
-//                this.controller = new VocabularyExtractionController(sourceCodePaths);
-//                this.progressMonitorThread = new Thread(this.controller);
-//                startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/wait.gif")));
-//                startExecutionButton.setText("");
-//                this.repaint();
-//                this.pack();
-//                this.progressMonitorThread.start();
-//                new Thread(new PanelUpdater()).start();
-//            } else {
-//                startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
-//                startExecutionButton.setText("Start");
-//                startExecutionButton.repaint();
-//                progressMonitorThread.stop();
-//            }
-//        }
+        if (vocabularyFiles != null) {
+            if (!startExecutionButton.getText().trim().isEmpty()) {
+            	String weightFunction = getWeightFunctionValue();
+            	String tfVariant = getTFVariantValue();
+            	Integer lowRank = getLowRankValue();
+            	
+                this.controller = new DocumentIndexingController(vocabularyFiles, weightFunction, tfVariant, lowRank);
+                this.progressMonitorThread = new Thread(this.controller);
+                startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/wait.gif")));
+                startExecutionButton.setText("");
+                this.repaint();
+                this.pack();
+                this.progressMonitorThread.start();
+                new Thread(new PanelUpdater()).start();
+            } else {
+                startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
+                startExecutionButton.setText("Start");
+                startExecutionButton.repaint();
+                progressMonitorThread.stop();
+            }
+        }
     }                                       
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
-//        // TODO add your handling code here:
-//        JFileChooser chooser = new JFileChooser();
-//        chooser.setMultiSelectionEnabled(true);
-//        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//        if (chooser.showDialog(this, "Open") != JFileChooser.CANCEL_OPTION) {
-//            this.vector = new Vector();
-//            for (File f : chooser.getSelectedFiles()) {
-//                this.vector.addElement(f);
-//            }
-//            this.listProjects.setListData(this.vector);
-//            this.listProjects.setSelectionInterval(0, this.vector.size());
-//        }
-    }    
-    
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	private void selectProjectsActionPerformed(java.awt.event.ActionEvent evt) {                                         
         JFileChooser chooser = new JFileChooser();
