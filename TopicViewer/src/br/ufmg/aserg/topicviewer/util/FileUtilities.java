@@ -1,6 +1,8 @@
 package br.ufmg.aserg.topicviewer.util;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
@@ -14,10 +16,14 @@ import org.splabs.vocabulary.iR.info.RetrievedInfoIF;
 
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 
 public class FileUtilities {
 	
 	private static final String SEPARATOR = System.getProperty("line.separator");
+	private static final String VALUE_SEPARATOR = " ";
+	
+	// ------------------------------------ Write Operations ------------------------------------
 	
 	public static void saveTermDocumentInfo(RetrievedInfoIF retrievedInfo, String resultFileName) {
 		StringBuffer buffer = new StringBuffer();
@@ -77,51 +83,37 @@ public class FileUtilities {
 			e1.printStackTrace();
 		}
 	}
-
-//	public static void saveTXTFile(String fileName, ShortenedSparseGraph g) {
-//		final String separator = System.getProperty("line.separator");
-//		StringBuffer buffer = new StringBuffer();
-//		
-//		buffer.append(g.getVertices().size() + separator);
-//		for (ShortenedVertex v : g.getVertices())
-//			buffer.append(v.getIndex() + " " + v.getLabel() + separator);
-//		
-//		buffer.append(g.getEdges().size() + separator);
-//		for (ShortenedUndirectedEdge e : g.getEdges())
-//			buffer.append(e.getIndexSrc() + " " + e.getIndexTgt() + " " + e.getStrength() + separator);
-//		
-//		try {
-//			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-//			writer.write(buffer.toString());
-//			writer.close();
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-//		}
-//	}
-//	
-//	public static ShortenedSparseGraph readTXTFile(String filename) throws IOException {
-//		final String SEPARATOR = " ";
-//		ShortenedSparseGraph graph = new ShortenedSparseGraph();
-//		BufferedReader reader = new BufferedReader(new FileReader(filename));
-//		
-//		int numVertices = Integer.parseInt(reader.readLine());
-//		for (int i = 0; i < numVertices; i++) {
-//			String[] vertex = reader.readLine().split(SEPARATOR);
-//			graph.addVertex(new ShortenedVertex(
-//					Integer.parseInt(vertex[0]), 
-//					vertex[1]));
-//		}
-//		
-//		int numEdges = Integer.parseInt(reader.readLine());
-//		for (int i = 0; i < numEdges; i++) {
-//			String[] edge = reader.readLine().split(SEPARATOR);
-//			graph.addEdge(new ShortenedUndirectedEdge(
-//					Integer.parseInt(edge[0]), 
-//					Integer.parseInt(edge[1]), 
-//					Double.parseDouble(edge[2])));
-//		}
-//		reader.close();
-//		
-//		return graph;
-//	}
+	
+	// ------------------------------------ Read Operations ------------------------------------
+	
+	public static DoubleMatrix2D readMatrix(String fileName) throws IOException {
+		DoubleMatrix2D matrix;
+		
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		
+		String[] bounds = reader.readLine().split(VALUE_SEPARATOR);
+		int rows = Integer.parseInt(bounds[0]);
+		int columns = Integer.parseInt(bounds[1]);
+		
+		matrix = new SparseDoubleMatrix2D(rows, columns);
+		
+		for (int i = 0; i < rows; i++) {
+			String[] row = reader.readLine().split(VALUE_SEPARATOR);
+			for (int j = 0; j < columns; j++)
+				matrix.set(i, j, Double.parseDouble(row[j]));
+		}
+		
+		return matrix;
+	}
+	
+	public static String[][] readIds(String fileName) throws IOException {
+		String[][] ids = new String[2][0];
+		
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		
+		ids[0] = reader.readLine().split(VALUE_SEPARATOR);
+		ids[1] = reader.readLine().split(VALUE_SEPARATOR);
+		
+		return ids;
+	}
 }

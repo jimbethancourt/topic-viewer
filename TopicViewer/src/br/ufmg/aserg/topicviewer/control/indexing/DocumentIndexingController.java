@@ -31,8 +31,6 @@ public class DocumentIndexingController extends AbstractController {
 	private IdentifierFilter identifierFilter;
 	private LSIInfo retrievedInfo;
 	
-	private String resultFolderName;
-	
 	private java.util.Properties props;
 	
 	// TODO later: implementar a inserção de vocabulário de superclasse para subclasse, segundo Adrian Kuhn
@@ -46,7 +44,7 @@ public class DocumentIndexingController extends AbstractController {
 		this.setAllProjectCount(this.vocabularyFiles.length);
 		
 		this.resultFolderName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT;
-		checkResultFolder(this.resultFolderName);
+		checkResultFolder();
 		
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(IRPropertyKeys.SCORE_CALCULATOR_TYPE, weightFunction);
@@ -135,7 +133,6 @@ public class DocumentIndexingController extends AbstractController {
 				FileUtilities.saveMatrix(this.retrievedInfo.getLsiTransformMatrix(), this.resultFolderName + File.separator + projectName + ".lsi");
 			} catch (Exception e) {
 				this.failedProjects.add(vocabularyFile);
-				e.printStackTrace();
 			}
 			
 			this.addAnalyzedProject();
