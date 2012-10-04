@@ -36,6 +36,8 @@ public class TopicViewer extends javax.swing.JFrame {
     
     private Map<String, AbstractView> internalFrames;
 	
+    // TODO implementar logging, tratamento de erros e mensagens de tooltip
+    
 	public TopicViewer() {
         initComponents();
         initListeners();	

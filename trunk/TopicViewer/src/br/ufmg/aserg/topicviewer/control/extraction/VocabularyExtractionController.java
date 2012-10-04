@@ -13,7 +13,6 @@ public class VocabularyExtractionController extends AbstractController {
 	
 	private VocabularyExtractor extractor;
 	private File[] projects;
-	private String resultFolderName;
 	
 	public VocabularyExtractionController(File[] projects) {
 		super();
@@ -22,7 +21,7 @@ public class VocabularyExtractionController extends AbstractController {
 		this.setAllProjectCount(this.projects.length);
 		
 		this.resultFolderName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.VOCABULARY_OUTPUT;
-		checkResultFolder(this.resultFolderName);
+		checkResultFolder();
 	}
 	
 	@Override

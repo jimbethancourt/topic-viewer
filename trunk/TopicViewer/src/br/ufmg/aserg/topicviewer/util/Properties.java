@@ -21,6 +21,7 @@ public class Properties {
 	// General Properties
 	public static final String VOCABULARY_OUTPUT = "vocabulary";
 	public static final String TERM_DOC_MATRIX_OUTPUT = "lsi";
+	public static final String CORRELATION_MATRIX_OUTPUT = "correlation";
 	
 	public static void load() {
 		try {

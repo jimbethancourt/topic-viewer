@@ -6,23 +6,13 @@ import cern.colt.matrix.DoubleMatrix2D;
 
 public class CorrelationMatrix {
 	
-	protected Map<String, Integer> xEntityIds;
-	protected Map<String, Integer> yEntityIds;
+	protected Map<String, Integer> entityIds;
 	
 	protected DoubleMatrix2D correlationMatrix;
 	
-	public CorrelationMatrix(Map<String, Integer> xEntityIds, Map<String, Integer> yEntityIds, DoubleMatrix2D matrix) {
-		this.xEntityIds = xEntityIds;
-		this.yEntityIds = yEntityIds;
+	public CorrelationMatrix(Map<String, Integer> entityIds, DoubleMatrix2D matrix) {
+		this.entityIds = entityIds;
 		this.correlationMatrix = matrix;
-	}
-
-	public Map<String, Integer> getXEntityIds() {
-		return xEntityIds;
-	}
-
-	public Map<String, Integer> getyEntityIds() {
-		return yEntityIds;
 	}
 
 	public DoubleMatrix2D getCorrelationMatrix() {

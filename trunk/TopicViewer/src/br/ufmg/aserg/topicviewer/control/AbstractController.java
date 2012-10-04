@@ -9,6 +9,7 @@ public abstract class AbstractController implements Runnable {
 	protected int allProjectCount;
 	protected int analyzedProjectsCount;
 	protected List<File> failedProjects;
+	protected String resultFolderName;
 	
 	public AbstractController() {
 		this.allProjectCount = 0;
@@ -41,8 +42,8 @@ public abstract class AbstractController implements Runnable {
 		this.failedProjects.add(failedProject);
 	}
 	
-	protected void checkResultFolder(String folderName) {
-		File resultFolder = new File(folderName);
+	protected void checkResultFolder() {
+		File resultFolder = new File(this.resultFolderName);
 		if (!resultFolder.exists()) resultFolder.mkdirs();
 	}
 }
