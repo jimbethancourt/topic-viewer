@@ -106,14 +106,22 @@ public class FileUtilities {
 		return matrix;
 	}
 	
-	public static String[][] readIds(String fileName) throws IOException {
-		String[][] ids = new String[2][0];
-		
+	public static String[] readTermIds(String fileName) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileName));
 		
-		ids[0] = reader.readLine().split(VALUE_SEPARATOR);
-		ids[1] = reader.readLine().split(VALUE_SEPARATOR);
+		String[] termIds = reader.readLine().split(VALUE_SEPARATOR);
+		reader.close();
 		
-		return ids;
+		return termIds;
+	}
+	
+	public static String[] readDocumentIds(String fileName) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		
+		reader.readLine().split(VALUE_SEPARATOR); // terms
+		String[] documentIds = reader.readLine().split(VALUE_SEPARATOR);
+		reader.close();
+		
+		return documentIds;
 	}
 }

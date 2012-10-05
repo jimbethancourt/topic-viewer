@@ -44,8 +44,6 @@ public class DocumentIndexingView extends AbstractView {
 	
     private File[] vocabularyFiles;
 
-
-    
     public DocumentIndexingView() {
     	super();
         initComponents();
