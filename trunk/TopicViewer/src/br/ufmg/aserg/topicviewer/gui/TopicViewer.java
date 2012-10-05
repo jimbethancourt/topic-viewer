@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixView;
 import br.ufmg.aserg.topicviewer.gui.extraction.ExtractVocabularyView;
 import br.ufmg.aserg.topicviewer.gui.indexing.DocumentIndexingView;
 import br.ufmg.aserg.topicviewer.util.Properties;
@@ -20,6 +21,7 @@ public class TopicViewer extends javax.swing.JFrame {
 	
     private static final String EXTRACT_VOCABULARY_PANEL = "extract";
     private static final String DOCUMENT_INDEXING_PANEL = "indexing";
+    private static final String CORRELATION_MATRIX_PANEL = "correlation";
 	
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JMenuBar mainMenuBar;
@@ -32,6 +34,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private javax.swing.JMenuItem configureWorkspaceMenuItem;
     private javax.swing.JMenuItem extractVocabularyMenuItem;
     private javax.swing.JMenuItem documentIndexingMenuItem;
+    private javax.swing.JMenuItem correlationMatrixMenuItem;
     private javax.swing.JMenuItem exitMenuItem;
     
     private Map<String, AbstractView> internalFrames;
@@ -62,11 +65,13 @@ public class TopicViewer extends javax.swing.JFrame {
         configureWorkspaceMenuItem = new javax.swing.JMenuItem();
         extractVocabularyMenuItem = new javax.swing.JMenuItem();
         documentIndexingMenuItem = new javax.swing.JMenuItem();
+        correlationMatrixMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
 
         configureWorkspaceMenuItem.setText("Configure Workspace");
         extractVocabularyMenuItem.setText("Extract Vocabulary");
         documentIndexingMenuItem.setText("Document Indexing with LSI");
+        correlationMatrixMenuItem.setText("Correlation Matrix Viewer");
         exitMenuItem.setText("Exit");
         
         exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
@@ -89,6 +94,7 @@ public class TopicViewer extends javax.swing.JFrame {
         activitiesMenu.add(configureWorkspaceMenuItem);
         activitiesMenu.add(extractVocabularyMenuItem);
         activitiesMenu.add(documentIndexingMenuItem);
+        activitiesMenu.add(correlationMatrixMenuItem);
         activitiesMenu.add(jSeparator1);
         activitiesMenu.add(exitMenuItem);
 
@@ -115,6 +121,12 @@ public class TopicViewer extends javax.swing.JFrame {
     	documentIndexingMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuDocumentIndexingActionPerformed(evt);
+            }
+        });
+    	
+    	correlationMatrixMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCorrelationMatrixActionPerformed(evt);
             }
         });
     	
@@ -154,6 +166,14 @@ public class TopicViewer extends javax.swing.JFrame {
     		this.desktop.add(documentIndexing, javax.swing.JLayeredPane.DEFAULT_LAYER);
     	}
     }
+    
+    private void menuCorrelationMatrixActionPerformed(java.awt.event.ActionEvent evt) {
+    	if (!invokeView(CORRELATION_MATRIX_PANEL)) {
+    		CorrelationMatrixView correlationMatrix = new CorrelationMatrixView();
+    		this.internalFrames.put(CORRELATION_MATRIX_PANEL, correlationMatrix);
+    		this.desktop.add(correlationMatrix, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    	}
+    }
 
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {
         System.gc();
@@ -169,6 +189,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private void enableButtons(boolean enable) {
     	extractVocabularyMenuItem.setEnabled(enable);
     	documentIndexingMenuItem.setEnabled(enable);
+    	correlationMatrixMenuItem.setEnabled(enable);
     }
     
     private boolean invokeView(String viewId) {
