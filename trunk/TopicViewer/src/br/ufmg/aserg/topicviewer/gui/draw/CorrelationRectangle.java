@@ -1,12 +1,12 @@
 package br.ufmg.aserg.topicviewer.gui.draw;
 
 import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 
-public class CorrelationRectangle extends Rectangle {
+public class CorrelationRectangle extends Rectangle2D.Double {
 
 	private static final long serialVersionUID = 1667564662506252314L;
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	private static final char stringSeparator = ':';
 	
 	private static final int MIN_VALUE = -1;
 	private static final int MAX_VALUE = 1;
@@ -18,23 +18,17 @@ public class CorrelationRectangle extends Rectangle {
 	private Color color;
 	
 	public CorrelationRectangle(int x, int y, int width, int height, String xEntityId, String yEntityId, double value) {
-		this.setBounds(x, y, width, height);
+		this.setRect(x, y, width, height);
 		
-		this.xEntityId = xEntityId;
-		this.yEntityId = yEntityId;
+		this.xEntityId = xEntityId.substring(xEntityId.lastIndexOf(stringSeparator)+1);
+		this.yEntityId = yEntityId.substring(yEntityId.lastIndexOf(stringSeparator)+1);
 		this.value = value;
 		this.color = ColorUtil.generateGreyColor(value, MIN_VALUE, MAX_VALUE);
 	}
 	
-	private void select(boolean select) {
-		this.color = ColorUtil.generateNewGreyColor(this.color, select);
-	}
-	
 	@Override
 	public String toString() {
-		return this.getXEntityId() + LINE_SEPARATOR 
-				+ this.getYEntityId() + LINE_SEPARATOR 
-				+ this.getValue();
+		return "[" + this.getXEntityId() + ", " + this.getYEntityId() + "] = " + this.getValue();
 	}
 
 	public String getXEntityId() {

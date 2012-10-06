@@ -4,19 +4,10 @@ import java.awt.Color;
 
 public class ColorUtil {
 	
-	/*RGB
-Grey values result when r = g = b, for the color (r, g, b)
-*/
-
-	// ir de 1 a 254
 	public static Color generateGreyColor(double value, double minValue, double maxValue) { 
-		
-		
-		return null;
+		int colorValue = (int) (((value + 1) / 2) * 245 + 10F);
+		colorValue = 255 - colorValue;
+		return new Color(colorValue, colorValue, colorValue);
 	}
 	
-	public static Color generateNewGreyColor(Color color, boolean darker) {
-		int colorCoordinate = color.getRed() + (darker ? -1 : 1);
-		return new Color(colorCoordinate, colorCoordinate, colorCoordinate);
-	}
 }
