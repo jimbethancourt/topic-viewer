@@ -27,6 +27,7 @@ public abstract class AbstractView extends JInternalFrame {
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         
         progressBar = new javax.swing.JProgressBar();
+        progressBar.setStringPainted(true);
         startExecutionButton = new javax.swing.JButton();
         startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
         startExecutionButton.setText("Start");

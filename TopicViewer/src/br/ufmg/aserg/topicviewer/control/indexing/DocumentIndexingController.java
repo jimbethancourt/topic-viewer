@@ -133,6 +133,7 @@ public class DocumentIndexingController extends AbstractController {
 				FileUtilities.saveMatrix(this.retrievedInfo.getLsiTransformMatrix(), this.resultFolderName + File.separator + projectName + ".lsi");
 			} catch (Exception e) {
 				this.failedProjects.add(vocabularyFile);
+				e.printStackTrace();
 			}
 			
 			this.addAnalyzedProject();

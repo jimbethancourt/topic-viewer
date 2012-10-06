@@ -7,8 +7,6 @@ import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.doublealgo.Statistic;
-import cern.colt.matrix.doublealgo.Statistic.VectorVectorFunction;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class CorrelationMatrixController extends AbstractController {
@@ -25,19 +23,30 @@ public class CorrelationMatrixController extends AbstractController {
 	
 	private DoubleMatrix2D buildCorrelationMatrix(DoubleMatrix2D termDocumentMatrix) {
 		int numDocuments = termDocumentMatrix.columns();
-		VectorVectorFunction euclideanFunction = Statistic.EUCLID;
+		
 		DoubleMatrix2D correlationMatrix = new DenseDoubleMatrix2D(numDocuments, numDocuments);
 		
 		for (int i = 0; i < numDocuments; i++)
-			for (int j = 0; j < numDocuments; j++) {
-				DoubleMatrix1D document1 = termDocumentMatrix.viewColumn(i);
-				DoubleMatrix1D document2 = termDocumentMatrix.viewColumn(j);
-				
-				double correlation = euclideanFunction.apply(document1, document2);
-				correlationMatrix.set(i, j, correlation);
-			}
+			correlationMatrix.set(i, i, 1);
+		
+		for (int i = 0; i < numDocuments; i++)
+			for (int j = 0; j < numDocuments; j++)
+				if (j > i) { 
+					DoubleMatrix1D document1 = termDocumentMatrix.viewColumn(i);
+					DoubleMatrix1D document2 = termDocumentMatrix.viewColumn(j);
+					
+					double correlation = getCosineDistance(document1, document2);
+					correlationMatrix.set(i, j, correlation);
+					correlationMatrix.set(j, i, correlation);
+				}
 		
 		return correlationMatrix;
+	}
+	
+	private static double getCosineDistance(DoubleMatrix1D vector1, DoubleMatrix1D vector2) {
+		double cosineSimilarity = vector1.zDotProduct(vector2);
+		cosineSimilarity /= Math.sqrt(vector1.zDotProduct(vector1) * vector2.zDotProduct(vector2));
+		return cosineSimilarity;
 	}
 
 	@Override

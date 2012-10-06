@@ -4,8 +4,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="lib/colt.jar"/>
 	<classpathentry kind="lib" path="lib/VocabularyExtractor.jar"/>
-	<classpathentry kind="lib" path="lib/VXLReader.jar"/>
 	<classpathentry kind="lib" path="lib/IdentifierFilter.jar"/>
 	<classpathentry kind="lib" path="lib/IR.jar"/>
+	<classpathentry kind="lib" path="lib/VXLReader.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
