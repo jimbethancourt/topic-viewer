@@ -61,6 +61,7 @@ public class CorrelationMatrixController extends AbstractController {
 				DoubleMatrix2D correlationMatrix2d = this.buildCorrelationMatrix(termDocumentMatrix);
 				
 				FileUtilities.saveMatrix(correlationMatrix2d, this.resultFolderName + File.separator + projectName + ".matrix");
+				// TODO salvar arquivo de ids na mesma pasta
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 			}

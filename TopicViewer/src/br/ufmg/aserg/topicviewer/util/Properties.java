@@ -23,6 +23,16 @@ public class Properties {
 	public static final String TERM_DOC_MATRIX_OUTPUT = "lsi";
 	public static final String CORRELATION_MATRIX_OUTPUT = "correlation";
 	
+	// Hierarchical Clustering
+	public static final String SEMANTIC_LINK_THRESHOLD = "semanticLinkThreshold";
+	public static final String AGGLOMERATIVE_FUNCTION = "agglomerativeFunction";
+	public static enum AgglomerativeFunctionType {
+		SINGLELINKAGE,
+		COMPLETELINKAGE,
+		WEIGHTEDAVERAGELINKAGE,
+		UNWEIGHTEDAVERAGELINKAGE
+	}
+	
 	public static void load() {
 		try {
 			File propertiesFile = new File(PROPERTIES_FILE);
