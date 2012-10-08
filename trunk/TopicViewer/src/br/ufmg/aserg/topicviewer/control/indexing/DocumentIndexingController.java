@@ -33,7 +33,6 @@ public class DocumentIndexingController extends AbstractController {
 	
 	private java.util.Properties props;
 	
-	// TODO later: implementar a inserção de vocabulário de superclasse para subclasse, segundo Adrian Kuhn
 	// TODO setar no LSIInfo o valor padrão como (m.n)^0.2
 	
 	public DocumentIndexingController(File[] vocabularyFiles, String weightFunction, String tfVariant, Integer lowRank) {

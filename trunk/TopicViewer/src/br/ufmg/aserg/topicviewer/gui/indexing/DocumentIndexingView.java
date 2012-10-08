@@ -292,7 +292,7 @@ public class DocumentIndexingView extends AbstractView {
     	try {
 			return Integer.parseInt(lowRankTextField.getText());
 		} catch (NumberFormatException e) {
-			return 0; // TODO mensagem de erro
+			return 0; // TODO mensagem de erro, avisar que vai usar valores default
 		}
     }
 
