@@ -120,12 +120,9 @@ public class CorrelationMatrixViewer extends AbstractView {
             this.fileNameTextField.setText(selectedFile.getAbsolutePath());
             
             try {
-            	String projectName = selectedFile.getName().substring(0, selectedFile.getName().lastIndexOf('.'));
-            	String idsFile = selectedFile.getParentFile().getParentFile() + File.separator + 
-            			Properties.TERM_DOC_MATRIX_OUTPUT + File.separator + projectName + ".ids";
-            	// TODO pegar arquivo de ids da mesma pasta
+            	String idsFileName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('.')) + ".ids";
             	
-            	String[] documentIds = FileUtilities.readDocumentIds(idsFile);
+            	String[] documentIds = FileUtilities.readDocumentIds(idsFileName);
             	DoubleMatrix2D correlationMatrix = FileUtilities.readMatrix(selectedFile.getAbsolutePath());
             	
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);

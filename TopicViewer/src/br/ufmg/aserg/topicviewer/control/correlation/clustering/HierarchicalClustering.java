@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
-import br.ufmg.aserg.topicviewer.util.Properties;
 import cern.colt.matrix.DoubleMatrix2D;
 
 public class HierarchicalClustering {
 
 	private int numDocuments;
+	private int maxClusters;
 	private DisjointTree clustersTree;
 	private AgglomerativeLinkage linkage;
 	
@@ -22,9 +22,11 @@ public class HierarchicalClustering {
 	private Map<Integer, Integer> indexMapping;
 	private int[][] clusters;
 	
-	public HierarchicalClustering(CorrelationMatrix correlationMatrix, Properties props) {
+	public HierarchicalClustering(CorrelationMatrix correlationMatrix, int numClusters) {
 		this.numDocuments = correlationMatrix.getNumEntities();
+		this.maxClusters = numClusters;
 		this.clustersTree = new DisjointTree();
+		this.linkage = createLinkage();
 		DoubleMatrix2D correlationMatrix2D = correlationMatrix.getCorrelationMatrix();
 		
 		int[] documents = new int[numDocuments];
@@ -37,8 +39,6 @@ public class HierarchicalClustering {
 		this.indexMapping = ClusteredMatrixCalculator.generateIndexMapping(this.clusters);
 		this.clusters = ClusteredMatrixCalculator.generateClustering(this.clusters, this.indexMapping);
 		this.clusteredMatrix = ClusteredMatrixCalculator.generateClusteredMatrix(correlationMatrix2D, this.clusters, this.indexMapping);
-		
-		calculateSemanticLinks();
 		this.clusteredWithLinksMatrix = ClusteredMatrixCalculator.generateClusteredWithLinksMatrix(correlationMatrix2D, this.clusteredMatrix, this.indexMapping);
 	}
 	
@@ -59,10 +59,9 @@ public class HierarchicalClustering {
 	}
 	
 	private void initClustering(DoubleMatrix2D correlationMatrix) {
-		int maxClusters = 0;
 		int numClusters = this.numDocuments;
 		
-		while (maxClusters < numClusters) {
+		while (this.maxClusters < numClusters) {
 			int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix);
 			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
 			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
@@ -71,6 +70,7 @@ public class HierarchicalClustering {
 				this.clustersTree.union(set1, set2);
 				updateCorrelationMatrix(set1.index, set2.index, correlationMatrix);
 				numClusters--;
+				System.out.println(numClusters);
 			}
 		}
 		
@@ -98,10 +98,6 @@ public class HierarchicalClustering {
 			}
 			i++;
 		}
-	}
-	
-	private void calculateSemanticLinks() {
-		
 	}
 	
 	private int[] getLeastDissimilarPair(DoubleMatrix2D correlationMatrix) {
@@ -142,42 +138,15 @@ public class HierarchicalClustering {
 			}
 	}
 	
-	protected void validateProperties() {
-		if (Properties.containsProperty(Properties.AGGLOMERATIVE_FUNCTION)) {
-			String agglomerativeFunction = (String) Properties.getProperty(Properties.AGGLOMERATIVE_FUNCTION);
-			
-			if (agglomerativeFunction.equalsIgnoreCase(Properties.AgglomerativeFunctionType.SINGLELINKAGE.toString())) {
-				this.linkage = new AgglomerativeLinkage() {
-					@Override
-					public double getNewDistance(int set1, int set2, double distance1, double distance2) {
-						return Math.min(distance1, distance2);
-					}
-				};
-			} else if (agglomerativeFunction.equalsIgnoreCase(Properties.AgglomerativeFunctionType.COMPLETELINKAGE.toString())) {
-				this.linkage = new AgglomerativeLinkage() {
-					@Override
-					public double getNewDistance(int set1, int set2, double distance1, double distance2) {
-						return Math.max(distance1, distance2);
-					}
-				};
-			} else if (agglomerativeFunction.equalsIgnoreCase(Properties.AgglomerativeFunctionType.WEIGHTEDAVERAGELINKAGE.toString())) {
-				this.linkage = new AgglomerativeLinkage() {
-					@Override
-					public double getNewDistance(int set1, int set2, double distance1, double distance2) {
-						return ((distance1 + distance2) / 2);
-					}
-				};
-			} else if (agglomerativeFunction.equalsIgnoreCase(Properties.AgglomerativeFunctionType.UNWEIGHTEDAVERAGELINKAGE.toString())) {
-				this.linkage = new AgglomerativeLinkage() {
-					@Override
-					public double getNewDistance(int set1, int set2, double distance1, double distance2) {
-						double numerator = (set1 * distance1) + (set2 * distance2); 
-						double denominator = set1 + set2;
-						return (numerator / denominator);
-					}
-				};
-			} 
-		}
+	protected AgglomerativeLinkage createLinkage() {
+		return new AgglomerativeLinkage() {
+			@Override
+			public double getNewDistance(int set1, int set2, double distance1, double distance2) {
+				double numerator = (set1 * distance1) + (set2 * distance2); 
+				double denominator = set1 + set2;
+				return (numerator / denominator);
+			}
+		};
 	}
 	
 	interface AgglomerativeLinkage {

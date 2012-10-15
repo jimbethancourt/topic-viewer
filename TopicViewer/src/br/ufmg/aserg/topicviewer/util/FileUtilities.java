@@ -52,6 +52,18 @@ public class FileUtilities {
 		saveBuffer(buffer, resultFileName);
 	}
 	
+	public static void copyFile(String fileName, String copyFileName) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		
+		String str;
+		StringBuffer buffer = new StringBuffer();
+		while ((str = reader.readLine()) != null)
+			buffer.append(str + SEPARATOR);
+		
+		reader.close();
+		saveBuffer(buffer, copyFileName);
+	}
+	
 	private static String getMatrixAsString(DoubleMatrix2D matrix) {
 		StringBuffer buffer = new StringBuffer();
 		

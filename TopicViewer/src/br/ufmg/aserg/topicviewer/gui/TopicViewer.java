@@ -12,6 +12,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixCalculatorView;
+import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixClusteringView;
 import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixViewer;
 import br.ufmg.aserg.topicviewer.gui.extraction.VocabularyExtractionView;
 import br.ufmg.aserg.topicviewer.gui.indexing.DocumentIndexingView;
@@ -24,6 +25,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private static final String EXTRACT_VOCABULARY_PANEL = "extract";
     private static final String DOCUMENT_INDEXING_PANEL = "indexing";
     private static final String CORRELATION_MATRIX_CALCULATOR_PANEL = "correlationCalculator";
+    private static final String CORRELATION_MATRIX_CLUSTERER_PANEL = "correlationClusterer";
     private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationViewer";
 	
     private javax.swing.JDesktopPane desktop;
@@ -39,6 +41,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private javax.swing.JMenuItem documentIndexingMenuItem;
     private javax.swing.JMenu correlationMatrixMenu;
     private javax.swing.JMenuItem correlationMatrixCalculatorMenuItem;
+    private javax.swing.JMenuItem correlationMatrixClustererMenuItem;
     private javax.swing.JMenuItem correlationMatrixViewerMenuItem;
     private javax.swing.JMenuItem exitMenuItem;
     
@@ -72,6 +75,7 @@ public class TopicViewer extends javax.swing.JFrame {
         documentIndexingMenuItem = new javax.swing.JMenuItem();
         correlationMatrixMenu = new javax.swing.JMenu();
         correlationMatrixCalculatorMenuItem = new javax.swing.JMenuItem();
+        correlationMatrixClustererMenuItem = new javax.swing.JMenuItem();
         correlationMatrixViewerMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
 
@@ -80,6 +84,7 @@ public class TopicViewer extends javax.swing.JFrame {
         documentIndexingMenuItem.setText("Document Indexing with LSI");
         correlationMatrixMenu.setText("Correlation Matrix");
         correlationMatrixCalculatorMenuItem.setText("Correlation Matrix Calculator");
+        correlationMatrixClustererMenuItem.setText("Correlation Matrix Clusterer");
         correlationMatrixViewerMenuItem.setText("Correlation Matrix Viewer");
         exitMenuItem.setText("Exit");
         
@@ -105,6 +110,7 @@ public class TopicViewer extends javax.swing.JFrame {
         activitiesMenu.add(documentIndexingMenuItem);
         activitiesMenu.add(correlationMatrixMenu);
         correlationMatrixMenu.add(correlationMatrixCalculatorMenuItem);
+        correlationMatrixMenu.add(correlationMatrixClustererMenuItem);
         correlationMatrixMenu.add(correlationMatrixViewerMenuItem);
         activitiesMenu.add(jSeparator1);
         activitiesMenu.add(exitMenuItem);
@@ -138,6 +144,12 @@ public class TopicViewer extends javax.swing.JFrame {
     	correlationMatrixCalculatorMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuCorrelationMatrixCalculatorActionPerformed(evt);
+            }
+        });
+    	
+    	correlationMatrixClustererMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCorrelationMatrixClustererActionPerformed(evt);
             }
         });
     	
@@ -192,6 +204,14 @@ public class TopicViewer extends javax.swing.JFrame {
     	}
     }
     
+    private void menuCorrelationMatrixClustererActionPerformed(java.awt.event.ActionEvent evt) {
+    	if (!invokeView(CORRELATION_MATRIX_CLUSTERER_PANEL)) {
+    		CorrelationMatrixClusteringView correlationMatrixClustering = new CorrelationMatrixClusteringView();
+    		this.internalFrames.put(CORRELATION_MATRIX_CLUSTERER_PANEL, correlationMatrixClustering);
+    		this.desktop.add(correlationMatrixClustering, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    	}
+    }
+    
     private void menuCorrelationMatrixViewerActionPerformed(java.awt.event.ActionEvent evt) {
     	if (!invokeView(CORRELATION_MATRIX_VIEWER_PANEL)) {
     		CorrelationMatrixViewer correlationMatrixViewer = new CorrelationMatrixViewer();
@@ -218,6 +238,7 @@ public class TopicViewer extends javax.swing.JFrame {
     	documentIndexingMenuItem.setEnabled(enable);
     	correlationMatrixMenu.setEnabled(enable);
     	correlationMatrixCalculatorMenuItem.setEnabled(enable);
+    	correlationMatrixClustererMenuItem.setEnabled(enable);
     	correlationMatrixViewerMenuItem.setEnabled(enable);
     }
     

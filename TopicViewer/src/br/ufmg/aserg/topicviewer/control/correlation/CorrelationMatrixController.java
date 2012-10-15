@@ -60,8 +60,12 @@ public class CorrelationMatrixController extends AbstractController {
 				DoubleMatrix2D termDocumentMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
 				DoubleMatrix2D correlationMatrix2d = this.buildCorrelationMatrix(termDocumentMatrix);
 				
+				String idsFileName = (matrixFile.getAbsolutePath().contains("-lsi")) 
+						? matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('-'))
+						: matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('.')) + ".ids";
+				FileUtilities.copyFile(idsFileName, this.resultFolderName + File.separator + projectName + ".ids");
+				
 				FileUtilities.saveMatrix(correlationMatrix2d, this.resultFolderName + File.separator + projectName + ".matrix");
-				// TODO salvar arquivo de ids na mesma pasta
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 			}

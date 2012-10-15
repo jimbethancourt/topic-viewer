@@ -3,7 +3,6 @@ package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 import java.util.HashMap;
 import java.util.Map;
 
-import br.ufmg.aserg.topicviewer.util.Properties;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
@@ -14,7 +13,7 @@ public class ClusteredMatrixCalculator {
 		
 		int indexCount = 0;
 		for (int i = 0; i < clusters.length; i++)
-			for (int j = 0; j < clusters.length; j++) {
+			for (int j = 0; j < clusters[i].length; j++) {
 				indexMapping.put(clusters[i][j], indexCount);
 				indexCount++;
 			}
@@ -92,7 +91,7 @@ public class ClusteredMatrixCalculator {
 	}
 	
 	public static DoubleMatrix2D generateClusteredWithLinksMatrix(DoubleMatrix2D correlationMatrix, DoubleMatrix2D clusteredMatrix, Map<Integer, Integer> indexMapping) {
-		final double threshold = Double.parseDouble(Properties.getProperty(Properties.SEMANTIC_LINK_THRESHOLD));
+		final double threshold = 0.2;
 		DoubleMatrix2D clusteredWithLinksMatrix = clusteredMatrix.copy();
 		
 		for (int i = 0; i < correlationMatrix.rows(); i++)
