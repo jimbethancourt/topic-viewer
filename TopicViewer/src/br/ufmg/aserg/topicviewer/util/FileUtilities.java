@@ -168,6 +168,7 @@ public class FileUtilities {
 			
 			for (int j = 0; j < cluster.length; j++)
 				cluster[j] = Integer.parseInt(values[j]);
+			clusters[i] = cluster;
 		}
 		
 		reader.close();

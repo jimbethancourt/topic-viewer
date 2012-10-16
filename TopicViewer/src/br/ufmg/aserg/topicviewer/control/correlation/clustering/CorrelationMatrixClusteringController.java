@@ -42,6 +42,8 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				FileUtilities.saveMapping(this.clusterer.getIndexMapping(), this.resultFolderName + File.separator + projectName + ".mapping");
 				FileUtilities.saveMatrix(this.clusterer.getClusteredMatrix(), this.resultFolderName + File.separator + projectName + "-clustered.matrix");
 				FileUtilities.saveMatrix(this.clusterer.getClusteredWithLinksMatrix(), this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
+				
+				// TODO ler matriz para pegar os termos frequentes
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 				e.printStackTrace();

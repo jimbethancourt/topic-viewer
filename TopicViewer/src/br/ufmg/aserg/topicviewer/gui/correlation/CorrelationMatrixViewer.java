@@ -126,10 +126,19 @@ public class CorrelationMatrixViewer extends AbstractView {
             	
             	String[] documentIds = FileUtilities.readDocumentIds(idsFileName);
             	DoubleMatrix2D correlationMatrix = FileUtilities.readMatrix(selectedFile.getAbsolutePath());
-            	
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
             	
-                this.correlationMatrixScrollPane.setViewportView(new CorrelationMatrixGraphicPanel(matrix));
+            	CorrelationMatrixGraphicPanel graphicPanel = null;
+            	
+            	if (selectedFile.getName().contains("clustered")) {
+            		String clustersFileName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-')) + ".clusters";
+            		
+            		int[][] clusters = FileUtilities.readClustering(clustersFileName);
+            		graphicPanel = new ClusteredCorrelationMatrixGraphicPanel(matrix, clusters);
+            	} else 
+            		graphicPanel = new CorrelationMatrixGraphicPanel(matrix);
+            	
+                this.correlationMatrixScrollPane.setViewportView(graphicPanel);
                 this.correlationMatrixScrollPane.revalidate();
                 this.correlationMatrixScrollPane.repaint();
 			} catch (Exception e) {

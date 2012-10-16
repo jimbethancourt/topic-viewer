@@ -61,10 +61,10 @@ public class ClusteredMatrixCalculator {
 		double sum = 0D;
 		
 		for (int i = 0; i < cluster.length; i++)
-			for (int j = 0; j < cluster.length; j++)
+			for (int j = i+1; j < cluster.length; j++)
 				if (i < j) sum += correlationMatrix.get(i, j);
 		
-		return sum / ((Math.pow(cluster.length, 2) - cluster.length) / 2);
+		return cluster.length == 1 ? 1D : (sum / ((Math.pow(cluster.length, 2) - cluster.length) / 2));
 	}
 	
 	private static double calculateMeanSimilarity(DoubleMatrix2D correlationMatrix, int[] cluster1, int[] cluster2) {

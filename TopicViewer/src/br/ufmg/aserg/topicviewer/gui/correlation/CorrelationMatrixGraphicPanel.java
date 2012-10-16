@@ -21,11 +21,11 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 	
 	private static final long serialVersionUID = -6391510670978885799L;
 
-	private CorrelationMatrix correlationMatrix;
+	protected CorrelationMatrix correlationMatrix;
 	private Rectangle2D.Double matrixExternalView;
 	
-	private static final Integer matrixStrokeSize = 5;
-	private static final Integer entitySize = 8;
+	protected static final Integer matrixStrokeSize = 5;
+	protected static final Integer entitySize = 8;
 	
 	private List<CorrelationRectangle> rectangles;
 	
@@ -48,13 +48,13 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 	private void buildCorrelationMatrix() {
 		for (int i = 0; i < this.correlationMatrix.getNumEntities(); i++)
 			for (int j = 0; j < this.correlationMatrix.getNumEntities(); j++) {
-				int x = matrixStrokeSize + (i * entitySize) + 1;
-				int y = matrixStrokeSize + (j * entitySize) + 1;
+				int x = matrixStrokeSize + (i * entitySize) + 5;
+				int y = matrixStrokeSize + (j * entitySize) + 5;
 				String xId = this.correlationMatrix.getIdAt(i);
 				String yId = this.correlationMatrix.getIdAt(j);
 				Double correlation = this.correlationMatrix.getValueAt(i, j);
 				
-				CorrelationRectangle rectangle = new CorrelationRectangle(x+4, y+4, entitySize, entitySize, xId, yId, correlation);
+				CorrelationRectangle rectangle = new CorrelationRectangle(x, y, entitySize, entitySize, xId, yId, correlation);
 				this.rectangles.add(rectangle);
 			}
 	}
@@ -76,7 +76,7 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 		}
 	}
 	
-	private MouseMotionListener getMouseMotionListener() {
+	protected MouseMotionListener getMouseMotionListener() {
 		return new MouseMotionListener() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
