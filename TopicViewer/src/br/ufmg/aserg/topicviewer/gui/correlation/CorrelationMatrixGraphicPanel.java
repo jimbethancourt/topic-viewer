@@ -24,7 +24,6 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 	private CorrelationMatrix correlationMatrix;
 	private Rectangle2D.Double matrixExternalView;
 	
-	private static final Integer initCoordinate = 10;
 	private static final Integer matrixStrokeSize = 5;
 	private static final Integer entitySize = 8;
 	
@@ -37,7 +36,7 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 		this.rectangles = new LinkedList<CorrelationRectangle>();
 		
 		int bounds = (matrixStrokeSize * 2) + entitySize * (this.correlationMatrix.getNumEntities());
-		this.matrixExternalView = new Rectangle2D.Double(initCoordinate, initCoordinate, bounds, bounds);
+		this.matrixExternalView = new Rectangle2D.Double(5, 5, bounds, bounds);
 		
 		this.buildCorrelationMatrix();
 		this.addMouseMotionListener(getMouseMotionListener());
@@ -55,7 +54,7 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 				String yId = this.correlationMatrix.getIdAt(j);
 				Double correlation = this.correlationMatrix.getValueAt(i, j);
 				
-				CorrelationRectangle rectangle = new CorrelationRectangle(x, y, entitySize, entitySize, xId, yId, correlation);
+				CorrelationRectangle rectangle = new CorrelationRectangle(x+4, y+4, entitySize, entitySize, xId, yId, correlation);
 				this.rectangles.add(rectangle);
 			}
 	}
