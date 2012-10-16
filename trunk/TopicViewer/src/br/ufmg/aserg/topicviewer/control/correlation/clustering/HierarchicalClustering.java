@@ -39,8 +39,6 @@ public class HierarchicalClustering {
 		this.indexMapping = ClusteredMatrixCalculator.generateIndexMapping(this.clusters);
 		this.clusteredMatrix = ClusteredMatrixCalculator.generateClusteredMatrix(correlationMatrix2D, this.clusters, this.indexMapping);
 		this.clusteredWithLinksMatrix = ClusteredMatrixCalculator.generateClusteredWithLinksMatrix(correlationMatrix2D, this.clusteredMatrix, this.indexMapping);
-		
-		// TODO calculate terms
 	}
 	
 	public DoubleMatrix2D getClusteredMatrix() {
