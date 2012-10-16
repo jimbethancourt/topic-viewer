@@ -7,8 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -62,6 +64,24 @@ public class FileUtilities {
 		
 		reader.close();
 		saveBuffer(buffer, copyFileName);
+	}
+	
+	public static void saveClustering(int[][] clusters, String resultFileName) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(clusters.length + SEPARATOR);
+		for (int i = 0; i < clusters.length; i++) {
+			for (int j = 0; j < clusters[i].length; j++)
+				buffer.append(clusters[i][j] + " ");
+			buffer.append(SEPARATOR);
+		}
+		saveBuffer(buffer, resultFileName);
+	}
+	
+	public static void saveMapping(Map<Integer, Integer> mapping, String resultFileName) {
+		StringBuffer buffer = new StringBuffer();
+		for (int key : mapping.keySet())
+			buffer.append(key + " " + mapping.get(key) + SEPARATOR);
+		saveBuffer(buffer, resultFileName);
 	}
 	
 	private static String getMatrixAsString(DoubleMatrix2D matrix) {
@@ -135,5 +155,36 @@ public class FileUtilities {
 		reader.close();
 		
 		return documentIds;
+	}
+	
+	public static int[][] readClustering(String fileName) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		
+		int numClusters = Integer.parseInt(reader.readLine());
+		int[][] clusters = new int[numClusters][0];
+		for (int i = 0; i < numClusters; i++) {
+			String[] values = reader.readLine().split(VALUE_SEPARATOR);
+			int[] cluster = new int[values.length];
+			
+			for (int j = 0; j < cluster.length; j++)
+				cluster[j] = Integer.parseInt(values[j]);
+		}
+		
+		reader.close();
+		return clusters;
+	}
+	
+	public static Map<Integer, Integer> readMapping(String fileName) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		Map<Integer, Integer> mapping = new HashMap<Integer, Integer>();
+		
+		String str;
+		while ((str = reader.readLine()) != null) {
+			String[] map = str.split(VALUE_SEPARATOR);
+			mapping.put(Integer.parseInt(map[0]), Integer.parseInt(map[1]));
+		}
+		
+		reader.close();
+		return mapping;
 	}
 }

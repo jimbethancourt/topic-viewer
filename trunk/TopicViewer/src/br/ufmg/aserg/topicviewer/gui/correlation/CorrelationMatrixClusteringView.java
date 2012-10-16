@@ -33,7 +33,7 @@ public class CorrelationMatrixClusteringView extends AbstractView {
     @SuppressWarnings("rawtypes")
     private void initComponents() {
 
-        matrixSelectionPanel = new javax.swing.JPanel();
+    	matrixSelectionPanel = new javax.swing.JPanel();
         matrixLabel = new javax.swing.JLabel();
         matrixSelectionButton = new javax.swing.JButton();
         matrixScrollPane = new javax.swing.JScrollPane();
@@ -42,12 +42,12 @@ public class CorrelationMatrixClusteringView extends AbstractView {
         numClusterSlider = new javax.swing.JSlider(JSlider.HORIZONTAL, 5, 12, 9);
 
         setClosable(true);
-        setTitle("Extrair Metricas com Moose");
-        setName("Extrair Métricas");
-        
+        setTitle("Correlation Matrix Clusterer");
+        setName("correlationClusterer");
+
         matrixSelectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true), " Correlation Matrix Selection "));
         matrixLabel.setText("Correlation Matrices");
-        matrixSelectionButton.setText("Selecionar");
+        matrixSelectionButton.setText("Select");
         matrixScrollPane.setViewportView(correlationMatrixList);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(matrixSelectionPanel);
@@ -77,6 +77,7 @@ public class CorrelationMatrixClusteringView extends AbstractView {
         );
 
         numClusterPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true), " Number of Clusters "));
+        numClusterSlider.setMajorTickSpacing(1);
         numClusterSlider.setPaintLabels(true);
         numClusterSlider.setPaintTicks(true);
 
@@ -86,17 +87,15 @@ public class CorrelationMatrixClusteringView extends AbstractView {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(numClusterSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(numClusterSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(numClusterSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(numClusterSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -123,7 +122,7 @@ public class CorrelationMatrixClusteringView extends AbstractView {
                 .addComponent(startExecutionButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         pack();

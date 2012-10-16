@@ -21,19 +21,6 @@ public class ClusteredMatrixCalculator {
 		return indexMapping;
 	}
 	
-	public static int[][] generateClustering(int[][] clusters, Map<Integer, Integer> indexMapping) {
-		int[][] newClustering = new int[clusters.length][0];
-		
-		for (int i = 0; i < clusters.length; i++) {
-			int[] cluster = new int[clusters[i].length];
-			for (int j = 0; j < cluster.length; j++)
-				cluster[j] = indexMapping.get(clusters[i][j]);
-			newClustering[i] = cluster;
-		}
-		
-		return newClustering;
-	}
-	
 	public static DoubleMatrix2D generateClusteredMatrix(DoubleMatrix2D correlationMatrix, int[][] clusters, Map<Integer, Integer> indexMapping) {
 		DoubleMatrix2D clusteredMatrix = new DenseDoubleMatrix2D(correlationMatrix.rows(), correlationMatrix.columns());
 		
