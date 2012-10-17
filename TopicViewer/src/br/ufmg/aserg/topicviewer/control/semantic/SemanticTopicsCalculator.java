@@ -36,6 +36,8 @@ public class SemanticTopicsCalculator {
 			}
 		}
 		
+		System.out.println("Calculated term-document similarity");
+		
 		// calculating similarity between terms and clusters
 		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
 		
@@ -50,6 +52,8 @@ public class SemanticTopicsCalculator {
 			for (int j = 0; j < numTerms; j++)
 				clusterSimilarity.set(j, i, similarity.get(j));
 		}
+		
+		System.out.println("Calculated term-cluster similarity");
 		
 		// calculating relevance between terms and clusters
 		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(clusters.length-1);
@@ -69,6 +73,8 @@ public class SemanticTopicsCalculator {
 				clusterRelevance.set(j, i, termRelevance.get(j));
 		}
 		
+		System.out.println("Calculated term-cluster relevance");
+		
 		// calculating most relevant terms
 		clusterSimilarity = null;
 		String[][] topics = new String[numClusters][0];
@@ -80,6 +86,8 @@ public class SemanticTopicsCalculator {
 				topic[j] = termIds[topicIds[j]];
 			topics[i] = topic;
 		}
+		
+		System.out.println("Calculated most relevant terms");
 		
 		return topics;
 	}
