@@ -6,27 +6,74 @@ import java.util.Set;
 import cern.colt.function.DoubleDoubleFunction;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 import cern.colt.matrix.impl.SparseDoubleMatrix1D;
+import cern.colt.matrix.linalg.Algebra;
+import cern.jet.math.Mult;
 import cern.jet.math.PlusMult;
 
 public class SemanticTopicsCalculator {
 	
-	public static String[][] generateSemanticTopics(int[][] clusters, DoubleMatrix2D termDocMatrix, String[] termIds) {
-		String[][] topics = new String[clusters.length][0];
-		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
-		final DoubleDoubleFunction relevanceFunction = PlusMult.plusDiv(clusters.length-1);
+	private static final int NUM_SELECTED_TERMS = 7;
+	
+	public static String[][] generateSemanticTopics(int[][] clusters, DoubleMatrix2D lsiTermDocMatrix, DoubleMatrix2D lsiTransform, String[] termIds) {
 		
-		for (int i = 0; i < clusters.length; i++) {
-			DoubleMatrix1D termRelevance = new SparseDoubleMatrix1D(termIds.length);
-			DoubleMatrix1D termFrequency = new SparseDoubleMatrix1D(termIds.length);
-			for (int j = 0; j < termDocMatrix.columns(); j++)
-				if (containsDocument(j, clusters[i]))
-					termRelevance.assign(termDocMatrix.viewColumn(j), sumFunction);
-				else termFrequency.assign(termDocMatrix.viewColumn(j), sumFunction);
+		Algebra matrixAlgebra = new Algebra();
+		
+		final int numTerms = termIds.length;
+		final int numDocuments = lsiTermDocMatrix.columns();
+		final int numClusters = clusters.length;
+		
+		// calculating similarity between terms and documents
+		DoubleMatrix2D documentSimilarity = new DenseDoubleMatrix2D(numTerms, numDocuments); 
+		for (int i = 0; i < termIds.length; i++) {
+			DoubleMatrix1D termQuery = new SparseDoubleMatrix1D(numTerms); termQuery.set(i, 1D);
 			
-			termRelevance.assign(termFrequency, relevanceFunction);
+			for (int j = 0; j < numDocuments; j++) {
+				double similarity = calculateSimilarity(matrixAlgebra.mult(lsiTransform, termQuery), lsiTermDocMatrix.viewColumn(j));
+				documentSimilarity.set(i, j, similarity);
+			}
+		}
+		
+		// calculating similarity between terms and clusters
+		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
+		
+		DoubleMatrix2D clusterSimilarity = new DenseDoubleMatrix2D(numTerms, numClusters);
+		for (int i = 0; i < numClusters; i++) {
+			DoubleMatrix1D similarity = new DenseDoubleMatrix1D(numTerms);
 			
-			int[] topicIds = getMostRelevantTerms(termRelevance, termDocMatrix);
+			for (int documentId : clusters[i])
+				similarity.assign(documentSimilarity.viewColumn(documentId), sumFunction);
+			similarity.assign(Mult.div(clusters[i].length));
+			
+			for (int j = 0; j < numTerms; j++)
+				clusterSimilarity.set(j, i, similarity.get(j));
+		}
+		
+		// calculating relevance between terms and clusters
+		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(clusters.length-1);
+		
+		documentSimilarity = null;
+		DoubleMatrix2D clusterRelevance = new DenseDoubleMatrix2D(numTerms, numClusters);
+		for (int i = 0; i < numClusters; i++) {
+			DoubleMatrix1D termRelevance = clusterSimilarity.viewColumn(i);
+			DoubleMatrix1D termInterSimilarity = new DenseDoubleMatrix1D(numTerms);
+			
+			for (int j = 0; j < numClusters; j++)
+				if (i != j)	termInterSimilarity.assign(clusterSimilarity.viewColumn(j), sumFunction);
+			
+			termRelevance.assign(termInterSimilarity, relevanceFunction);
+			
+			for (int j = 0; j < numTerms; j++)
+				clusterRelevance.set(j, i, termRelevance.get(j));
+		}
+		
+		// calculating most relevant terms
+		clusterSimilarity = null;
+		String[][] topics = new String[numClusters][0];
+		for (int i = 0; i < numClusters; i++) {
+			int[] topicIds = getMostRelevantTerms(clusterRelevance.viewColumn(i));
 			
 			String[] topic = new String[topicIds.length];
 			for (int j = 0; j < topicIds.length; j++)
@@ -37,27 +84,27 @@ public class SemanticTopicsCalculator {
 		return topics;
 	}
 	
-	private static boolean containsDocument(int docId, int[] cluster) {
-		for (int document : cluster)
-			if (document == docId) return true;
-		return false;
+	private static double calculateSimilarity(DoubleMatrix1D vector1, DoubleMatrix1D vector2) {
+		double cosineSimilarity = vector1.zDotProduct(vector2);
+		cosineSimilarity /= Math.sqrt(vector1.zDotProduct(vector1) * vector2.zDotProduct(vector2));
+		return cosineSimilarity;
 	}
 	
-	private static int[] getMostRelevantTerms(final DoubleMatrix1D termFrequency, DoubleMatrix2D termDocMatrix) {
-		final int numSelectedTerms = 7;
+	private static int[] getMostRelevantTerms(final DoubleMatrix1D termRelevance) {
+		int[] relevantTerms = new int[NUM_SELECTED_TERMS];
 		
-		int[] relevantTerms = new int[numSelectedTerms];
 		int newTermIndex = 0;
+		int numTerms = termRelevance.size();
 		
 		Set<Integer> visitedTerms = new HashSet<Integer>(); 
-		while (newTermIndex < numSelectedTerms && visitedTerms.size() < termFrequency.size()) {
+		while (newTermIndex < NUM_SELECTED_TERMS && visitedTerms.size() < numTerms) {
 			
 			int maxFrequencyIndex = -1;
 			double maxFrequency = Double.NEGATIVE_INFINITY;
-			for (int i = 0; i < termFrequency.size(); i++)
-				if (!visitedTerms.contains(i) && termFrequency.get(i) > maxFrequency) {
+			for (int i = 0; i < termRelevance.size(); i++)
+				if (!visitedTerms.contains(i) && termRelevance.get(i) > maxFrequency) {
 					maxFrequencyIndex = i;
-					maxFrequency = termFrequency.get(i);
+					maxFrequency = termRelevance.get(i);
 				}
 			
 			if (maxFrequencyIndex != -1) {

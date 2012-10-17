@@ -19,6 +19,8 @@ public class CorrelationMatrixController extends AbstractController {
 		this.matrixFiles = matrixFiles;
 		this.resultFolderName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.CORRELATION_MATRIX_OUTPUT;
 		this.checkResultFolder();
+		
+		this.setAllProjectCount(matrixFiles.length);
 	}
 	
 	private DoubleMatrix2D buildCorrelationMatrix(DoubleMatrix2D termDocumentMatrix) {
@@ -60,14 +62,15 @@ public class CorrelationMatrixController extends AbstractController {
 				DoubleMatrix2D termDocumentMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
 				DoubleMatrix2D correlationMatrix2d = this.buildCorrelationMatrix(termDocumentMatrix);
 				
-				String idsFileName = (matrixFile.getAbsolutePath().contains("-lsi")) 
+				String idsFileName = ((matrixFile.getAbsolutePath().contains("-lsi")) 
 						? matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('-'))
-						: matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('.')) + ".ids";
+						: matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('.'))) + ".ids";
 				FileUtilities.copyFile(idsFileName, this.resultFolderName + File.separator + projectName + ".ids");
 				
 				FileUtilities.saveMatrix(correlationMatrix2d, this.resultFolderName + File.separator + projectName + ".matrix");
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
+				e.printStackTrace();
 			}
 			
 			this.addAnalyzedProject();
