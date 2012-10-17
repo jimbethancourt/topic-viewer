@@ -4,6 +4,7 @@ import java.io.File;
 
 import br.ufmg.aserg.topicviewer.control.AbstractController;
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
+import br.ufmg.aserg.topicviewer.control.semantic.SemanticTopicsCalculator;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 import cern.colt.matrix.DoubleMatrix2D;
@@ -43,7 +44,13 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				FileUtilities.saveMatrix(this.clusterer.getClusteredMatrix(), this.resultFolderName + File.separator + projectName + "-clustered.matrix");
 				FileUtilities.saveMatrix(this.clusterer.getClusteredWithLinksMatrix(), this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
 				
-				// TODO ler matriz para pegar os termos frequentes
+				String[] termIds = FileUtilities.readTermIds(idsFileName);
+				String termDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
+						+ File.separator + projectName + ".matrix";
+				DoubleMatrix2D termDocMatrix = FileUtilities.readMatrix(termDocFileName);
+				
+				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), termDocMatrix, termIds);
+				FileUtilities.saveSemanticTopics(semanticTopics, this.resultFolderName + File.separator + projectName + ".topics");
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 				e.printStackTrace();

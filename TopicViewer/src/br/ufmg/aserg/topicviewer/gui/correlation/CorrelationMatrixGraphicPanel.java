@@ -76,7 +76,7 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 		}
 	}
 	
-	protected MouseMotionListener getMouseMotionListener() {
+	private MouseMotionListener getMouseMotionListener() {
 		return new MouseMotionListener() {
 			@Override
 			public void mouseMoved(MouseEvent e) {

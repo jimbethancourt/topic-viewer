@@ -26,6 +26,13 @@ public class CorrelationRectangle extends Rectangle2D.Double {
 		this.color = ColorUtil.generateGreyColor(value, MIN_VALUE, MAX_VALUE);
 	}
 	
+	public CorrelationRectangle(int x, int y, int width, int height, double value) {
+		this.setRect(x, y, width, height);
+		
+		this.xEntityId = this.yEntityId = "";
+		this.value = value;
+	}
+	
 	@Override
 	public String toString() {
 		return "[" + this.getXEntityId() + ", " + this.getYEntityId() + "] = " + this.getValue();

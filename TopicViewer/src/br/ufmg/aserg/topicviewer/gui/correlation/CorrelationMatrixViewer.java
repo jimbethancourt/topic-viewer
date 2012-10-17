@@ -8,40 +8,55 @@ import javax.swing.JScrollPane;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.gui.AbstractView;
+import br.ufmg.aserg.topicviewer.gui.correlation.ClusteredCorrelationMatrixGraphicPanel.ClusteredMatrixListener;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 import cern.colt.matrix.DoubleMatrix2D;
 
-public class CorrelationMatrixViewer extends AbstractView {
+public class CorrelationMatrixViewer extends AbstractView implements ClusteredMatrixListener {
 	
 	private static final long serialVersionUID = -5260758202187415775L;
 	
 	private javax.swing.JTextField fileNameTextField;
     private javax.swing.JButton selectFileButton;
+    private javax.swing.JTextPane detailsTextPane;
     private javax.swing.JPanel filePanel;
+    private javax.swing.JPanel detailsPanel;
+    private JScrollPane detailsScrollPane;
     private JScrollPane correlationMatrixScrollPane;
+    
+    private String[][] semanticTopics;
+    
+    private final String SEPARATOR = System.getProperty("line.separator");
 	
     public CorrelationMatrixViewer() {
     	super();
         initComponents();
         initListeners();
         this.pack();
+        this.detailsPanel.setVisible(false);
     }
 
     private void initComponents() {
 
         filePanel = new javax.swing.JPanel();
         fileNameTextField = new javax.swing.JTextField();
+        detailsPanel = new javax.swing.JPanel();
         selectFileButton = new javax.swing.JButton();
         correlationMatrixScrollPane = new javax.swing.JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        detailsScrollPane = new javax.swing.JScrollPane();
+        detailsTextPane = new javax.swing.JTextPane();
 
         setTitle("Correlation Matrix Viewer");
         setToolTipText("correlationView");
         setResizable(true);
         setMaximizable(true);
         
-        filePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true), " Matrix File Selection ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("DejaVu Sans", 0, 12))); // NOI18N
+        filePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true), " Matrix File Selection "));
+        detailsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true), " Cluster Details "));
         correlationMatrixScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), " Correlation Matrix View "));
+
+        detailsScrollPane.setViewportView(detailsTextPane);
         fileNameTextField.setEditable(false);
         selectFileButton.setText("Select");
         
@@ -65,6 +80,23 @@ public class CorrelationMatrixViewer extends AbstractView {
                 .addComponent(selectFileButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+        
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(detailsPanel);
+        detailsPanel.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(detailsScrollPane)
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(detailsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -72,9 +104,11 @@ public class CorrelationMatrixViewer extends AbstractView {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(filePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(filePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(detailsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(correlationMatrixScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 505, Short.MAX_VALUE)
+                .addComponent(correlationMatrixScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -85,7 +119,8 @@ public class CorrelationMatrixViewer extends AbstractView {
                     .addComponent(correlationMatrixScrollPane)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(filePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 321, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(detailsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
     }
@@ -130,11 +165,17 @@ public class CorrelationMatrixViewer extends AbstractView {
             	
             	CorrelationMatrixGraphicPanel graphicPanel = null;
             	
-            	if (selectedFile.getName().contains("clustered")) {
-            		String clustersFileName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-')) + ".clusters";
+            	boolean isClusteredMatrix = selectedFile.getName().contains("clustered");
+            	this.detailsPanel.setVisible(isClusteredMatrix);
+            	if (isClusteredMatrix) {
+            		String projectName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-'));
+            		String clustersFileName = projectName + ".clusters";
+            		String topicsFileName = projectName + ".topics";
             		
             		int[][] clusters = FileUtilities.readClustering(clustersFileName);
+            		this.semanticTopics = FileUtilities.readSemanticTopics(topicsFileName);
             		graphicPanel = new ClusteredCorrelationMatrixGraphicPanel(matrix, clusters);
+            		((ClusteredCorrelationMatrixGraphicPanel) graphicPanel).addListener(this);
             	} else 
             		graphicPanel = new CorrelationMatrixGraphicPanel(matrix);
             	
@@ -150,7 +191,17 @@ public class CorrelationMatrixViewer extends AbstractView {
 	@Override
 	public void refresh() {
 		this.fileNameTextField.setText("");
+		this.detailsPanel.setVisible(false);
+		this.detailsTextPane.setText("");
 		this.correlationMatrixScrollPane.setViewportView(new JPanel());
 		this.correlationMatrixScrollPane.repaint();
+	}
+	
+	@Override
+	public void actionPerformed(Integer clusterIndex) {
+		String output = " === Cluster " + clusterIndex + " === " + SEPARATOR;
+		for (String topic : this.semanticTopics[clusterIndex])
+			output += topic + SEPARATOR;
+		this.detailsTextPane.setText(output);
 	}
 }
