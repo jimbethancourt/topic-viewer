@@ -45,11 +45,18 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				FileUtilities.saveMatrix(this.clusterer.getClusteredWithLinksMatrix(), this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
 				
 				String[] termIds = FileUtilities.readTermIds(idsFileName);
-				String termDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
-						+ File.separator + projectName + ".matrix";
-				DoubleMatrix2D termDocMatrix = FileUtilities.readMatrix(termDocFileName);
+//				String termDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
+//						+ File.separator + projectName + ".matrix";
+				String lsiTermDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
+						+ File.separator + projectName + "-lsi.matrix";
+				String lsiTransformFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
+						+ File.separator + projectName + ".lsi";
 				
-				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), termDocMatrix, termIds);
+//				DoubleMatrix2D termDocMatrix = FileUtilities.readMatrix(termDocFileName);
+				DoubleMatrix2D lsiTermDocMatrix = FileUtilities.readMatrix(lsiTermDocFileName);
+				DoubleMatrix2D lsiTransformMatrix = FileUtilities.readMatrix(lsiTransformFileName);
+				
+				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds);
 				FileUtilities.saveSemanticTopics(semanticTopics, this.resultFolderName + File.separator + projectName + ".topics");
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
