@@ -84,6 +84,17 @@ public class FileUtilities {
 		saveBuffer(buffer, resultFileName);
 	}
 	
+	public static void saveSemanticTopics(String[][] topics, String resultFileName) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(topics.length + SEPARATOR);
+		for (int i = 0; i < topics.length; i++) {
+			for (int j = 0; j < topics[i].length; j++)
+				buffer.append(topics[i][j] + " ");
+			buffer.append(SEPARATOR);
+		}
+		saveBuffer(buffer, resultFileName);
+	}
+	
 	private static String getMatrixAsString(DoubleMatrix2D matrix) {
 		StringBuffer buffer = new StringBuffer();
 		
@@ -187,5 +198,17 @@ public class FileUtilities {
 		
 		reader.close();
 		return mapping;
+	}
+	
+	public static String[][] readSemanticTopics(String fileName) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		
+		int numClusters = Integer.parseInt(reader.readLine());
+		String[][] clusters = new String[numClusters][0];
+		for (int i = 0; i < numClusters; i++)
+			clusters[i] = reader.readLine().split(VALUE_SEPARATOR);
+		
+		reader.close();
+		return clusters;
 	}
 }
