@@ -27,7 +27,7 @@ public class SemanticTopicsCalculator {
 		
 		// calculating similarity between terms and documents
 		DoubleMatrix2D documentSimilarity = new DenseDoubleMatrix2D(numTerms, numDocuments); 
-		for (int i = 0; i < termIds.length; i++) {
+		for (int i = 0; i < numTerms; i++) {
 			DoubleMatrix1D termQuery = new SparseDoubleMatrix1D(numTerms); termQuery.set(i, 1D);
 			
 			for (int j = 0; j < numDocuments; j++) {
@@ -52,7 +52,7 @@ public class SemanticTopicsCalculator {
 		}
 		
 		// calculating relevance between terms and clusters
-		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(clusters.length-1);
+		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(numClusters-1);
 		
 		documentSimilarity = null;
 		DoubleMatrix2D clusterRelevance = new DenseDoubleMatrix2D(numTerms, numClusters);
@@ -75,8 +75,8 @@ public class SemanticTopicsCalculator {
 		for (int i = 0; i < numClusters; i++) {
 			int[] topicIds = getMostRelevantTerms(clusterRelevance.viewColumn(i));
 			
-			String[] topic = new String[topicIds.length];
-			for (int j = 0; j < topicIds.length; j++)
+			String[] topic = new String[numTerms];
+			for (int j = 0; j < numTerms; j++)
 				topic[j] = termIds[topicIds[j]];
 			topics[i] = topic;
 		}
