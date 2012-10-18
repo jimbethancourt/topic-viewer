@@ -45,14 +45,11 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				FileUtilities.saveMatrix(this.clusterer.getClusteredWithLinksMatrix(), this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
 				
 				String[] termIds = FileUtilities.readTermIds(idsFileName);
-//				String termDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
-//						+ File.separator + projectName + ".matrix";
 				String lsiTermDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
 						+ File.separator + projectName + "-lsi.matrix";
 				String lsiTransformFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
 						+ File.separator + projectName + ".lsi";
 				
-//				DoubleMatrix2D termDocMatrix = FileUtilities.readMatrix(termDocFileName);
 				DoubleMatrix2D lsiTermDocMatrix = FileUtilities.readMatrix(lsiTermDocFileName);
 				DoubleMatrix2D lsiTransformMatrix = FileUtilities.readMatrix(lsiTransformFileName);
 				
