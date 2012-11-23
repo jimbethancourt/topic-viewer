@@ -10,4 +10,16 @@ public class ColorUtil {
 		return new Color(colorValue, colorValue, colorValue);
 	}
 	
+	private int colorIndex;
+	private static Color[] distributionColors = {};
+	
+	public ColorUtil() {
+		this.colorIndex = 0;
+	}
+	
+	public Color getNextColor() {
+		Color color = distributionColors[this.colorIndex];
+		this.colorIndex++;
+		return color;
+	}
 }
