@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixCalculatorView;
 import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixClusteringView;
 import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixViewer;
+import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapViewer;
 import br.ufmg.aserg.topicviewer.gui.extraction.VocabularyExtractionView;
 import br.ufmg.aserg.topicviewer.gui.indexing.DocumentIndexingView;
 import br.ufmg.aserg.topicviewer.util.Properties;
@@ -27,6 +28,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private static final String CORRELATION_MATRIX_CALCULATOR_PANEL = "correlationCalculator";
     private static final String CORRELATION_MATRIX_CLUSTERER_PANEL = "correlationClusterer";
     private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationViewer";
+    private static final String DISTRIBUTION_MAP_VIEWER_PANEL = "distributionViewer";
 	
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JMenuBar mainMenuBar;
@@ -43,6 +45,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private javax.swing.JMenuItem correlationMatrixCalculatorMenuItem;
     private javax.swing.JMenuItem correlationMatrixClustererMenuItem;
     private javax.swing.JMenuItem correlationMatrixViewerMenuItem;
+    private javax.swing.JMenuItem distributionMapViewerMenuItem;
     private javax.swing.JMenuItem exitMenuItem;
     
     private Map<String, AbstractView> internalFrames;
@@ -77,6 +80,7 @@ public class TopicViewer extends javax.swing.JFrame {
         correlationMatrixCalculatorMenuItem = new javax.swing.JMenuItem();
         correlationMatrixClustererMenuItem = new javax.swing.JMenuItem();
         correlationMatrixViewerMenuItem = new javax.swing.JMenuItem();
+        distributionMapViewerMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
 
         configureWorkspaceMenuItem.setText("Configure Workspace");
@@ -86,6 +90,7 @@ public class TopicViewer extends javax.swing.JFrame {
         correlationMatrixCalculatorMenuItem.setText("Correlation Matrix Calculator");
         correlationMatrixClustererMenuItem.setText("Correlation Matrix Clusterer");
         correlationMatrixViewerMenuItem.setText("Correlation Matrix Viewer");
+        distributionMapViewerMenuItem.setText("Distribution Map Viewer");
         exitMenuItem.setText("Exit");
         
         exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
@@ -112,6 +117,8 @@ public class TopicViewer extends javax.swing.JFrame {
         correlationMatrixMenu.add(correlationMatrixCalculatorMenuItem);
         correlationMatrixMenu.add(correlationMatrixClustererMenuItem);
         correlationMatrixMenu.add(correlationMatrixViewerMenuItem);
+        activitiesMenu.add(jSeparator1);
+        activitiesMenu.add(distributionMapViewerMenuItem);
         activitiesMenu.add(jSeparator1);
         activitiesMenu.add(exitMenuItem);
 
@@ -156,6 +163,12 @@ public class TopicViewer extends javax.swing.JFrame {
     	correlationMatrixViewerMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuCorrelationMatrixViewerActionPerformed(evt);
+            }
+        });
+    	
+    	distributionMapViewerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuDistributionMapViewerActionPerformed(evt);
             }
         });
     	
@@ -217,6 +230,14 @@ public class TopicViewer extends javax.swing.JFrame {
     		CorrelationMatrixViewer correlationMatrixViewer = new CorrelationMatrixViewer();
     		this.internalFrames.put(CORRELATION_MATRIX_VIEWER_PANEL, correlationMatrixViewer);
     		this.desktop.add(correlationMatrixViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    	}
+    }
+    
+    private void menuDistributionMapViewerActionPerformed(java.awt.event.ActionEvent evt) {
+    	if (!invokeView(DISTRIBUTION_MAP_VIEWER_PANEL)) {
+    		DistributionMapViewer distributionMapViewer = new DistributionMapViewer();
+    		this.internalFrames.put(DISTRIBUTION_MAP_VIEWER_PANEL, distributionMapViewer);
+    		this.desktop.add(distributionMapViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
     	}
     }
 
