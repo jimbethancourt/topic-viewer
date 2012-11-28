@@ -6,16 +6,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
+import br.ufmg.aserg.topicviewer.control.distribution.DistributionMapCalculator;
 import br.ufmg.aserg.topicviewer.gui.AbstractView;
-import br.ufmg.aserg.topicviewer.gui.correlation.ClusteredCorrelationMatrixGraphicPanel;
-import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixGraphicPanel;
-import br.ufmg.aserg.topicviewer.gui.correlation.ClusteredCorrelationMatrixGraphicPanel.ClusteredMatrixListener;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
-import cern.colt.matrix.DoubleMatrix2D;
 
-public class DistributionMapViewer extends AbstractView /*implements ClusteredMatrixListener*/ {
+public class DistributionMapViewer extends AbstractView {
 	
 	private static final long serialVersionUID = -5260758202187415775L;
 	
@@ -27,10 +23,6 @@ public class DistributionMapViewer extends AbstractView /*implements ClusteredMa
     private JScrollPane detailsScrollPane;
     private JScrollPane distributionMapScrollPane;
     
-    private String[][] semanticTopics;
-    
-    private final String SEPARATOR = System.getProperty("line.separator");
-	
     public DistributionMapViewer() {
     	super();
         initComponents();
@@ -157,29 +149,22 @@ public class DistributionMapViewer extends AbstractView /*implements ClusteredMa
             this.fileNameTextField.setText(selectedFile.getAbsolutePath());
             
             try {
+            	this.detailsPanel.setVisible(false);
+            	
             	String idsFileName = (selectedFile.getName().contains("clustered") ?
             			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-')) : 
             			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('.'))) + ".ids";
-            	
             	String[] documentIds = FileUtilities.readDocumentIds(idsFileName);
-            	DoubleMatrix2D correlationMatrix = FileUtilities.readMatrix(selectedFile.getAbsolutePath());
-            	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
             	
-            	CorrelationMatrixGraphicPanel graphicPanel = null;
+            	String projectName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-'));
+            	String topicsFileName = projectName + ".topics";
+            	String[][] semanticTopics = FileUtilities.readSemanticTopics(topicsFileName);
             	
-            	boolean isClusteredMatrix = selectedFile.getName().contains("clustered");
-            	this.detailsPanel.setVisible(isClusteredMatrix);
-            	if (isClusteredMatrix) {
-            		String projectName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-'));
-            		String clustersFileName = projectName + ".clusters";
-            		String topicsFileName = projectName + ".topics";
-            		
-            		int[][] clusters = FileUtilities.readClustering(clustersFileName);
-            		this.semanticTopics = FileUtilities.readSemanticTopics(topicsFileName);
-            		graphicPanel = new ClusteredCorrelationMatrixGraphicPanel(matrix, clusters);
-//            		((ClusteredCorrelationMatrixGraphicPanel) graphicPanel).addListener(this);
-            	} else 
-            		graphicPanel = new CorrelationMatrixGraphicPanel(matrix);
+            	String clustersFileName = projectName + ".clusters";
+        		int[][] clusters = FileUtilities.readClustering(clustersFileName);
+            	
+            	DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(documentIds, clusters);
+            	DistributionMapGraphicPanel graphicPanel = new DistributionMapGraphicPanel(distributionMap, semanticTopics);
             	
                 this.distributionMapScrollPane.setViewportView(graphicPanel);
                 this.distributionMapScrollPane.revalidate();

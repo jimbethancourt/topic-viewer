@@ -81,10 +81,11 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				for (CorrelationRectangle rectangle : rectangles)
-					if (rectangle.contains(e.getPoint()))
+					if (rectangle.contains(e.getPoint())) {
 						setToolTipText(rectangle.toString());
-				
-				ToolTipManager.sharedInstance().mouseMoved(e);
+						ToolTipManager.sharedInstance().mouseMoved(e);
+						return;
+					}
 			}
 			
 			@Override
