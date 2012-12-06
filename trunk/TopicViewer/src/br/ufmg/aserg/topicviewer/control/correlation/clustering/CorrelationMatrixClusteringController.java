@@ -44,17 +44,17 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				FileUtilities.saveMatrix(this.clusterer.getClusteredMatrix(), this.resultFolderName + File.separator + projectName + "-clustered.matrix");
 				FileUtilities.saveMatrix(this.clusterer.getClusteredWithLinksMatrix(), this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
 				
-				String[] termIds = FileUtilities.readTermIds(idsFileName);
-				String lsiTermDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
-						+ File.separator + projectName + "-lsi.matrix";
-				String lsiTransformFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
-						+ File.separator + projectName + ".lsi";
+//				String[] termIds = FileUtilities.readTermIds(idsFileName);
+//				String lsiTermDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
+//						+ File.separator + projectName + "-lsi.matrix";
+//				String lsiTransformFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
+//						+ File.separator + projectName + ".lsi";
 				
-				DoubleMatrix2D lsiTermDocMatrix = FileUtilities.readMatrix(lsiTermDocFileName);
-				DoubleMatrix2D lsiTransformMatrix = FileUtilities.readMatrix(lsiTransformFileName);
+//				DoubleMatrix2D lsiTermDocMatrix = FileUtilities.readMatrix(lsiTermDocFileName);
+//				DoubleMatrix2D lsiTransformMatrix = FileUtilities.readMatrix(lsiTransformFileName);
 				
-				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds);
-				FileUtilities.saveSemanticTopics(semanticTopics, this.resultFolderName + File.separator + projectName + ".topics");
+//				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds);
+//				FileUtilities.saveSemanticTopics(semanticTopics, this.resultFolderName + File.separator + projectName + ".topics");
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 				e.printStackTrace();
