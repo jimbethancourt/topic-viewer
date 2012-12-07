@@ -2,6 +2,7 @@ package br.ufmg.aserg.topicviewer.gui.distribution;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,17 +19,20 @@ public class DistributionMapGraphicPanel extends JPanel {
 
 	private static final long serialVersionUID = 6060506974958934930L;
 	
-	private static final Integer packageStroke = 5;
+	private static final Integer packageStroke = 3;
 	private static final Integer packageSpace = 8;
-	private static final Integer classStroke = 3;
-	private static final Integer classSpace = 7;
+	private static final Integer classStroke = 2;
+	private static final Integer classSpace = 3;
 	private static final Integer classSize = 20;
 	
-	private static final Integer maxPackages = 5;
+	private static final Integer maxPackages = 10;
 	private static final Integer maxClasses = 5;
 	
 	private DistributionMap distributionMap;
 	private String[][] semanticTopics;
+	
+	private int xBound = 0;
+	private int yBound = 0;
 	
 	private Rectangle2D.Double externalView;
 	private List<DistributionRectangle> packageRectangles;
@@ -43,15 +47,15 @@ public class DistributionMapGraphicPanel extends JPanel {
 		this.packageRectangles = new LinkedList<DistributionRectangle>();
 		this.classRectangles = new LinkedList<DistributionRectangle>();
 		
-		int bounds = (packageSpace*2) + (maxPackages-1)*packageSpace + 2*maxPackages*packageStroke 
-				+ classSpace*2 + (maxClasses-1)*classSpace + 2*maxClasses*classStroke + maxClasses*classSize;
-		this.externalView = new Rectangle2D.Double(5, 5, bounds, bounds);
+//		int bounds = packageSpace + (maxPackages-1)*packageSpace + 2*maxPackages*packageStroke 
+//				+ classSpace*2 + (maxClasses-1)*classSpace + 2*maxClasses*classStroke + maxClasses*classSize;
 		
 		this.buildDistributionMap();
 		this.addMouseMotionListener(getMouseMotionListener());
 		this.setLayout(new BorderLayout());
-		this.setSize(new Dimension(bounds, bounds));
-		this.setPreferredSize(new Dimension(bounds, bounds));
+		this.externalView = new Rectangle2D.Double(5, 5, this.xBound, this.yBound);
+		this.setSize(new Dimension(this.xBound, this.yBound));
+		this.setPreferredSize(new Dimension(this.xBound, this.yBound));
 	}
 	
 	private void buildDistributionMap() {
@@ -69,7 +73,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 			int packageWidth = 2*packageStroke + 2*classSpace 
 					+ numColumns*(2*classStroke + classSize) 
 					+ (numColumns-1)*classSpace;
-			int numLines = (int) Math.ceil(maxClasses / numClasses);
+			int numLines = (int) Math.ceil((double) numClasses / maxClasses);
 			int packageHeight = 2*packageStroke + 2*classSpace 
 					+ numLines*(2*classStroke + classSize)
 					+ (numLines-1)*classSpace;
@@ -79,11 +83,13 @@ public class DistributionMapGraphicPanel extends JPanel {
 			this.buildDistributionMap(classes, packageX, packageY);
 			
 			packageX += packageWidth + packageSpace;
+			this.xBound = Math.max(this.xBound, packageX);
+			this.yBound = Math.max(this.yBound, packageY + maxPackageHeight + packageSpace);
 			
 			packageIndex++;
 			if (packageIndex == maxPackages) {
 				packageX = packageSpace;
-				packageY = maxPackageHeight + packageSpace;
+				packageY += maxPackageHeight + packageSpace;
 				maxPackageHeight = 0;
 				packageIndex = 0;
 			}
@@ -93,8 +99,8 @@ public class DistributionMapGraphicPanel extends JPanel {
 	private void buildDistributionMap(List<String> classes, int packageX, int packageY) {
 		
 		int classIndex = 0;
-		int classX = packageX + classSpace;
-		int classY = packageY + classSpace;
+		int classX = packageX + packageStroke + classSpace;
+		int classY = packageY + packageStroke + classSpace;
 		
 		for (String className : classes) {
 			
@@ -109,8 +115,8 @@ public class DistributionMapGraphicPanel extends JPanel {
 			
 			classIndex++;
 			if (classIndex == maxClasses) {
-				classX = packageX;
-				classY = classHeight + classSpace;
+				classX = packageX + packageStroke + classSpace;
+				classY += classHeight + classSpace;
 				classIndex = 0;
 			}
 		}
@@ -123,16 +129,19 @@ public class DistributionMapGraphicPanel extends JPanel {
 		
 		// paint border
 		graphics.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		graphics.setColor(new Color(255, 255, 255));
 		graphics.fill(this.externalView);
 		
 		// paint packages
-		graphics.setStroke(new BasicStroke(packageStroke));
+		graphics.setColor(new Color(0, 0, 0));
+		graphics.setStroke(new BasicStroke(packageStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		for (Rectangle2D.Double pckg : this.packageRectangles)
 			graphics.draw(pckg);
 		
 		// paint classes
-		graphics.setStroke(new BasicStroke(classStroke));
 		for (DistributionRectangle clazz : this.classRectangles) {
+			graphics.setColor(new Color(0, 0, 0));
+			graphics.setStroke(new BasicStroke(classStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			graphics.setColor(clazz.getColor());
 			graphics.fill(clazz);
 		}

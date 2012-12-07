@@ -11,7 +11,7 @@ public class DistributionMapCalculator {
 			for (int documentId : clusters[i]) {
 				String document = documentIds[documentId];
 				String packageName = document.substring(document.lastIndexOf(':')+1, document.lastIndexOf('.'));
-				String className = document.substring(document.lastIndexOf('.'));
+				String className = document.substring(document.lastIndexOf('.')+1);
 				
 				distributionMap.put(packageName, className, i);
 			}

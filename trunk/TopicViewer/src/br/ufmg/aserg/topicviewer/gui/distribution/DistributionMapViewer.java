@@ -151,12 +151,13 @@ public class DistributionMapViewer extends AbstractView {
             try {
             	this.detailsPanel.setVisible(false);
             	
-            	String idsFileName = (selectedFile.getName().contains("clustered") ?
+            	String projectName = selectedFile.getName().contains("clustered") ?
             			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-')) : 
-            			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('.'))) + ".ids";
+            			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('.'));
+            	
+            	String idsFileName = projectName + ".ids";
             	String[] documentIds = FileUtilities.readDocumentIds(idsFileName);
             	
-            	String projectName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-'));
             	String topicsFileName = projectName + ".topics";
             	String[][] semanticTopics = FileUtilities.readSemanticTopics(topicsFileName);
             	
