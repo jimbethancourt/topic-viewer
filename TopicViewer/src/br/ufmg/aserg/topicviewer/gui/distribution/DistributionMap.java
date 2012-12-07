@@ -39,8 +39,8 @@ public class DistributionMap {
 			@Override
 			public int compare(String package1, String package2) {
 				return Integer.compare(
-						packageMapping.get(package1).size(), 
-						packageMapping.get(package2).size());
+						packageMapping.get(package2).size(), 
+						packageMapping.get(package1).size());
 			}
 		});
 		
