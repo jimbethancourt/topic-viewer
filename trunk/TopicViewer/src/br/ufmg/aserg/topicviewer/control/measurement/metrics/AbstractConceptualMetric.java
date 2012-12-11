@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cern.colt.function.DoubleDoubleFunction;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
+import cern.jet.math.PlusMult;
 
 public abstract class AbstractConceptualMetric {
 
@@ -15,7 +19,9 @@ public abstract class AbstractConceptualMetric {
 	protected String acronym;
 	
 	protected Map<String, List<Integer>> packageMapping;
+	protected Map<String, Integer> packageMatrixMapping;
 	protected DoubleMatrix2D termDocMatrix;
+	protected DoubleMatrix2D packageMatrix;
 	
 	public AbstractConceptualMetric(String acronym, DoubleMatrix2D termDocMatrix, String[] documentIds) {
 		this.termDocMatrix = termDocMatrix;
@@ -39,6 +45,27 @@ public abstract class AbstractConceptualMetric {
 		classes.add(documentId);
 				
 		this.packageMapping.put(packageName, classes);
+	}
+	
+	protected void buildPackageTermDocMatrix() {
+		final int rows = this.termDocMatrix.rows();
+		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
+		
+		this.packageMatrix = new DenseDoubleMatrix2D(rows, this.packageMapping.size());
+		
+		int index = 0;
+		for (String packageName : this.packageMapping.keySet()) {
+			DoubleMatrix1D packageVector = new DenseDoubleMatrix1D(rows);
+			
+			for (Integer classId : this.packageMapping.get(packageName))
+				packageVector.assign(this.termDocMatrix.viewColumn(classId), sumFunction);
+			
+			this.packageMatrixMapping.put(packageName, index);
+			for (int i = 0; i < rows; i++)
+				this.packageMatrix.set(i, index, packageVector.get(i));
+			
+			index++;
+		}
 	}
 	
 	protected abstract double calculate(String packageName);
