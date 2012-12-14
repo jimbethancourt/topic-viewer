@@ -17,6 +17,7 @@ import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixViewer;
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapViewer;
 import br.ufmg.aserg.topicviewer.gui.extraction.VocabularyExtractionView;
 import br.ufmg.aserg.topicviewer.gui.indexing.DocumentIndexingView;
+import br.ufmg.aserg.topicviewer.gui.measurement.ConceptualMetricsCalculatorView;
 import br.ufmg.aserg.topicviewer.util.Properties;
 
 public class TopicViewer extends javax.swing.JFrame {
@@ -29,6 +30,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private static final String CORRELATION_MATRIX_CLUSTERER_PANEL = "correlationClusterer";
     private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationViewer";
     private static final String DISTRIBUTION_MAP_VIEWER_PANEL = "distributionViewer";
+    private static final String CONCEPTUAL_METRICS_CALCULATOR_PANEL = "correlationMetricsCalculator";
 	
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JMenuBar mainMenuBar;
@@ -46,6 +48,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private javax.swing.JMenuItem correlationMatrixClustererMenuItem;
     private javax.swing.JMenuItem correlationMatrixViewerMenuItem;
     private javax.swing.JMenuItem distributionMapViewerMenuItem;
+    private javax.swing.JMenuItem conceptualMetricsCalculatorMenuItem;
     private javax.swing.JMenuItem exitMenuItem;
     
     private Map<String, AbstractView> internalFrames;
@@ -81,6 +84,7 @@ public class TopicViewer extends javax.swing.JFrame {
         correlationMatrixClustererMenuItem = new javax.swing.JMenuItem();
         correlationMatrixViewerMenuItem = new javax.swing.JMenuItem();
         distributionMapViewerMenuItem = new javax.swing.JMenuItem();
+        conceptualMetricsCalculatorMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
 
         configureWorkspaceMenuItem.setText("Configure Workspace");
@@ -91,6 +95,7 @@ public class TopicViewer extends javax.swing.JFrame {
         correlationMatrixClustererMenuItem.setText("Correlation Matrix Clusterer");
         correlationMatrixViewerMenuItem.setText("Correlation Matrix Viewer");
         distributionMapViewerMenuItem.setText("Distribution Map Viewer");
+        conceptualMetricsCalculatorMenuItem.setText("Conceptual Metrics Calculator");
         exitMenuItem.setText("Exit");
         
         exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
@@ -119,6 +124,8 @@ public class TopicViewer extends javax.swing.JFrame {
         correlationMatrixMenu.add(correlationMatrixViewerMenuItem);
         activitiesMenu.add(jSeparator1);
         activitiesMenu.add(distributionMapViewerMenuItem);
+        activitiesMenu.add(jSeparator1);
+        activitiesMenu.add(conceptualMetricsCalculatorMenuItem);
         activitiesMenu.add(jSeparator1);
         activitiesMenu.add(exitMenuItem);
 
@@ -169,6 +176,12 @@ public class TopicViewer extends javax.swing.JFrame {
     	distributionMapViewerMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuDistributionMapViewerActionPerformed(evt);
+            }
+        });
+    	
+    	conceptualMetricsCalculatorMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuConceptualMetricsCalculatorActionPerformed(evt);
             }
         });
     	
@@ -240,6 +253,14 @@ public class TopicViewer extends javax.swing.JFrame {
     		this.desktop.add(distributionMapViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
     	}
     }
+    
+    private void menuConceptualMetricsCalculatorActionPerformed(java.awt.event.ActionEvent evt) {
+    	if (!invokeView(CONCEPTUAL_METRICS_CALCULATOR_PANEL)) {
+    		ConceptualMetricsCalculatorView conceptualMetricsCalculator = new ConceptualMetricsCalculatorView();
+    		this.internalFrames.put(CONCEPTUAL_METRICS_CALCULATOR_PANEL, conceptualMetricsCalculator);
+    		this.desktop.add(conceptualMetricsCalculator, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    	}
+    }
 
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {
         System.gc();
@@ -261,6 +282,8 @@ public class TopicViewer extends javax.swing.JFrame {
     	correlationMatrixCalculatorMenuItem.setEnabled(enable);
     	correlationMatrixClustererMenuItem.setEnabled(enable);
     	correlationMatrixViewerMenuItem.setEnabled(enable);
+    	distributionMapViewerMenuItem.setEnabled(enable);
+    	conceptualMetricsCalculatorMenuItem.setEnabled(enable);
     }
     
     private boolean invokeView(String viewId) {

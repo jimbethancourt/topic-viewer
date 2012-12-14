@@ -38,30 +38,6 @@ public class ConceptualLackOfCohesionBetweenClasses extends AbstractConceptualMe
 		}
 	}
 	
-//    public CC(Graph G) {
-//        marked = new boolean[G.V()];
-//        id = new int[G.V()];
-//        size = new int[G.V()];
-//        for (int v = 0; v < G.V(); v++) {
-//            if (!marked[v]) {
-//                dfs(G, v);
-//                count++;
-//            }
-//        }
-//    }
-//
-//    // depth first search
-//    private void dfs(Graph G, int v) {
-//        marked[v] = true;
-//        id[v] = count;
-//        size[count]++;
-//        for (int w : G.adj(v)) {
-//            if (!marked[w]) {
-//                dfs(G, w);
-//            }
-//        }
-//    }
-
 	public ConceptualLackOfCohesionBetweenClasses(DoubleMatrix2D termDocMatrix, String[] documentIds) {
 		super("CLCOC5", termDocMatrix, documentIds);
 	}

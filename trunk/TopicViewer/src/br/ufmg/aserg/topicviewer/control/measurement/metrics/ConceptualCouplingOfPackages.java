@@ -5,7 +5,11 @@ import cern.colt.matrix.DoubleMatrix2D;
 public class ConceptualCouplingOfPackages extends ConceptualCouplingBetweenPackages {
 
 	public ConceptualCouplingOfPackages(DoubleMatrix2D termDocMatrix, String[] documentIds) {
-		super("CCP", termDocMatrix, documentIds);
+		super("CCoP", termDocMatrix, documentIds);
+	}
+	
+	public ConceptualCouplingOfPackages(AbstractConceptualMetric metric) {
+		super("CCoP", metric);
 	}
 	
 	@Override

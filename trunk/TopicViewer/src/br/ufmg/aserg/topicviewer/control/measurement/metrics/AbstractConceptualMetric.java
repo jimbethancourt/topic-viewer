@@ -28,6 +28,11 @@ public abstract class AbstractConceptualMetric {
 		this.buildPackageMapping(documentIds);
 	}
 	
+	public AbstractConceptualMetric(String acronym, AbstractConceptualMetric metric) {
+		this.termDocMatrix = metric.termDocMatrix;
+		this.packageMapping = metric.packageMapping;
+	}
+	
 	private void buildPackageMapping(String[] documentIds) {
 		this.packageMapping = new HashMap<String, List<Integer>>();
 		
