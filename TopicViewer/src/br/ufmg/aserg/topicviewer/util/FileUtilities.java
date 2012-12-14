@@ -95,6 +95,26 @@ public class FileUtilities {
 		saveBuffer(buffer, resultFileName);
 	}
 	
+	public static void saveResults(List<Map<String, Double>> results, String resultFileName) {
+		final String TAB = "\t";
+		
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Package" + TAB + "CLCOC5" + TAB + "CCP" + TAB 
+				+ "LCSC" + TAB + "CCBP" + TAB + "CCoP" + TAB + SEPARATOR);
+		
+		List<String> packages = new LinkedList<String>(results.get(0).keySet());
+		Collections.sort(packages);
+		
+		for (String packageName : packages) {
+			buffer.append(packageName + TAB);
+			for (Map<String, Double> result : results)
+				buffer.append(result.get(packageName) + TAB);
+			buffer.append(SEPARATOR);
+		}
+		
+		saveBuffer(buffer, resultFileName);
+	}
+	
 	private static String getMatrixAsString(DoubleMatrix2D matrix) {
 		StringBuffer buffer = new StringBuffer();
 		

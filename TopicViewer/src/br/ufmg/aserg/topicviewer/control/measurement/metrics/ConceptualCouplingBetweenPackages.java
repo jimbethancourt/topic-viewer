@@ -15,8 +15,22 @@ public class ConceptualCouplingBetweenPackages extends AbstractConceptualMetric 
 		this.calculateSimilarities();
 	}
 	
+	public ConceptualCouplingBetweenPackages(String acronym, AbstractConceptualMetric metric) {
+		super("CCBP", metric);
+		
+		this.buildPackageTermDocMatrix();
+		this.calculateSimilarities();
+	}
+	
 	public ConceptualCouplingBetweenPackages(DoubleMatrix2D termDocMatrix, String[] documentIds) {
 		super("CCBP", termDocMatrix, documentIds);
+		
+		this.buildPackageTermDocMatrix();
+		this.calculateSimilarities();
+	}
+	
+	public ConceptualCouplingBetweenPackages(AbstractConceptualMetric metric) {
+		super("CCBP", metric);
 		
 		this.buildPackageTermDocMatrix();
 		this.calculateSimilarities();

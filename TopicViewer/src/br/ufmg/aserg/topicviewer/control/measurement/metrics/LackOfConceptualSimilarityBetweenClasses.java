@@ -12,6 +12,10 @@ public class LackOfConceptualSimilarityBetweenClasses extends AbstractConceptual
 	public LackOfConceptualSimilarityBetweenClasses(DoubleMatrix2D termDocMatrix, String[] documentIds) {
 		super("LCSC", termDocMatrix, documentIds);
 	}
+	
+	public LackOfConceptualSimilarityBetweenClasses(AbstractConceptualMetric metric) {
+		super("LCSC", metric);
+	}
 
 	@Override
 	protected double calculate(String packageName) {

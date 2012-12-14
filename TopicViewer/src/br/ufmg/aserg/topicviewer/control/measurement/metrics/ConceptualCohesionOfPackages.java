@@ -9,6 +9,10 @@ public class ConceptualCohesionOfPackages extends AbstractConceptualMetric {
 	public ConceptualCohesionOfPackages(DoubleMatrix2D termDocMatrix, String[] documentIds) {
 		super("CCP", termDocMatrix, documentIds);
 	}
+	
+	public ConceptualCohesionOfPackages(AbstractConceptualMetric metric) {
+		super("CCP", metric);
+	}
 
 	@Override
 	protected double calculate(String packageName) {
