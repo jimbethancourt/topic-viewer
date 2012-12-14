@@ -24,6 +24,7 @@ public class FileUtilities {
 	
 	private static final String SEPARATOR = System.getProperty("line.separator");
 	private static final String VALUE_SEPARATOR = " ";
+	private static final String ENTITY_SEPARATOR = ";";
 	
 	// ------------------------------------ Write Operations ------------------------------------
 	
@@ -41,7 +42,7 @@ public class FileUtilities {
 		Collections.sort(setList, getEntrySetComparator());
 		
 		for (Entry<String, Integer> term : setList)
-			buffer.append(term.getKey() + " ");
+			buffer.append(term.getKey() + ENTITY_SEPARATOR);
 		buffer.append(SEPARATOR);
 		
 		return buffer.toString();
@@ -172,7 +173,7 @@ public class FileUtilities {
 	public static String[] readTermIds(String fileName) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileName));
 		
-		String[] termIds = reader.readLine().split(VALUE_SEPARATOR);
+		String[] termIds = reader.readLine().split(ENTITY_SEPARATOR);
 		reader.close();
 		
 		return termIds;
@@ -181,8 +182,8 @@ public class FileUtilities {
 	public static String[] readDocumentIds(String fileName) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileName));
 		
-		reader.readLine().split(VALUE_SEPARATOR); // terms
-		String[] documentIds = reader.readLine().split(VALUE_SEPARATOR);
+		reader.readLine(); // terms
+		String[] documentIds = reader.readLine().split(ENTITY_SEPARATOR);
 		reader.close();
 		
 		return documentIds;

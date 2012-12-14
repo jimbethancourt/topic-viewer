@@ -28,7 +28,6 @@ public class SemanticTopicsCalculator {
 		// calculating similarity between terms and documents
 		DoubleMatrix2D documentSimilarity = new DenseDoubleMatrix2D(numTerms, numDocuments); 
 		for (int i = 0; i < numTerms; i++) {
-			System.out.println(i);
 			DoubleMatrix1D termQuery = new SparseDoubleMatrix1D(numTerms); termQuery.set(i, 1D);
 			
 			for (int j = 0; j < numDocuments; j++) {
