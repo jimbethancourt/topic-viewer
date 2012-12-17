@@ -1,6 +1,7 @@
 package br.ufmg.aserg.topicviewer.control.correlation;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import br.ufmg.aserg.topicviewer.control.AbstractController;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
@@ -75,5 +76,34 @@ public class CorrelationMatrixController extends AbstractController {
 			
 			this.addAnalyzedProject();
 		}
+	}
+	
+	public static void main(String[] args) {
+		String resultFolderName = "";
+		CorrelationMatrixController controller = new CorrelationMatrixController(new File[] {});
+		
+		for (File matrixFile : new File("").listFiles(getMatrixFileFilter())) {
+			try {
+				String projectName = matrixFile.getName().substring(0, matrixFile.getName().lastIndexOf('-'));
+				
+				DoubleMatrix2D termDocumentMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
+				DoubleMatrix2D correlationMatrix2d = controller.buildCorrelationMatrix(termDocumentMatrix);
+				
+				String idsFileName = matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('-')) + ".ids";
+				FileUtilities.copyFile(idsFileName, resultFolderName + File.separator + projectName + ".ids");
+				
+				FileUtilities.saveMatrix(correlationMatrix2d, resultFolderName + File.separator + projectName + ".matrix");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static FilenameFilter getMatrixFileFilter() {
+		return new FilenameFilter() {
+		    public boolean accept(File dir, String name) {
+		        return name.toLowerCase().endsWith("-lsi.matrix");
+		    }
+		};
 	}
 }
