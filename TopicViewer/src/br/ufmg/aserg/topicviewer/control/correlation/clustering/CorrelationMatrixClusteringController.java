@@ -1,6 +1,7 @@
 package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import br.ufmg.aserg.topicviewer.control.AbstractController;
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
@@ -62,5 +63,50 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 			
 			this.addAnalyzedProject();
 		}
+	}
+	
+	public static void main(String[] args) {
+		// correlation matrix folder
+		String resultFolderName = "";
+		
+		final int numClusters = 9;
+		HierarchicalClustering clusterer;
+		
+		for (File matrixFile : new File("").listFiles(getMatrixFileFilter())) {
+			try {
+				String projectName = matrixFile.getName().substring(0, matrixFile.getName().lastIndexOf('.'));
+				String idsFileName = matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('.')) + ".ids";
+            	
+            	String[] documentIds = FileUtilities.readDocumentIds(idsFileName);
+            	DoubleMatrix2D correlationMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
+            	
+            	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
+				clusterer = new HierarchicalClustering(matrix, numClusters);
+				
+				FileUtilities.saveClustering(clusterer.getClusters(), resultFolderName + File.separator + projectName + ".clusters");
+				FileUtilities.saveMapping(clusterer.getIndexMapping(), resultFolderName + File.separator + projectName + ".mapping");
+				FileUtilities.saveMatrix(clusterer.getClusteredMatrix(), resultFolderName + File.separator + projectName + "-clustered.matrix");
+				
+				String[] termIds = FileUtilities.readTermIds(idsFileName);
+				String lsiTermDocFileName = "" + File.separator + projectName + "-lsi.matrix";
+				String lsiTransformFileName = "" + File.separator + projectName + ".lsi";
+				
+				DoubleMatrix2D lsiTermDocMatrix = FileUtilities.readMatrix(lsiTermDocFileName);
+				DoubleMatrix2D lsiTransformMatrix = FileUtilities.readMatrix(lsiTransformFileName);
+				
+				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds);
+				FileUtilities.saveSemanticTopics(semanticTopics, resultFolderName + File.separator + projectName + ".topics");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static FilenameFilter getMatrixFileFilter() {
+		return new FilenameFilter() {
+		    public boolean accept(File dir, String name) {
+		        return name.toLowerCase().endsWith(".matrix");
+		    }
+		};
 	}
 }
