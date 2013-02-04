@@ -9,11 +9,17 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
+
+import br.ufmg.aserg.topicviewer.util.Properties;
 
 public class DistributionMapGraphicPanel extends JPanel {
 
@@ -37,6 +43,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 	private Rectangle2D.Double externalView;
 	private List<DistributionRectangle> packageRectangles;
 	private List<DistributionRectangle> classRectangles;
+	private List<DistributionRectangle> labelRectangles;
 	
 	public DistributionMapGraphicPanel(DistributionMap distributionMap, String[][] semanticTopics) {
 		super();
@@ -46,9 +53,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 		
 		this.packageRectangles = new LinkedList<DistributionRectangle>();
 		this.classRectangles = new LinkedList<DistributionRectangle>();
-		
-//		int bounds = packageSpace + (maxPackages-1)*packageSpace + 2*maxPackages*packageStroke 
-//				+ classSpace*2 + (maxClasses-1)*classSpace + 2*maxClasses*classStroke + maxClasses*classSize;
+		this.labelRectangles = new LinkedList<DistributionRectangle>();
 		
 		this.buildDistributionMap();
 		this.addMouseMotionListener(getMouseMotionListener());
@@ -56,6 +61,11 @@ public class DistributionMapGraphicPanel extends JPanel {
 		this.externalView = new Rectangle2D.Double(5, 5, this.xBound, this.yBound);
 		this.setSize(new Dimension(this.xBound, this.yBound));
 		this.setPreferredSize(new Dimension(this.xBound, this.yBound));
+		try {
+			this.saveImage();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void buildDistributionMap() {
@@ -94,6 +104,16 @@ public class DistributionMapGraphicPanel extends JPanel {
 				packageIndex = 0;
 			}
 		}
+		
+		// build labels
+		int labelX = packageSpace;
+		int labelY = this.yBound + packageSpace;
+		for (int i = 0; i < this.semanticTopics.length; i++) {
+			this.labelRectangles.add(new DistributionRectangle(labelX, labelY, classSize, classSize, "", i, this.semanticTopics[i]));
+			labelY += classSize + classSpace;
+		}
+		
+		this.yBound = labelY;
 	}
 	
 	private void buildDistributionMap(List<String> classes, int packageX, int packageY) {
@@ -145,6 +165,25 @@ public class DistributionMapGraphicPanel extends JPanel {
 			graphics.setColor(clazz.getColor());
 			graphics.fill(clazz);
 		}
+		
+		// paint labels
+		for (DistributionRectangle label : this.labelRectangles) {
+			graphics.setColor(new Color(0, 0, 0));
+			graphics.setStroke(new BasicStroke(classStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+			graphics.setColor(label.getColor());
+			graphics.fill(label);
+			
+			graphics.setColor(new Color(0, 0, 0));
+			graphics.setFont(graphics.getFont().deriveFont(12f));
+			graphics.drawString(label.getClusterTopics(), (int) label.getX() + classSize + packageSpace, (int) label.getY() + packageSpace + 2*classSpace);
+		}
+	}
+	
+	public void saveImage() throws IOException {
+		BufferedImage image = new BufferedImage(this.xBound, this.yBound, BufferedImage.TYPE_INT_RGB);
+		this.paintComponent(image.getGraphics());
+
+	    ImageIO.write(image, "PNG", new File(this.distributionMap.getProjectName() + ".png"));
 	}
 	
 	private MouseMotionListener getMouseMotionListener() {

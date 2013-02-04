@@ -4,9 +4,9 @@ import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 
 public class DistributionMapCalculator {
 	
-	public static DistributionMap generateDistributionMap(String[] documentIds, int[][] clusters) {
+	public static DistributionMap generateDistributionMap(String projectName, String[] documentIds, int[][] clusters) {
 		
-		DistributionMap distributionMap = new DistributionMap();
+		DistributionMap distributionMap = new DistributionMap(projectName);
 		for (int i = 0; i < clusters.length; i++)
 			for (int documentId : clusters[i]) {
 				String document = documentIds[documentId];

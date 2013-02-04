@@ -9,10 +9,12 @@ import java.util.Map;
 
 public class DistributionMap {
 	
+	private String projectName;
 	private Map<String, List<String>> packageMapping;
 	private Map<String, Integer> classMapping;
 	
-	public DistributionMap() {
+	public DistributionMap(String projectName) {
+		this.projectName = projectName;
 		this.packageMapping = new HashMap<String, List<String>>();
 		this.classMapping = new HashMap<String, Integer>();
 	}
@@ -25,6 +27,10 @@ public class DistributionMap {
 				
 		this.packageMapping.put(packageName, classes);
 		this.classMapping.put(className, clusterIndex);
+	}
+	
+	public String getProjectName() {
+		return this.projectName;
 	}
 	
 	/**
