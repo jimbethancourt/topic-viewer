@@ -164,7 +164,7 @@ public class DistributionMapViewer extends AbstractView {
             	String clustersFileName = projectName + ".clusters";
         		int[][] clusters = FileUtilities.readClustering(clustersFileName);
             	
-            	DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(documentIds, clusters);
+            	DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(projectName, documentIds, clusters);
             	DistributionMapGraphicPanel graphicPanel = new DistributionMapGraphicPanel(distributionMap, semanticTopics);
             	
                 this.distributionMapScrollPane.setViewportView(graphicPanel);
