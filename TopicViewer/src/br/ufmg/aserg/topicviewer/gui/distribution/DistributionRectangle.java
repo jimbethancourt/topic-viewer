@@ -18,7 +18,7 @@ public class DistributionRectangle extends Rectangle2D.Double {
 		
 		this.entityName = className;
 		this.clusterTopics = getClusterTopics(clusterTopics);
-		this.clusterColor = ColorUtil.getDistributionColor(clusterIndex);
+		this.clusterColor = (clusterIndex != -1) ? ColorUtil.getDistributionColor(clusterIndex) : new Color(255, 255, 255);
 	}
 	
 	public DistributionRectangle(int x, int y, int width, int height, String packageName) {

@@ -184,12 +184,4 @@ public class DistributionMapViewer extends AbstractView {
 		this.distributionMapScrollPane.setViewportView(new JPanel());
 		this.distributionMapScrollPane.repaint();
 	}
-	
-//	@Override
-//	public void actionPerformed(Integer clusterIndex) {
-//		String output = " === Cluster " + clusterIndex + " === " + SEPARATOR;
-//		for (String topic : this.semanticTopics[clusterIndex])
-//			output += topic + SEPARATOR;
-//		this.detailsTextPane.setText(output);
-//	}
 }

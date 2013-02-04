@@ -19,8 +19,6 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
 
-import br.ufmg.aserg.topicviewer.util.Properties;
-
 public class DistributionMapGraphicPanel extends JPanel {
 
 	private static final long serialVersionUID = 6060506974958934930L;
@@ -128,7 +126,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 			int classHeight = classWidth;
 			
 			int clusterIndex = this.distributionMap.getCluster(className);
-			String[] topics = this.semanticTopics[clusterIndex];
+			String[] topics = (clusterIndex != -1) ? this.semanticTopics[clusterIndex] : new String[]{};
 			this.classRectangles.add(new DistributionRectangle(classX, classY, classWidth, classHeight, className, clusterIndex, topics));
 			
 			classX += classWidth + classSpace;
