@@ -16,10 +16,6 @@ import java.util.Set;
 
 import org.splabs.vocabulary.iR.info.RetrievedInfoIF;
 
-import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.SparseDoubleMatrix2D;
-
 public class FileUtilities {
 	
 	private static final String SEPARATOR = System.getProperty("line.separator");
@@ -46,13 +42,6 @@ public class FileUtilities {
 		buffer.append(SEPARATOR);
 		
 		return buffer.toString();
-	}
-	
-	public static void saveMatrix(DoubleMatrix2D matrix, String resultFileName) {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(matrix.rows() + " " + matrix.columns() + SEPARATOR);
-		buffer.append(getMatrixAsString(matrix));
-		saveBuffer(buffer, resultFileName);
 	}
 	
 	public static void copyFile(String fileName, String copyFileName) throws IOException {
@@ -116,19 +105,6 @@ public class FileUtilities {
 		saveBuffer(buffer, resultFileName);
 	}
 	
-	private static String getMatrixAsString(DoubleMatrix2D matrix) {
-		StringBuffer buffer = new StringBuffer();
-		
-		for (int i = 0; i < matrix.rows(); i++) {
-			DoubleMatrix1D row = matrix.viewRow(i);
-			for (int j = 0; j < row.size(); j++)
-				buffer.append(row.get(j) + " ");
-			buffer.append(SEPARATOR);
-		}
-		
-		return buffer.toString();
-	}
-	
 	private static Comparator<Entry<String, Integer>> getEntrySetComparator() {
 		return new Comparator<Entry<String, Integer>>() {
 			@Override
@@ -149,26 +125,6 @@ public class FileUtilities {
 	}
 	
 	// ------------------------------------ Read Operations ------------------------------------
-	
-	public static DoubleMatrix2D readMatrix(String fileName) throws IOException {
-		DoubleMatrix2D matrix;
-		
-		BufferedReader reader = new BufferedReader(new FileReader(fileName));
-		
-		String[] bounds = reader.readLine().split(VALUE_SEPARATOR);
-		int rows = Integer.parseInt(bounds[0]);
-		int columns = Integer.parseInt(bounds[1]);
-		
-		matrix = new SparseDoubleMatrix2D(rows, columns);
-		
-		for (int i = 0; i < rows; i++) {
-			String[] row = reader.readLine().split(VALUE_SEPARATOR);
-			for (int j = 0; j < columns; j++)
-				matrix.set(i, j, Double.parseDouble(row[j]));
-		}
-		
-		return matrix;
-	}
 	
 	public static String[] readTermIds(String fileName) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileName));

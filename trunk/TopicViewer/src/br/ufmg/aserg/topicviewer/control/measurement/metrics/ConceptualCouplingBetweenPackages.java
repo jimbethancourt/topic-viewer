@@ -1,35 +1,37 @@
 package br.ufmg.aserg.topicviewer.control.measurement.metrics;
 
+import java.io.IOException;
+
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
 
 public class ConceptualCouplingBetweenPackages extends AbstractConceptualMetric {
 	
 	protected String[] packages;
 	protected double[][] similarities;
 
-	protected ConceptualCouplingBetweenPackages(String acronym, DoubleMatrix2D termDocMatrix, String[] documentIds) {
+	protected ConceptualCouplingBetweenPackages(String acronym, DoubleMatrix2D termDocMatrix, String[] documentIds) throws IOException {
 		super(acronym, termDocMatrix, documentIds);
 		
 		this.buildPackageTermDocMatrix();
 		this.calculateSimilarities();
 	}
 	
-	public ConceptualCouplingBetweenPackages(String acronym, AbstractConceptualMetric metric) {
+	public ConceptualCouplingBetweenPackages(String acronym, AbstractConceptualMetric metric) throws IOException {
 		super("CCBP", metric);
 		
 		this.buildPackageTermDocMatrix();
 		this.calculateSimilarities();
 	}
 	
-	public ConceptualCouplingBetweenPackages(DoubleMatrix2D termDocMatrix, String[] documentIds) {
+	public ConceptualCouplingBetweenPackages(DoubleMatrix2D termDocMatrix, String[] documentIds) throws IOException {
 		super("CCBP", termDocMatrix, documentIds);
 		
 		this.buildPackageTermDocMatrix();
 		this.calculateSimilarities();
 	}
 	
-	public ConceptualCouplingBetweenPackages(AbstractConceptualMetric metric) {
+	public ConceptualCouplingBetweenPackages(AbstractConceptualMetric metric) throws IOException {
 		super("CCBP", metric);
 		
 		this.buildPackageTermDocMatrix();

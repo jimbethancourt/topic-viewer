@@ -1,15 +1,15 @@
 package br.ufmg.aserg.topicviewer.control.measurement.metrics;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import cern.colt.function.DoubleDoubleFunction;
 import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 import cern.jet.math.PlusMult;
 
 public abstract class AbstractConceptualMetric {
@@ -52,11 +52,11 @@ public abstract class AbstractConceptualMetric {
 		this.packageMapping.put(packageName, classes);
 	}
 	
-	protected void buildPackageTermDocMatrix() {
+	protected void buildPackageTermDocMatrix() throws IOException {
 		final int rows = this.termDocMatrix.rows();
 		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
 		
-		this.packageMatrix = new DenseDoubleMatrix2D(rows, this.packageMapping.size());
+		this.packageMatrix = new DoubleMatrix2D(rows, this.packageMapping.size());
 		
 		int index = 0;
 		for (String packageName : this.packageMapping.keySet()) {

@@ -20,6 +20,7 @@ import org.splabs.vocabulary.vxl.iterator.util.VXLReaderPropertyKeys;
 
 import ptstemmer.exceptions.PTStemmerException;
 import br.ufmg.aserg.topicviewer.control.AbstractController;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 
@@ -125,9 +126,9 @@ public class DocumentIndexingController extends AbstractController {
 				this.createIRInfoTermsPerEntity();
 				
 				FileUtilities.saveTermDocumentInfo(this.retrievedInfo, this.resultFolderName + File.separator + projectName + ".ids");
-				FileUtilities.saveMatrix(this.retrievedInfo.getTermDocumentMatrix(), this.resultFolderName + File.separator + projectName + ".matrix");
-				FileUtilities.saveMatrix(this.retrievedInfo.getLsiTermDocumentMatrix(), this.resultFolderName + File.separator + projectName + "-lsi.matrix");
-				FileUtilities.saveMatrix(this.retrievedInfo.getLsiTransformMatrix(), this.resultFolderName + File.separator + projectName + ".lsi");
+				new DoubleMatrix2D(this.retrievedInfo.getTermDocumentMatrix()).save(this.resultFolderName + File.separator + projectName + ".matrix");
+				new DoubleMatrix2D(this.retrievedInfo.getLsiTermDocumentMatrix()).save(this.resultFolderName + File.separator + projectName + "-lsi.matrix");
+				new DoubleMatrix2D(this.retrievedInfo.getLsiTransformMatrix()).save(this.resultFolderName + File.separator + projectName + ".lsi");
 			} catch (Exception e) {
 				this.failedProjects.add(vocabularyFile);
 				e.printStackTrace();

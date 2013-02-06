@@ -1,10 +1,10 @@
 package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class ClusteredMatrixCalculator {
 	
@@ -21,8 +21,8 @@ public class ClusteredMatrixCalculator {
 		return indexMapping;
 	}
 	
-	public static DoubleMatrix2D generateClusteredMatrix(DoubleMatrix2D correlationMatrix, int[][] clusters, Map<Integer, Integer> indexMapping) {
-		DoubleMatrix2D clusteredMatrix = new DenseDoubleMatrix2D(correlationMatrix.rows(), correlationMatrix.columns());
+	public static DoubleMatrix2D generateClusteredMatrix(DoubleMatrix2D correlationMatrix, int[][] clusters, Map<Integer, Integer> indexMapping) throws IOException {
+		DoubleMatrix2D clusteredMatrix = new DoubleMatrix2D(correlationMatrix.rows(), correlationMatrix.columns());
 		
 		// intra cluster
 		for (int i = 0; i < clusters.length; i++) {
@@ -77,7 +77,7 @@ public class ClusteredMatrixCalculator {
 		return sum / (cluster1.length * cluster2.length);
 	}
 	
-	public static DoubleMatrix2D generateClusteredWithLinksMatrix(DoubleMatrix2D correlationMatrix, DoubleMatrix2D clusteredMatrix, Map<Integer, Integer> indexMapping) {
+	public static DoubleMatrix2D generateClusteredWithLinksMatrix(DoubleMatrix2D correlationMatrix, DoubleMatrix2D clusteredMatrix, Map<Integer, Integer> indexMapping) throws IOException {
 		final double threshold = 0.2;
 		DoubleMatrix2D clusteredWithLinksMatrix = clusteredMatrix.copy();
 		

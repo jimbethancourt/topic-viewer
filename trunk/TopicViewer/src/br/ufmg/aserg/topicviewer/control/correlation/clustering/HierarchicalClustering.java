@@ -1,5 +1,6 @@
 package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
-import cern.colt.matrix.DoubleMatrix2D;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class HierarchicalClustering {
 
@@ -22,7 +23,7 @@ public class HierarchicalClustering {
 	private Map<Integer, Integer> indexMapping;
 	private int[][] clusters;
 	
-	public HierarchicalClustering(CorrelationMatrix correlationMatrix, int numClusters) {
+	public HierarchicalClustering(CorrelationMatrix correlationMatrix, int numClusters) throws IOException {
 		this.numDocuments = correlationMatrix.getNumEntities();
 		this.maxClusters = numClusters;
 		this.clustersTree = new DisjointTree();

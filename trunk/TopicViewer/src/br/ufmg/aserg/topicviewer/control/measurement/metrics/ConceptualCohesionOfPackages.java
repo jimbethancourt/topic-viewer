@@ -2,7 +2,7 @@ package br.ufmg.aserg.topicviewer.control.measurement.metrics;
 
 import java.util.List;
 
-import cern.colt.matrix.DoubleMatrix2D;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class ConceptualCohesionOfPackages extends AbstractConceptualMetric {
 

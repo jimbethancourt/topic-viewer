@@ -9,9 +9,9 @@ import javax.swing.JScrollPane;
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.gui.AbstractView;
 import br.ufmg.aserg.topicviewer.gui.correlation.ClusteredCorrelationMatrixGraphicPanel.ClusteredMatrixListener;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
-import cern.colt.matrix.DoubleMatrix2D;
 
 public class CorrelationMatrixViewer extends AbstractView implements ClusteredMatrixListener {
 	
@@ -160,7 +160,7 @@ public class CorrelationMatrixViewer extends AbstractView implements ClusteredMa
             			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('.'))) + ".ids";
             	
             	String[] documentIds = FileUtilities.readDocumentIds(idsFileName);
-            	DoubleMatrix2D correlationMatrix = FileUtilities.readMatrix(selectedFile.getAbsolutePath());
+            	DoubleMatrix2D correlationMatrix = new DoubleMatrix2D(selectedFile.getAbsolutePath());
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
             	
             	CorrelationMatrixGraphicPanel graphicPanel = null;
