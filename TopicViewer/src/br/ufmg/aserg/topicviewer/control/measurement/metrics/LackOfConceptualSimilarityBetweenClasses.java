@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import cern.colt.matrix.DoubleMatrix2D;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class LackOfConceptualSimilarityBetweenClasses extends AbstractConceptualMetric {
 

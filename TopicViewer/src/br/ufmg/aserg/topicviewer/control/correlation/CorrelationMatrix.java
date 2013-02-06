@@ -2,7 +2,7 @@ package br.ufmg.aserg.topicviewer.control.correlation;
 
 import java.security.InvalidParameterException;
 
-import cern.colt.matrix.DoubleMatrix2D;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class CorrelationMatrix {
 	

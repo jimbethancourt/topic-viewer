@@ -30,7 +30,6 @@ public class DoubleMatrix2D implements Closeable {
     	this.fileName = File.createTempFile("temporarymatrix-" + numInstances, null).getAbsolutePath();
     	this.raf = new RandomAccessFile(this.fileName, "rw");
         try {
-            setRows(rows); setColumns(columns);
             long size = 8L*(rows*columns + 1);
             
             for (long offset = 0; offset < size; offset += MAPPING_SIZE) {
@@ -38,6 +37,8 @@ public class DoubleMatrix2D implements Closeable {
                 mappings.add(raf.getChannel().map(FileChannel.MapMode.READ_WRITE, offset, size2));
             }
             
+            setRows(rows);
+            setColumns(columns);
             numInstances++;
         } catch (IOException e) {
             raf.close();
@@ -48,8 +49,9 @@ public class DoubleMatrix2D implements Closeable {
     public DoubleMatrix2D(String fileName) throws IOException {
     	this.raf = new RandomAccessFile(fileName, "rw");
         try {
-            this.rows = this.getInt(0);
-            this.columns = this.getInt(4);
+        	this.rows = this.raf.readInt();
+            this.columns = this.raf.readInt();
+        	
             long size = 8L*(rows*columns + 1);
             for (long offset = 0; offset < size; offset += MAPPING_SIZE) {
                 long size2 = Math.min(size - offset, MAPPING_SIZE);
@@ -59,6 +61,13 @@ public class DoubleMatrix2D implements Closeable {
             raf.close();
             throw e;
         }
+    }
+    
+    public DoubleMatrix2D(cern.colt.matrix.DoubleMatrix2D matrix) throws IOException {
+    	this(matrix.rows(), matrix.columns());
+    	for (int i = 0; i < matrix.rows(); i++)
+    		for (int j = 0; j < matrix.columns(); j++)
+    			this.set(i, j, matrix.get(i, j));
     }
     
     private void setRows(int rows) {
@@ -71,20 +80,14 @@ public class DoubleMatrix2D implements Closeable {
     	this.columns = columns;
     }
     
-    private int getInt(int pos) {
-    	int mapN = (int) (pos / MAPPING_SIZE);
-    	int offN = (int) (pos % MAPPING_SIZE);
-    	return mappings.get(mapN).getInt(offN);
-    }
-    
     private void setInt(int pos, int value) {
     	int mapN = (int) (pos / MAPPING_SIZE);
         int offN = (int) (pos % MAPPING_SIZE);
-        mappings.get(mapN).putDouble(offN, value);
+        mappings.get(mapN).putInt(offN, value);
     }
     
     protected long position(int x, int y) {
-        return (long) y * this.columns + x + 1;
+        return (long) (x*this.columns) + y + 1;
     }
     
     public int rows() {
@@ -96,8 +99,8 @@ public class DoubleMatrix2D implements Closeable {
     }
     
     public double get(int x, int y) {
-        assert x >= 0 && x < this.columns;
-        assert y >= 0 && y < this.rows;
+        assert x >= 0 && x < this.rows;
+        assert y >= 0 && y < this.columns;
         long p = position(x, y) * 8;
         int mapN = (int) (p / MAPPING_SIZE);
         int offN = (int) (p % MAPPING_SIZE);
@@ -105,8 +108,8 @@ public class DoubleMatrix2D implements Closeable {
     }
     
     public void set(int x, int y, double d) {
-        assert x >= 0 && x < this.columns;
-        assert y >= 0 && y < this.rows;
+        assert x >= 0 && x < this.rows;
+        assert y >= 0 && y < this.columns;
         long p = position(x, y) * 8;
         int mapN = (int) (p / MAPPING_SIZE);
         int offN = (int) (p % MAPPING_SIZE);
@@ -137,6 +140,7 @@ public class DoubleMatrix2D implements Closeable {
     
     public void save(String fileName) throws IOException {
     	FileUtilities.copyFile(this.fileName, fileName);
+    	new File(this.fileName).delete();
     }
     
     @Override
@@ -161,23 +165,30 @@ public class DoubleMatrix2D implements Closeable {
     }
     
     public static void main(String[] args) throws IOException {
-//    	long start = System.nanoTime();
-//    	final long used0 = usedMemory();
-//    	DoubleMatrix2D matrix = new DoubleMatrix2D("ldm.test", 3000, 3000);
-//    	for (int i = 0; i < matrix.width(); i++)
-//    		matrix.set(i, i, i);
-//    	for (int i = 0; i < matrix.width(); i++)
-//            System.out.print(matrix.get(i, i) + " ");
-//    	System.out.println(matrix.get(0, 2));
-//    	long time = System.nanoTime() - start;
-//    	final long used = usedMemory() - used0;
-//    	if (used == 0)
-//    		System.err.println("You need to use -XX:-UsedTLAB to see small changes in memory usage.");
-//    	System.out.printf("Setting the diagonal took %,d ms, Heap used is %,d KB%n", time / 1000 / 1000, used / 1024);
-//    	matrix.close();
+    	
+    	DoubleMatrix2D matrix = new DoubleMatrix2D(2, 20);
+    	for (int i = 0; i < matrix.rows(); i++)
+    		for (int j = 0; j < matrix.columns(); j++)
+    			matrix.set(i, j, i+j);
+    	
+    	String fileName = "C:\\Users\\admin\\test.matrix";
+    	matrix.save(fileName);
+    	
+    	matrix = new DoubleMatrix2D(fileName);
+    	for (int i = 0; i < matrix.rows(); i++)
+    		for (int j = 0; j < matrix.columns(); j++)
+    			if (matrix.get(i, j) != i+j)
+    				System.err.println("tá errado, amigo");
+    	
+    	DoubleMatrix1D column = matrix.viewColumn(0);
+    	for (int j = 0; j < column.size(); j++)
+			if (column.get(j) != j)
+				System.err.println("tá errada a coluna, amigo");
+    	
+    	DoubleMatrix1D row = matrix.viewRow(0);
+    	for (int j = 0; j < row.size(); j++)
+			if (row.get(j) != j)
+				System.err.println("tá errada a linha, amigo");
+    	
 	}
-    
-//    private static long usedMemory() {
-//        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-//    }
 }

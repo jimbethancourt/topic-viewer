@@ -1,14 +1,16 @@
 package br.ufmg.aserg.topicviewer.control.measurement.metrics;
 
-import cern.colt.matrix.DoubleMatrix2D;
+import java.io.IOException;
+
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class ConceptualCouplingOfPackages extends ConceptualCouplingBetweenPackages {
 
-	public ConceptualCouplingOfPackages(DoubleMatrix2D termDocMatrix, String[] documentIds) {
+	public ConceptualCouplingOfPackages(DoubleMatrix2D termDocMatrix, String[] documentIds) throws IOException {
 		super("CCoP", termDocMatrix, documentIds);
 	}
 	
-	public ConceptualCouplingOfPackages(AbstractConceptualMetric metric) {
+	public ConceptualCouplingOfPackages(AbstractConceptualMetric metric) throws IOException {
 		super("CCoP", metric);
 	}
 	

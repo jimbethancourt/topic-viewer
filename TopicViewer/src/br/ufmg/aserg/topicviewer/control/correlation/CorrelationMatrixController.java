@@ -2,13 +2,13 @@ package br.ufmg.aserg.topicviewer.control.correlation;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 import br.ufmg.aserg.topicviewer.control.AbstractController;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class CorrelationMatrixController extends AbstractController {
 	
@@ -24,10 +24,10 @@ public class CorrelationMatrixController extends AbstractController {
 		this.setAllProjectCount(matrixFiles.length);
 	}
 	
-	private DoubleMatrix2D buildCorrelationMatrix(DoubleMatrix2D termDocumentMatrix) {
+	private DoubleMatrix2D buildCorrelationMatrix(DoubleMatrix2D termDocumentMatrix) throws IOException {
 		int numDocuments = termDocumentMatrix.columns();
 		
-		DoubleMatrix2D correlationMatrix = new DenseDoubleMatrix2D(numDocuments, numDocuments);
+		DoubleMatrix2D correlationMatrix = new DoubleMatrix2D(numDocuments, numDocuments);
 		
 		for (int i = 0; i < numDocuments; i++)
 			correlationMatrix.set(i, i, 1);
@@ -60,7 +60,7 @@ public class CorrelationMatrixController extends AbstractController {
 						? matrixFile.getName().substring(0, matrixFile.getName().lastIndexOf('-'))
 						: matrixFile.getName().substring(0, matrixFile.getName().lastIndexOf('.'));
 				
-				DoubleMatrix2D termDocumentMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
+				DoubleMatrix2D termDocumentMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
 				DoubleMatrix2D correlationMatrix2d = this.buildCorrelationMatrix(termDocumentMatrix);
 				
 				String idsFileName = ((matrixFile.getAbsolutePath().contains("-lsi")) 
@@ -68,7 +68,7 @@ public class CorrelationMatrixController extends AbstractController {
 						: matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('.'))) + ".ids";
 				FileUtilities.copyFile(idsFileName, this.resultFolderName + File.separator + projectName + ".ids");
 				
-				FileUtilities.saveMatrix(correlationMatrix2d, this.resultFolderName + File.separator + projectName + ".matrix");
+				correlationMatrix2d.save(this.resultFolderName + File.separator + projectName + ".matrix");
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 				e.printStackTrace();
@@ -79,20 +79,21 @@ public class CorrelationMatrixController extends AbstractController {
 	}
 	
 	public static void main(String[] args) {
-		String resultFolderName = "";
+		String resultFolderName = "F:\\correlation";
 		CorrelationMatrixController controller = new CorrelationMatrixController(new File[] {});
 		
-		for (File matrixFile : new File("").listFiles(getMatrixFileFilter())) {
+		for (File matrixFile : new File("F:\\lsitest").listFiles(getMatrixFileFilter())) {
 			try {
 				String projectName = matrixFile.getName().substring(0, matrixFile.getName().lastIndexOf('-'));
 				
-				DoubleMatrix2D termDocumentMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
+				DoubleMatrix2D termDocumentMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
 				DoubleMatrix2D correlationMatrix2d = controller.buildCorrelationMatrix(termDocumentMatrix);
 				
 				String idsFileName = matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('-')) + ".ids";
 				FileUtilities.copyFile(idsFileName, resultFolderName + File.separator + projectName + ".ids");
 				
-				FileUtilities.saveMatrix(correlationMatrix2d, resultFolderName + File.separator + projectName + ".matrix");
+				correlationMatrix2d.save(resultFolderName + File.separator + projectName + ".matrix");
+				System.out.println(projectName);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

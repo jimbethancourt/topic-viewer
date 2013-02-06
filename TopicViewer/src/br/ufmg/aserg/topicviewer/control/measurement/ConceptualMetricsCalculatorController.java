@@ -12,9 +12,9 @@ import br.ufmg.aserg.topicviewer.control.measurement.metrics.ConceptualCouplingB
 import br.ufmg.aserg.topicviewer.control.measurement.metrics.ConceptualCouplingOfPackages;
 import br.ufmg.aserg.topicviewer.control.measurement.metrics.ConceptualLackOfCohesionBetweenClasses;
 import br.ufmg.aserg.topicviewer.control.measurement.metrics.LackOfConceptualSimilarityBetweenClasses;
+import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
-import cern.colt.matrix.DoubleMatrix2D;
 
 public class ConceptualMetricsCalculatorController extends AbstractController {
 	
@@ -41,7 +41,7 @@ public class ConceptualMetricsCalculatorController extends AbstractController {
 						? matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('-'))
 						: matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('.'))) + ".ids";
 				
-				DoubleMatrix2D termDocumentMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
+				DoubleMatrix2D termDocumentMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
 				String[] documendIds = FileUtilities.readDocumentIds(idsFileName);
 				
 				// Cohesion Metrics
@@ -78,7 +78,7 @@ public class ConceptualMetricsCalculatorController extends AbstractController {
 				String projectName = matrixFile.getName().substring(0, matrixFile.getName().lastIndexOf('-'));
 				String idsFileName = matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('-')) + ".ids";
 				
-				DoubleMatrix2D termDocumentMatrix = FileUtilities.readMatrix(matrixFile.getAbsolutePath());
+				DoubleMatrix2D termDocumentMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
 				String[] documendIds = FileUtilities.readDocumentIds(idsFileName);
 				
 				// Cohesion Metrics
