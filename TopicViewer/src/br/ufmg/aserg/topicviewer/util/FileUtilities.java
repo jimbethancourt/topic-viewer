@@ -109,7 +109,7 @@ public class FileUtilities {
 		for (String packageName : packages) {
 			buffer.append(packageName + TAB);
 			for (Map<String, Double> result : results)
-				buffer.append(result.get(packageName) + TAB);
+				buffer.append(result.get(packageName).toString().replace('.', ',') + TAB);
 			buffer.append(SEPARATOR);
 		}
 		
