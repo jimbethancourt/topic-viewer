@@ -17,7 +17,7 @@ import cern.jet.math.PlusMult;
 
 public class SemanticTopicsCalculator {
 	
-	private static final int NUM_SELECTED_TERMS = 7;
+	private static final int NUM_SELECTED_TERMS = 10;
 	
 	public static String[][] generateSemanticTopics(int[][] clusters, DoubleMatrix2D lsiTermDocMatrix, DoubleMatrix2D lsiTransform, String[] termIds) throws IOException {
 		
@@ -54,28 +54,29 @@ public class SemanticTopicsCalculator {
 		}
 		
 		// calculating relevance between terms and clusters
-		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(numClusters-1);
-		
-		documentSimilarity = null;
-		DoubleMatrix2D clusterRelevance = new DoubleMatrix2D(numTerms, numClusters);
-		for (int i = 0; i < numClusters; i++) {
-			DoubleMatrix1D termRelevance = clusterSimilarity.viewColumn(i);
-			DoubleMatrix1D termInterSimilarity = new DenseDoubleMatrix1D(numTerms);
-			
-			for (int j = 0; j < numClusters; j++)
-				if (i != j)	termInterSimilarity.assign(clusterSimilarity.viewColumn(j), sumFunction);
-			
-			termRelevance.assign(termInterSimilarity, relevanceFunction);
-			
-			for (int j = 0; j < numTerms; j++)
-				clusterRelevance.set(j, i, termRelevance.get(j));
-		}
+//		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(numClusters-1);
+//		
+//		documentSimilarity = null;
+//		DoubleMatrix2D clusterRelevance = new DoubleMatrix2D(numTerms, numClusters);
+//		for (int i = 0; i < numClusters; i++) {
+//			DoubleMatrix1D termRelevance = clusterSimilarity.viewColumn(i);
+//			DoubleMatrix1D termInterSimilarity = new DenseDoubleMatrix1D(numTerms);
+//			
+//			for (int j = 0; j < numClusters; j++)
+//				if (i != j)	termInterSimilarity.assign(clusterSimilarity.viewColumn(j), sumFunction);
+//			
+//			termRelevance.assign(termInterSimilarity, relevanceFunction);
+//			
+//			for (int j = 0; j < numTerms; j++)
+//				clusterRelevance.set(j, i, termRelevance.get(j));
+//		}
 		
 		// calculating most relevant terms
-		clusterSimilarity = null;
+//		clusterSimilarity = null;
 		String[][] topics = new String[numClusters][0];
 		for (int i = 0; i < numClusters; i++) {
-			int[] topicIds = getMostRelevantTerms(clusterRelevance.viewColumn(i));
+//			int[] topicIds = getMostRelevantTerms(clusterRelevance.viewColumn(i));
+			int[] topicIds = getMostRelevantTerms(clusterSimilarity.viewColumn(i));
 			
 			String[] topic = new String[NUM_SELECTED_TERMS];
 			for (int j = 0; j < NUM_SELECTED_TERMS; j++)
