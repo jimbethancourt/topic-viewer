@@ -2,7 +2,11 @@ package br.ufmg.aserg.topicviewer.util;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -51,7 +55,8 @@ public class DoubleMatrix2D implements Closeable {
         try {
         	this.rows = this.raf.readInt();
             this.columns = this.raf.readInt();
-        	
+            this.raf.seek(0L);
+            
             long size = 8L*(rows*columns + 1);
             for (long offset = 0; offset < size; offset += MAPPING_SIZE) {
                 long size2 = Math.min(size - offset, MAPPING_SIZE);
@@ -139,7 +144,17 @@ public class DoubleMatrix2D implements Closeable {
     }
     
     public void save(String fileName) throws IOException {
-    	FileUtilities.copyFile(this.fileName, fileName);
+    	this.close();
+    	
+    	InputStream in = new FileInputStream(this.fileName);
+    	OutputStream out = new FileOutputStream(fileName);
+    	byte[] buf = new byte[1024];
+    	int len;
+    	while ((len = in.read(buf)) > 0)
+    	   out.write(buf, 0, len);
+    	in.close();
+    	out.close();
+
     	new File(this.fileName).delete();
     }
     

@@ -93,7 +93,6 @@ public class CorrelationMatrixController extends AbstractController {
 				FileUtilities.copyFile(idsFileName, resultFolderName + File.separator + projectName + ".ids");
 				
 				correlationMatrix2d.save(resultFolderName + File.separator + projectName + ".matrix");
-				System.out.println(projectName);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

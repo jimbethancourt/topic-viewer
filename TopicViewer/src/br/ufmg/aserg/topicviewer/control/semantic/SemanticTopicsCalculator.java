@@ -5,15 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
-
-import cern.colt.function.DoubleDoubleFunction;
 import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 import cern.colt.matrix.impl.SparseDoubleMatrix1D;
 import cern.colt.matrix.linalg.Algebra;
-import cern.jet.math.Mult;
-import cern.jet.math.PlusMult;
 
 public class SemanticTopicsCalculator {
 	
@@ -21,37 +16,55 @@ public class SemanticTopicsCalculator {
 	
 	public static String[][] generateSemanticTopics(int[][] clusters, DoubleMatrix2D lsiTermDocMatrix, DoubleMatrix2D lsiTransform, String[] termIds) throws IOException {
 		
-		Algebra matrixAlgebra = new Algebra();
+		Algebra matrixAlgebra = Algebra.ZERO;
 		
 		final int numTerms = termIds.length;
-		final int numDocuments = lsiTermDocMatrix.columns();
+//		final int numDocuments = lsiTermDocMatrix.columns();
 		final int numClusters = clusters.length;
+		cern.colt.matrix.DoubleMatrix2D lsiTransformCopy = getLsiTransformCopy(lsiTransform);
 		
-		// calculating similarity between terms and documents
-		DoubleMatrix2D documentSimilarity = new DoubleMatrix2D(numTerms, numDocuments); 
+		DoubleMatrix2D clusterSimilarity = new DoubleMatrix2D(numTerms, numClusters);
 		for (int i = 0; i < numTerms; i++) {
 			DoubleMatrix1D termQuery = new SparseDoubleMatrix1D(numTerms); termQuery.set(i, 1D);
+			termQuery = matrixAlgebra.mult(lsiTransformCopy, termQuery);
 			
-			for (int j = 0; j < numDocuments; j++) {
-				double similarity = calculateSimilarity(matrixAlgebra.mult(getLsiTransformCopy(lsiTransform), termQuery), lsiTermDocMatrix.viewColumn(j));
-				documentSimilarity.set(i, j, similarity);
+			for (int j = 0; j < numClusters; j++) {
+				double clusterSize = clusters[j].length;
+				double avgSimilarity = 0D;
+				
+				for (int documentId : clusters[j])
+					avgSimilarity += calculateSimilarity(termQuery, lsiTermDocMatrix.viewColumn(documentId)); 
+				
+				clusterSimilarity.set(i, j, avgSimilarity / clusterSize);
 			}
 		}
 		
-		// calculating similarity between terms and clusters
-		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
-		
-		DoubleMatrix2D clusterSimilarity = new DoubleMatrix2D(numTerms, numClusters);
-		for (int i = 0; i < numClusters; i++) {
-			DoubleMatrix1D similarity = new DenseDoubleMatrix1D(numTerms);
-			
-			for (int documentId : clusters[i])
-				similarity.assign(documentSimilarity.viewColumn(documentId), sumFunction);
-			similarity.assign(Mult.div(clusters[i].length));
-			
-			for (int j = 0; j < numTerms; j++)
-				clusterSimilarity.set(j, i, similarity.get(j));
-		}
+		// calculating similarity between terms and documents
+//		DoubleMatrix2D documentSimilarity = new DoubleMatrix2D(numTerms, numDocuments); 
+//		for (int i = 0; i < numTerms; i++) {
+//			DoubleMatrix1D termQuery = new SparseDoubleMatrix1D(numTerms); termQuery.set(i, 1D);
+//			
+//			for (int j = 0; j < numDocuments; j++) {
+//				Double similarity = calculateSimilarity(matrixAlgebra.mult(getLsiTransformCopy(lsiTransform), termQuery), lsiTermDocMatrix.viewColumn(j));
+//				documentSimilarity.set(i, j, similarity);
+//				
+//			}
+//		}
+//		
+//		// calculating similarity between terms and clusters
+//		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
+//		
+//		DoubleMatrix2D clusterSimilarity = new DoubleMatrix2D(numTerms, numClusters);
+//		for (int i = 0; i < numClusters; i++) {
+//			DoubleMatrix1D similarity = new DenseDoubleMatrix1D(numTerms);
+//			
+//			for (int documentId : clusters[i])
+//				similarity.assign(documentSimilarity.viewColumn(documentId), sumFunction);
+//			similarity.assign(Mult.div(clusters[i].length));
+//			
+//			for (int j = 0; j < numTerms; j++)
+//				clusterSimilarity.set(j, i, similarity.get(j));
+//		}
 		
 		// calculating relevance between terms and clusters
 //		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(numClusters-1);
@@ -124,7 +137,7 @@ public class SemanticTopicsCalculator {
 	private static cern.colt.matrix.DoubleMatrix2D getLsiTransformCopy(DoubleMatrix2D lsiTransform) {
 		cern.colt.matrix.DoubleMatrix2D matrix = new DenseDoubleMatrix2D(lsiTransform.rows(), lsiTransform.columns());
 		for (int i = 0; i < lsiTransform.rows(); i++)
-    		for (int j = 0; j < lsiTransform.columns(); j++)
+    		for (int j = 0; j < lsiTransform.columns(); j++) 
     			matrix.set(i, j, lsiTransform.get(i, j));
 		return matrix;
 	}
