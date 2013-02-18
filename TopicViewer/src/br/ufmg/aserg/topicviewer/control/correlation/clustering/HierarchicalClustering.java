@@ -103,19 +103,10 @@ public class HierarchicalClustering {
 		double bestSimilarity = Double.NEGATIVE_INFINITY;
 		int[] leastDissimilarPair = {0,0};
 		
-//		for (int i = 0; i < this.numDocuments; i++)
-//			for (int j = 0; j < this.numDocuments; j++) {
-//				double similarity = correlationMatrix.get(i, j);
-//				if (i < j && similarity != Double.NEGATIVE_INFINITY && similarity > bestSimilarity) {
-//					bestSimilarity = similarity;
-//					leastDissimilarPair = new int[] {i,j};
-//				}
-//			}
-		
-		for (int i = 0; i < this.numDocuments-1; i++)
-			for (int j = i+1; j < this.numDocuments; j++) {
+		for (int i = 0; i < this.numDocuments; i++)
+			for (int j = 0; j < this.numDocuments; j++) {
 				double similarity = correlationMatrix.get(i, j);
-				if (similarity != Double.NEGATIVE_INFINITY && similarity > bestSimilarity) {
+				if (i < j && similarity != Double.NEGATIVE_INFINITY && similarity > bestSimilarity) {
 					bestSimilarity = similarity;
 					leastDissimilarPair = new int[] {i,j};
 				}
@@ -134,18 +125,18 @@ public class HierarchicalClustering {
 		}
 		
 		for (Integer i : union)
-			for (int j = 0; j < this.numDocuments; j++)
-				if (i < j) {
-					double newValue;
-					if (union.contains(j)) newValue = Double.NEGATIVE_INFINITY;
-					else {
-						double distance1 = correlationMatrix.get(v1, j);
-						double distance2 = correlationMatrix.get(v2, j);
-						newValue = this.linkage.getNewDistance(set1, set2, distance1, distance2);
-					}
-					
-					correlationMatrix.set(i, j, newValue);
+			for (int j = 0; j < correlationMatrix.rows(); j++) {
+				double newValue;
+				if (union.contains(j)) newValue = Double.NEGATIVE_INFINITY;
+				else {
+					double distance1 = correlationMatrix.get(v1, j);
+					double distance2 = correlationMatrix.get(v2, j);
+					newValue = this.linkage.getNewDistance(set1, set2, distance1, distance2);
 				}
+				
+				correlationMatrix.set(i, j, newValue);
+				correlationMatrix.set(j, i, newValue);
+			}
 	}
 	
 	protected AgglomerativeLinkage createLinkage() {

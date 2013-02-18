@@ -153,6 +153,8 @@ public class DistributionMapComparisonController {
 				distributionMap.put(packageName, className, cluster);
 			}
 			
+			distributionMap.organize();
+			
         	new DistributionMapGraphicPanel(distributionMap, semanticTopics);
         	
         	if (projectBefore == null) projectBefore = project;
