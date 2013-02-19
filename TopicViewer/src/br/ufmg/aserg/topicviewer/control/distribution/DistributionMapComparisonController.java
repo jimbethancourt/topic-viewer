@@ -150,7 +150,7 @@ public class DistributionMapComparisonController {
 				
 				int documentIndex = getDocumentIndex(documentId, documentIds);
 				int cluster = (documentIndex != -1) ? getClusterIndex(documentIndex, clusters) : -1;
-				distributionMap.put(packageName, className, cluster);
+				distributionMap.put(packageName, packageName + "." + className, cluster);
 			}
 			
 			distributionMap.organize();
