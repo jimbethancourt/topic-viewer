@@ -19,6 +19,7 @@ import org.splabs.vocabulary.vxl.iterator.javamodel.ContainerEntity;
 import org.splabs.vocabulary.vxl.iterator.util.VXLReaderPropertyKeys;
 
 import ptstemmer.exceptions.PTStemmerException;
+
 import br.ufmg.aserg.topicviewer.control.AbstractController;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
@@ -108,7 +109,8 @@ public class DocumentIndexingController extends AbstractController {
 			properties.put(FilterProperties.STOPWORDS, YES);
 			properties.put(FilterProperties.STEMMING, YES);
 			properties.put(FilterProperties.CONVERT_TO_LOWER_CASE, YES);
-			properties.put(FilterProperties.LIMIT_TERM_LENGTH, new Integer(0).toString());
+			properties.put(FilterProperties.LIMIT_TERM_LENGTH, new Integer(3).toString());
+			properties.put(FilterProperties.STOPWORDS_FILE, "stopword_list.txt");
 			// ir vector model
 			properties.put(IRPropertyKeys.DISTANCE_FUNCTION, IRPropertyKeys.DistanceFunctionType.EUCLIDEAN.toString());
 			

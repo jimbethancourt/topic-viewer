@@ -150,7 +150,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 			int clusterIndex = this.distributionMap.getCluster(className);
 			String[] topics = (clusterIndex != -1) ? this.semanticTopics[clusterIndex] : new String[]{};
 			this.classRectangles.add(new DistributionRectangle(classX, classY, classWidth, classHeight, className, clusterIndex, topics));
-			this.buffer.append(className + " ");
+			this.buffer.append((className.lastIndexOf('.') != -1 ? className.substring(className.lastIndexOf('.')+1) : className) + " ");
 			
 			if (clusterIndex != -1) {
 				packageTopics.add(clusterIndex);
