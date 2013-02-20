@@ -49,7 +49,7 @@ public class CorrelationMatrixController extends AbstractController {
 	private static double getCosineDistance(DoubleMatrix1D vector1, DoubleMatrix1D vector2) {
 		double cosineSimilarity = vector1.zDotProduct(vector2);
 		double denominator = Math.sqrt(vector1.zDotProduct(vector1) * vector2.zDotProduct(vector2));
-		return denominator == 0 ? 50000 : cosineSimilarity / denominator;
+		return denominator == 0 ? 1D : cosineSimilarity / denominator;
 	}
 
 	@Override

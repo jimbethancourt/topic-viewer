@@ -30,12 +30,16 @@ public class SemanticTopicsCalculator {
 			
 			for (int j = 0; j < numClusters; j++) {
 				double clusterSize = clusters[j].length;
+				double similarity = 0D;
 				double avgSimilarity = 0D;
 				
-				for (int documentId : clusters[j])
-					avgSimilarity += calculateSimilarity(termQuery, lsiTermDocMatrix.viewColumn(documentId)); 
+				for (int documentId : clusters[j]) {
+					similarity = calculateSimilarity(termQuery, lsiTermDocMatrix.viewColumn(documentId));
+					if (Double.isNaN(similarity)) clusterSize--;
+					avgSimilarity += (Double.isNaN(similarity) ? 0D : similarity);
+				}
 				
-				clusterSimilarity.set(i, j, avgSimilarity / clusterSize);
+				clusterSimilarity.set(i, j, clusterSize == 0D ? 0D : avgSimilarity / clusterSize);
 			}
 		}
 		
