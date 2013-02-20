@@ -19,6 +19,7 @@ allows
 almost
 alone
 along
+alpha
 already
 also
 although
@@ -55,6 +56,7 @@ away
 awfully
 b
 bad
+batik
 be
 became
 because
@@ -71,6 +73,7 @@ below
 beside
 besides
 best
+beta
 better
 between
 beyond
@@ -128,6 +131,8 @@ did
 didn
 didn't
 different
+directly
+dirty
 do
 does
 doesn
@@ -207,6 +212,7 @@ good
 got
 gotten
 greetings
+guido
 h
 had
 hadn't
@@ -266,12 +272,14 @@ inner
 inside
 insofar
 instanceof
+instantly
 instead
 into
 inward
 is
 isn
 isn't
+issue
 it
 it'd
 it'll
@@ -415,6 +423,7 @@ philc
 placed
 please
 plus
+poorly
 possible
 presumably
 probably
@@ -468,6 +477,7 @@ seven
 several
 shall
 she
+shnider
 short
 should
 shouldn't
@@ -529,6 +539,7 @@ therein
 theres
 thereupon
 these
+theta
 they
 they'd
 they'll
@@ -665,4 +676,5 @@ yourself
 yourselves
 z
 zero
+zgragg
 zgraggen
