@@ -5,7 +5,10 @@ import java.io.FilenameFilter;
 
 import br.ufmg.aserg.topicviewer.control.AbstractController;
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
+import br.ufmg.aserg.topicviewer.control.distribution.DistributionMapCalculator;
 import br.ufmg.aserg.topicviewer.control.semantic.SemanticTopicsCalculator;
+import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
+import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapGraphicPanel;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
@@ -41,9 +44,9 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				this.clusterer = new HierarchicalClustering(matrix, this.numClusters);
 				
 				FileUtilities.saveClustering(this.clusterer.getClusters(), this.resultFolderName + File.separator + projectName + ".clusters");
-				FileUtilities.saveMapping(this.clusterer.getIndexMapping(), this.resultFolderName + File.separator + projectName + ".mapping");
-				this.clusterer.getClusteredMatrix().save(this.resultFolderName + File.separator + projectName + "-clustered.matrix");
-				this.clusterer.getClusteredWithLinksMatrix().save(this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
+//				FileUtilities.saveMapping(this.clusterer.getIndexMapping(), this.resultFolderName + File.separator + projectName + ".mapping");
+//				this.clusterer.getClusteredMatrix().save(this.resultFolderName + File.separator + projectName + "-clustered.matrix");
+//				this.clusterer.getClusteredWithLinksMatrix().save(this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
 				
 				String[] termIds = FileUtilities.readTermIds(idsFileName);
 				String lsiTermDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
@@ -54,8 +57,17 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				DoubleMatrix2D lsiTermDocMatrix = new DoubleMatrix2D(lsiTermDocFileName);
 				DoubleMatrix2D lsiTransformMatrix = new DoubleMatrix2D(lsiTransformFileName);
 				
-				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds);
+//				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds);
+//				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromVocabulary(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds, false);
+//				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromVocabulary(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds, true);
+				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromClasses(this.clusterer.getClusters(), termIds, documentIds);
 				FileUtilities.saveSemanticTopics(semanticTopics, this.resultFolderName + File.separator + projectName + ".topics");
+				
+				// TODO
+				int[][] clusters = this.clusterer.getClusters();
+				DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(this.resultFolderName + File.separator + projectName + "-class", documentIds, clusters);
+	        	new DistributionMapGraphicPanel(distributionMap, semanticTopics);
+	        	
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 				e.printStackTrace();
@@ -72,7 +84,7 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 		final int numClusters = 9;
 		HierarchicalClustering clusterer;
 		
-		for (File matrixFile : new File("C:\\Users\\admin\\Documents\\mestrado\\correlation").listFiles(getMatrixFileFilter())) {
+		for (File matrixFile : new File("C:\\Users\\admin\\Documents\\mestrado\\correlation2").listFiles(getMatrixFileFilter())) {
 			try {
 				String projectName = matrixFile.getName().substring(0, matrixFile.getName().lastIndexOf('.'));
 				String idsFileName = matrixFile.getAbsolutePath().substring(0, matrixFile.getAbsolutePath().lastIndexOf('.')) + ".ids";

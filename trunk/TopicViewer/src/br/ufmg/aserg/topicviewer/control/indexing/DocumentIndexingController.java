@@ -112,7 +112,7 @@ public class DocumentIndexingController extends AbstractController {
 			properties.put(FilterProperties.LIMIT_TERM_LENGTH, new Integer(3).toString());
 			properties.put(FilterProperties.STOPWORDS_FILE, "stopword_list.txt");
 			// ir vector model
-			properties.put(IRPropertyKeys.DISTANCE_FUNCTION, IRPropertyKeys.DistanceFunctionType.EUCLIDEAN.toString());
+			properties.put(IRPropertyKeys.DISTANCE_FUNCTION, IRPropertyKeys.DistanceFunctionType.COSINE.toString());
 			
 			Properties.setProperties(properties);
 		}

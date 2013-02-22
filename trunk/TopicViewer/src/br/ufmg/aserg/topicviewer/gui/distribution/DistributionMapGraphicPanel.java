@@ -106,6 +106,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 			maxPackageHeight = Math.max(packageHeight, maxPackageHeight);
 			
 			this.buffer.append("package: " + packageName + lineseparator);
+//			this.buffer.append(packageName);
 			this.packageRectangles.add(new DistributionRectangle(packageX, packageY, packageWidth, packageHeight, packageName));
 			this.buildDistributionMap(classes, packageX, packageY);
 			
@@ -179,6 +180,8 @@ public class DistributionMapGraphicPanel extends JPanel {
 		
 		this.buffer.append(lineseparator + "#topics: " + packageTopics.size() + " concentration: " + concentration);
 		this.buffer.append(lineseparator + lineseparator);
+		
+//		this.buffer.append(" " + packageTopics.size() + " " + concentration + lineseparator);
 	}
 
 	@Override
