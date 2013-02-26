@@ -41,7 +41,7 @@ public class CorrelationMatrixClusteringController extends AbstractController {
             	DoubleMatrix2D correlationMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
             	
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
-				this.clusterer = new HierarchicalClustering(matrix, this.numClusters);
+				this.clusterer = new HierarchicalClustering(projectName, matrix, documentIds, this.numClusters);
 				
 				FileUtilities.saveClustering(this.clusterer.getClusters(), this.resultFolderName + File.separator + projectName + ".clusters");
 //				FileUtilities.saveMapping(this.clusterer.getIndexMapping(), this.resultFolderName + File.separator + projectName + ".mapping");
@@ -93,7 +93,7 @@ public class CorrelationMatrixClusteringController extends AbstractController {
             	DoubleMatrix2D correlationMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
             	
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
-				clusterer = new HierarchicalClustering(matrix, numClusters);
+				clusterer = new HierarchicalClustering(projectName, matrix, documentIds, numClusters);
 				
 				FileUtilities.saveClustering(clusterer.getClusters(), resultFolderName + File.separator + projectName + ".clusters");
 				FileUtilities.saveMapping(clusterer.getIndexMapping(), resultFolderName + File.separator + projectName + ".mapping");

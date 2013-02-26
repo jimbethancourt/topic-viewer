@@ -1,5 +1,7 @@
 package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,18 +18,27 @@ public class HierarchicalClustering {
 	private int numDocuments;
 	private int maxClusters;
 	private DisjointTree clustersTree;
-	private AgglomerativeLinkage linkage;
+//	private AgglomerativeLinkage linkage;
 	
 	private DoubleMatrix2D clusteredMatrix;
 	private DoubleMatrix2D clusteredWithLinksMatrix;
 	private Map<Integer, Integer> indexMapping;
+	// TODO temporary to investigate clustering in exceptional cases
+	private String[] documentIds;
+	private StringBuffer unionBuffer;
+	private static final String lineseparator = System.getProperty("line.separator");
+	
 	private int[][] clusters;
 	
-	public HierarchicalClustering(CorrelationMatrix correlationMatrix, int numClusters) throws IOException {
+	public HierarchicalClustering(String projectName, CorrelationMatrix correlationMatrix, String[] documentIds, int numClusters) throws IOException {
 		this.numDocuments = correlationMatrix.getNumEntities();
 		this.maxClusters = numClusters;
+		
+		this.documentIds = documentIds;
+		this.unionBuffer = new StringBuffer();
+		
 		this.clustersTree = new DisjointTree();
-		this.linkage = createLinkage();
+//		this.linkage = createLinkage();
 		DoubleMatrix2D correlationMatrix2D = correlationMatrix.getCorrelationMatrix();
 		
 		int[] documents = new int[numDocuments];
@@ -40,6 +51,14 @@ public class HierarchicalClustering {
 		this.indexMapping = ClusteredMatrixCalculator.generateIndexMapping(this.clusters);
 		this.clusteredMatrix = ClusteredMatrixCalculator.generateClusteredMatrix(correlationMatrix2D, this.clusters, this.indexMapping);
 		this.clusteredWithLinksMatrix = ClusteredMatrixCalculator.generateClusteredWithLinksMatrix(correlationMatrix2D, this.clusteredMatrix, this.indexMapping);
+		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(projectName + "-clustering.txt"));
+			writer.write(this.unionBuffer.toString());
+			writer.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	public DoubleMatrix2D getClusteredMatrix() {
@@ -67,9 +86,20 @@ public class HierarchicalClustering {
 			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
 			
 			if (set1 != set2) {
+				String set1String = ""; String set2String = ""; 
+				for (int i = 0; i < correlationMatrix.rows(); i++) {
+					int set = this.clustersTree.findSet(new Vertex(i)).index;
+					if (set == set1.index)
+						set1String += (this.documentIds[i].lastIndexOf('.') != -1 ? this.documentIds[i].substring(this.documentIds[i].lastIndexOf('.')+1) : this.documentIds[i]) + " ";
+					if (set == set2.index)
+						set2String += (this.documentIds[i].lastIndexOf('.') != -1 ? this.documentIds[i].substring(this.documentIds[i].lastIndexOf('.')+1) : this.documentIds[i]) + " ";
+				}
+				this.unionBuffer.append("Union: [" + set1String + "] U [" + set2String + "]" + lineseparator);
+				
 				this.clustersTree.union(set1, set2);
-				updateCorrelationMatrix(set1.index, set2.index, correlationMatrix);
+				updateCorrelationMatrix(set1.index, correlationMatrix);
 				numClusters--;
+				System.out.println(numClusters);
 			}
 		}
 		
@@ -115,44 +145,67 @@ public class HierarchicalClustering {
 		return leastDissimilarPair;
 	}
 	
-	private void updateCorrelationMatrix(int v1, int v2, DoubleMatrix2D correlationMatrix) {
-		Set<Integer> union = new HashSet<Integer>(); int set1 = 0, set2 = 0;
-		for (int i = 0; i < correlationMatrix.rows(); i++) {
-			int set = this.clustersTree.findSet(new Vertex(i)).index;
-			if (set == v1 || set == v2) union.add(i);
-			if (set == v1) set1++;
-			if (set == v2) set2++;
-		}
+	private void updateCorrelationMatrix(int unionSet, DoubleMatrix2D correlationMatrix) {
+		int union = this.clustersTree.findSet(new Vertex(unionSet)).index;
 		
-		for (Integer i : union)
-			for (int j = 0; j < correlationMatrix.rows(); j++) {
-				double newValue;
-				if (union.contains(j)) newValue = Double.NEGATIVE_INFINITY;
-				else {
-					double distance1 = correlationMatrix.get(v1, j);
-					double distance2 = correlationMatrix.get(v2, j);
-					newValue = this.linkage.getNewDistance(set1, set2, distance1, distance2);
-				}
+		Set<Pair<Integer, Integer>> calculatedClusters = new HashSet<Pair<Integer, Integer>>();
+		for (int i = 0; i < correlationMatrix.rows()-1; i++)
+			for (int j = i+1; j < correlationMatrix.rows(); j++) {
+				int set1Index = this.clustersTree.findSet(new Vertex(i)).index;
+				int set2Index = this.clustersTree.findSet(new Vertex(j)).index;
 				
-				correlationMatrix.set(i, j, newValue);
-				correlationMatrix.set(j, i, newValue);
+				Pair<Integer, Integer> newPair = (set1Index < set2Index) ? 
+						new Pair<Integer, Integer>(set1Index, set2Index) : 
+						new Pair<Integer, Integer>(set2Index, set1Index);
+						
+				if ((set1Index == union || set2Index == union) && !calculatedClusters.contains(newPair)) {
+					double newValue;
+					Set<Integer> set1 = getClusterSet(set1Index);
+					Set<Integer> set2 = getClusterSet(set2Index);
+					
+					if (set1Index == set2Index) newValue = Double.NEGATIVE_INFINITY;
+					else {
+						double distance = 0D;
+						for (int doc1 : set1)
+							for (int doc2 : set2)
+								distance += correlationMatrix.get(doc1, doc2);
+						
+						newValue = distance / (set1.size() * set2.size());
+					}
+					
+					for (int doc1 : set1)
+						for (int doc2 : set2) {
+							correlationMatrix.set(doc1, doc2, newValue);
+							correlationMatrix.set(doc2, doc1, newValue);
+						}
+					
+					calculatedClusters.add(newPair);
+				}
 			}
 	}
 	
-	protected AgglomerativeLinkage createLinkage() {
-		return new AgglomerativeLinkage() {
-			@Override
-			public double getNewDistance(int set1, int set2, double distance1, double distance2) {
-				double numerator = (set1 * distance1) + (set2 * distance2); 
-				double denominator = set1 + set2;
-				return (numerator / denominator);
-			}
-		};
+	private Set<Integer> getClusterSet(int rootIndex) {
+		Set<Integer> clusterSet = new HashSet<Integer>();
+		for (int i = 0; i < this.numDocuments; i++)
+			if (this.clustersTree.findSet(new Vertex(i)).index == rootIndex)
+				clusterSet.add(i);
+		return clusterSet;
 	}
 	
-	interface AgglomerativeLinkage {
-		public double getNewDistance(int setSize1, int setSize2, double distance1, double distance2);
-	}
+//	protected AgglomerativeLinkage createLinkage() {
+//		return new AgglomerativeLinkage() {
+//			@Override
+//			public double getNewDistance(int set1, int set2, double distance1, double distance2) {
+//				double numerator = (set1 * distance1) + (set2 * distance2); 
+//				double denominator = set1 + set2;
+//				return (numerator / denominator);
+//			}
+//		};
+//	}
+//	
+//	interface AgglomerativeLinkage {
+//		public double getNewDistance(int setSize1, int setSize2, double distance1, double distance2);
+//	}
 
 	static class Vertex {
 		int index;
@@ -203,5 +256,38 @@ public class HierarchicalClustering {
 				if (mapped1.rank == mapped2.rank) mapped2.rank++;
 			}
 		}
+	}
+	
+	public class Pair<A, B> {
+	    private A first;
+	    private B second;
+
+	    public Pair(A first, B second) {
+	    	super();
+	    	this.first = first;
+	    	this.second = second;
+	    }
+
+	    public int hashCode() {
+	    	int hashFirst = first != null ? first.hashCode() : 0;
+	    	int hashSecond = second != null ? second.hashCode() : 0;
+	    	return (hashFirst + hashSecond) * hashSecond + hashFirst;
+	    }
+
+	    @SuppressWarnings("rawtypes")
+		public boolean equals(Object other) {
+	    	if (other instanceof Pair) {
+	    		Pair otherPair = (Pair) other;
+	    		return 
+	    		((  this.first == otherPair.first ||
+	    			( this.first != null && otherPair.first != null &&
+	    			  this.first.equals(otherPair.first))) &&
+	    		 (	this.second == otherPair.second ||
+	    			( this.second != null && otherPair.second != null &&
+	    			  this.second.equals(otherPair.second))) );
+	    	}
+
+	    	return false;
+	    }
 	}
 }
