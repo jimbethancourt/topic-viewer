@@ -41,31 +41,21 @@ public class CorrelationMatrixClusteringController extends AbstractController {
             	DoubleMatrix2D correlationMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
             	
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
-				this.clusterer = new HierarchicalClustering(projectName, matrix, documentIds, this.numClusters);
+            	double threshold = Double.parseDouble(Properties.getProperty(Properties.SIMILARITY_THRESHOLD));
+				this.clusterer = new HierarchicalClustering(projectName, matrix, documentIds, this.numClusters, threshold);
 				
-				FileUtilities.saveClustering(this.clusterer.getClusters(), this.resultFolderName + File.separator + projectName + ".clusters");
+				FileUtilities.saveClustering(this.clusterer.getClusters(), documentIds, this.resultFolderName + File.separator + projectName + ".clusters");
 //				FileUtilities.saveMapping(this.clusterer.getIndexMapping(), this.resultFolderName + File.separator + projectName + ".mapping");
 //				this.clusterer.getClusteredMatrix().save(this.resultFolderName + File.separator + projectName + "-clustered.matrix");
 //				this.clusterer.getClusteredWithLinksMatrix().save(this.resultFolderName + File.separator + projectName + "-clusteredlinked.matrix");
 				
 				String[] termIds = FileUtilities.readTermIds(idsFileName);
-				String lsiTermDocFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
-						+ File.separator + projectName + "-lsi.matrix";
-				String lsiTransformFileName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT 
-						+ File.separator + projectName + ".lsi";
-				
-				DoubleMatrix2D lsiTermDocMatrix = new DoubleMatrix2D(lsiTermDocFileName);
-				DoubleMatrix2D lsiTransformMatrix = new DoubleMatrix2D(lsiTransformFileName);
-				
-//				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopics(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds);
-//				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromVocabulary(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds, false);
-//				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromVocabulary(this.clusterer.getClusters(), lsiTermDocMatrix, lsiTransformMatrix, termIds, true);
 				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromClasses(this.clusterer.getClusters(), termIds, documentIds);
+				
 				FileUtilities.saveSemanticTopics(semanticTopics, this.resultFolderName + File.separator + projectName + ".topics");
 				
-				// TODO
 				int[][] clusters = this.clusterer.getClusters();
-				DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(this.resultFolderName + File.separator + projectName + "-class", documentIds, clusters);
+				DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(this.resultFolderName + File.separator + projectName, documentIds, clusters);
 	        	new DistributionMapGraphicPanel(distributionMap, semanticTopics);
 	        	
 			} catch (Exception e) {
@@ -93,9 +83,9 @@ public class CorrelationMatrixClusteringController extends AbstractController {
             	DoubleMatrix2D correlationMatrix = new DoubleMatrix2D(matrixFile.getAbsolutePath());
             	
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
-				clusterer = new HierarchicalClustering(projectName, matrix, documentIds, numClusters);
+				clusterer = new HierarchicalClustering(projectName, matrix, documentIds, numClusters, 0.7D);
 				
-				FileUtilities.saveClustering(clusterer.getClusters(), resultFolderName + File.separator + projectName + ".clusters");
+				FileUtilities.saveClustering(clusterer.getClusters(), documentIds, resultFolderName + File.separator + projectName + ".clusters");
 				FileUtilities.saveMapping(clusterer.getIndexMapping(), resultFolderName + File.separator + projectName + ".mapping");
 				clusterer.getClusteredMatrix().save(resultFolderName + File.separator + projectName + "-clustered.matrix");
 				
