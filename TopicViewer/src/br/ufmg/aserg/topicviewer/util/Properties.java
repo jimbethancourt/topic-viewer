@@ -24,6 +24,8 @@ public class Properties {
 	public static final String CORRELATION_MATRIX_OUTPUT = "correlation";
 	public static final String METRICS_OUTPUT = "metrics";
 	
+	public static final String SIMILARITY_THRESHOLD = "similarityThreshold";
+	
 	public static void load() {
 		try {
 			File propertiesFile = new File(PROPERTIES_FILE);

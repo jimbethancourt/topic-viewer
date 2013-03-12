@@ -39,7 +39,7 @@ public class CorrelationMatrixClusteringView extends AbstractView {
         matrixScrollPane = new javax.swing.JScrollPane();
         correlationMatrixList = new javax.swing.JList();
         numClusterPanel = new javax.swing.JPanel();
-        numClusterSlider = new javax.swing.JSlider(JSlider.HORIZONTAL, 5, 12, 9);
+        numClusterSlider = new javax.swing.JSlider(JSlider.HORIZONTAL, 5, 15, 9);
 
         setClosable(true);
         setTitle("Correlation Matrix Clusterer");
