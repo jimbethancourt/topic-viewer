@@ -1,7 +1,5 @@
 package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,28 +15,21 @@ public class HierarchicalClustering {
 
 	private int numDocuments;
 	private int maxClusters;
+	private double threshold;
 	private DisjointTree clustersTree;
-//	private AgglomerativeLinkage linkage;
 	
 	private DoubleMatrix2D clusteredMatrix;
 	private DoubleMatrix2D clusteredWithLinksMatrix;
 	private Map<Integer, Integer> indexMapping;
-	// TODO temporary to investigate clustering in exceptional cases
-	private String[] documentIds;
-	private StringBuffer unionBuffer;
-	private static final String lineseparator = System.getProperty("line.separator");
 	
 	private int[][] clusters;
 	
-	public HierarchicalClustering(String projectName, CorrelationMatrix correlationMatrix, String[] documentIds, int numClusters) throws IOException {
+	public HierarchicalClustering(String projectName, CorrelationMatrix correlationMatrix, String[] documentIds, int numClusters, double threshold) throws IOException {
 		this.numDocuments = correlationMatrix.getNumEntities();
 		this.maxClusters = numClusters;
-		
-		this.documentIds = documentIds;
-		this.unionBuffer = new StringBuffer();
+		this.threshold = threshold;
 		
 		this.clustersTree = new DisjointTree();
-//		this.linkage = createLinkage();
 		DoubleMatrix2D correlationMatrix2D = correlationMatrix.getCorrelationMatrix();
 		
 		int[] documents = new int[numDocuments];
@@ -51,14 +42,6 @@ public class HierarchicalClustering {
 		this.indexMapping = ClusteredMatrixCalculator.generateIndexMapping(this.clusters);
 		this.clusteredMatrix = ClusteredMatrixCalculator.generateClusteredMatrix(correlationMatrix2D, this.clusters, this.indexMapping);
 		this.clusteredWithLinksMatrix = ClusteredMatrixCalculator.generateClusteredWithLinksMatrix(correlationMatrix2D, this.clusteredMatrix, this.indexMapping);
-		
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(projectName + "-clustering.txt"));
-			writer.write(this.unionBuffer.toString());
-			writer.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 	}
 	
 	public DoubleMatrix2D getClusteredMatrix() {
@@ -80,28 +63,22 @@ public class HierarchicalClustering {
 	private void initClustering(DoubleMatrix2D correlationMatrix) {
 		int numClusters = this.numDocuments;
 		
-		while (this.maxClusters < numClusters) {
-			int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix);
+		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix);
+		while (this.maxClusters < numClusters && leastDissimilarPair != null) {
 			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
 			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
 			
 			if (set1 != set2) {
-				String set1String = ""; String set2String = ""; 
-				for (int i = 0; i < correlationMatrix.rows(); i++) {
-					int set = this.clustersTree.findSet(new Vertex(i)).index;
-					if (set == set1.index)
-						set1String += (this.documentIds[i].lastIndexOf('.') != -1 ? this.documentIds[i].substring(this.documentIds[i].lastIndexOf('.')+1) : this.documentIds[i]) + " ";
-					if (set == set2.index)
-						set2String += (this.documentIds[i].lastIndexOf('.') != -1 ? this.documentIds[i].substring(this.documentIds[i].lastIndexOf('.')+1) : this.documentIds[i]) + " ";
-				}
-				this.unionBuffer.append("Union: [" + set1String + "] U [" + set2String + "]" + lineseparator);
-				
 				this.clustersTree.union(set1, set2);
 				updateCorrelationMatrix(set1.index, correlationMatrix);
 				numClusters--;
-				System.out.println(numClusters);
+//				System.out.println(numClusters);
 			}
+			
+			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix);
 		}
+		
+		System.out.println(numClusters);
 		
 		this.generateClusters();
 	}
@@ -142,9 +119,10 @@ public class HierarchicalClustering {
 				}
 			}
 		
-		return leastDissimilarPair;
+		return (bestSimilarity < this.threshold) ? null : leastDissimilarPair;
 	}
 	
+	// implementing average linkage
 	private void updateCorrelationMatrix(int unionSet, DoubleMatrix2D correlationMatrix) {
 		int union = this.clustersTree.findSet(new Vertex(unionSet)).index;
 		
@@ -192,21 +170,6 @@ public class HierarchicalClustering {
 		return clusterSet;
 	}
 	
-//	protected AgglomerativeLinkage createLinkage() {
-//		return new AgglomerativeLinkage() {
-//			@Override
-//			public double getNewDistance(int set1, int set2, double distance1, double distance2) {
-//				double numerator = (set1 * distance1) + (set2 * distance2); 
-//				double denominator = set1 + set2;
-//				return (numerator / denominator);
-//			}
-//		};
-//	}
-//	
-//	interface AgglomerativeLinkage {
-//		public double getNewDistance(int setSize1, int setSize2, double distance1, double distance2);
-//	}
-
 	static class Vertex {
 		int index;
 		int rank;

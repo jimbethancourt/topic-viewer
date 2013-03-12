@@ -45,6 +45,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 	
 	private Rectangle2D.Double externalView;
 	private List<DistributionRectangle> packageRectangles;
+	private List<DistributionRectangle> pckgLabelRectangles;
 	private List<DistributionRectangle> classRectangles;
 	private List<DistributionRectangle> labelRectangles;
 	
@@ -58,6 +59,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 		this.semanticTopics = semanticTopics;
 		
 		this.packageRectangles = new LinkedList<DistributionRectangle>();
+		this.pckgLabelRectangles = new LinkedList<DistributionRectangle>();
 		this.classRectangles = new LinkedList<DistributionRectangle>();
 		this.labelRectangles = new LinkedList<DistributionRectangle>();
 		
@@ -66,9 +68,11 @@ public class DistributionMapGraphicPanel extends JPanel {
 		this.buildDistributionMap();
 		this.addMouseMotionListener(getMouseMotionListener());
 		this.setLayout(new BorderLayout());
+		
 		this.externalView = new Rectangle2D.Double(5, 5, this.xBound, this.yBound);
 		this.setSize(new Dimension(this.xBound, this.yBound));
 		this.setPreferredSize(new Dimension(this.xBound, this.yBound));
+		
 		try {
 			this.saveImage();
 		} catch (IOException e) {
@@ -95,7 +99,8 @@ public class DistributionMapGraphicPanel extends JPanel {
 			List<String> classes = this.distributionMap.getClasses(packageName);
 			int numClasses = classes.size();
 			
-			int numColumns = Math.min(maxClasses, numClasses);
+//			int numColumns = Math.min(maxClasses, numClasses);
+			int numColumns = maxClasses;
 			int packageWidth = 2*packageStroke + 2*classSpace 
 					+ numColumns*(2*classStroke + classSize) 
 					+ (numColumns-1)*classSpace;
@@ -105,19 +110,21 @@ public class DistributionMapGraphicPanel extends JPanel {
 					+ (numLines-1)*classSpace;
 			maxPackageHeight = Math.max(packageHeight, maxPackageHeight);
 			
-			this.buffer.append("package: " + packageName + lineseparator);
-//			this.buffer.append(packageName);
+//			this.buffer.append("package: " + packageName + lineseparator);
+			this.buffer.append(packageName);
 			this.packageRectangles.add(new DistributionRectangle(packageX, packageY, packageWidth, packageHeight, packageName));
 			this.buildDistributionMap(classes, packageX, packageY);
 			
+			this.pckgLabelRectangles.add(new DistributionRectangle(packageX, packageY + packageHeight + packageStroke + 2*packageSpace, classSize, classSize, packageName));
+			
 			packageX += packageWidth + packageSpace;
 			this.xBound = Math.max(this.xBound, packageX);
-			this.yBound = Math.max(this.yBound, packageY + maxPackageHeight + packageSpace);
+			this.yBound = Math.max(this.yBound, packageY + maxPackageHeight + packageSpace + classSize + packageSpace);
 			
 			packageIndex++;
 			if (packageIndex == maxPackages) {
 				packageX = packageSpace;
-				packageY += maxPackageHeight + packageSpace;
+				packageY += maxPackageHeight + packageSpace + classSize + packageSpace;
 				maxPackageHeight = 0;
 				packageIndex = 0;
 			}
@@ -151,7 +158,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 			int clusterIndex = this.distributionMap.getCluster(className);
 			String[] topics = (clusterIndex != -1) ? this.semanticTopics[clusterIndex] : new String[]{};
 			this.classRectangles.add(new DistributionRectangle(classX, classY, classWidth, classHeight, className, clusterIndex, topics));
-			this.buffer.append((className.lastIndexOf('.') != -1 ? className.substring(className.lastIndexOf('.')+1) : className) + " ");
+//			this.buffer.append((className.lastIndexOf('.') != -1 ? className.substring(className.lastIndexOf('.')+1) : className) + " ");
 			
 			if (clusterIndex != -1) {
 				packageTopics.add(clusterIndex);
@@ -165,7 +172,7 @@ public class DistributionMapGraphicPanel extends JPanel {
 				classX = packageX + packageStroke + classSpace;
 				classY += classHeight + classSpace;
 				classIndex = 0;
-				this.buffer.append(lineseparator);
+//				this.buffer.append(lineseparator);
 			}
 		}
 		
@@ -178,10 +185,10 @@ public class DistributionMapGraphicPanel extends JPanel {
 			strengthFactor *= 0.5;
 		}
 		
-		this.buffer.append(lineseparator + "#topics: " + packageTopics.size() + " concentration: " + concentration);
-		this.buffer.append(lineseparator + lineseparator);
+//		this.buffer.append(lineseparator + "#topics: " + packageTopics.size() + " concentration: " + concentration);
+//		this.buffer.append(lineseparator + lineseparator);
 		
-//		this.buffer.append(" " + packageTopics.size() + " " + concentration + lineseparator);
+		this.buffer.append(" " + packageTopics.size() + " " + String.valueOf(concentration).replace('.', ',') + lineseparator);
 	}
 
 	@Override
@@ -197,8 +204,13 @@ public class DistributionMapGraphicPanel extends JPanel {
 		// paint packages
 		graphics.setColor(new Color(0, 0, 0));
 		graphics.setStroke(new BasicStroke(packageStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		for (Rectangle2D.Double pckg : this.packageRectangles)
+		for (DistributionRectangle pckg : this.packageRectangles)
 			graphics.draw(pckg);
+		
+		for (DistributionRectangle pckgLabel : this.pckgLabelRectangles) {
+			graphics.setFont(graphics.getFont().deriveFont(12f));
+			graphics.drawString(pckgLabel.getEntityName(), (int) pckgLabel.getX() /*+ classSize + packageSpace*/, (int) pckgLabel.getY() /*+ packageSpace + 2*classSpace*/);
+		}
 		
 		// paint classes
 		for (DistributionRectangle clazz : this.classRectangles) {

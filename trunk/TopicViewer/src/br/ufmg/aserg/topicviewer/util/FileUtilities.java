@@ -56,7 +56,7 @@ public class FileUtilities {
 		saveBuffer(buffer, copyFileName);
 	}
 	
-	public static void saveClustering(int[][] clusters, String resultFileName) {
+	public static void saveClustering(int[][] clusters, String[] documentIds, String resultFileName) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(clusters.length + SEPARATOR);
 		for (int i = 0; i < clusters.length; i++) {
@@ -65,6 +65,14 @@ public class FileUtilities {
 			buffer.append(SEPARATOR);
 		}
 		saveBuffer(buffer, resultFileName);
+		
+		buffer = new StringBuffer();
+		for (int i = 0; i < clusters.length; i++) {
+			for (int j = 0; j < clusters[i].length; j++)
+				buffer.append(documentIds[clusters[i][j]].substring(documentIds[clusters[i][j]].lastIndexOf('.')+1) + " ");
+			buffer.append(SEPARATOR + SEPARATOR);
+		}
+		saveBuffer(buffer, resultFileName.replace("clusters", "mapping"));
 	}
 	
 	public static void saveMapping(Map<Integer, Integer> mapping, String resultFileName) {
