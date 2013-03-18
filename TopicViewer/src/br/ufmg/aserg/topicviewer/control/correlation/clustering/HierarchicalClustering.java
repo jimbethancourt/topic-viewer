@@ -14,8 +14,10 @@ import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 public class HierarchicalClustering {
 
 	private int numDocuments;
-	private int maxClusters;
+	private int minClusters;
 	private double threshold;
+	private final int MAX_CLUSTERS = 50;
+	
 	private DisjointTree clustersTree;
 	
 	private DoubleMatrix2D clusteredMatrix;
@@ -26,7 +28,7 @@ public class HierarchicalClustering {
 	
 	public HierarchicalClustering(String projectName, CorrelationMatrix correlationMatrix, String[] documentIds, int numClusters, double threshold) throws IOException {
 		this.numDocuments = correlationMatrix.getNumEntities();
-		this.maxClusters = numClusters;
+		this.minClusters = numClusters;
 		this.threshold = threshold;
 		
 		this.clustersTree = new DisjointTree();
@@ -63,8 +65,8 @@ public class HierarchicalClustering {
 	private void initClustering(DoubleMatrix2D correlationMatrix) {
 		int numClusters = this.numDocuments;
 		
-		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix);
-		while (this.maxClusters < numClusters && leastDissimilarPair != null) {
+		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, true);
+		while (this.minClusters < numClusters && leastDissimilarPair != null) {
 			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
 			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
 			
@@ -75,7 +77,7 @@ public class HierarchicalClustering {
 //				System.out.println(numClusters);
 			}
 			
-			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix);
+			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, numClusters > MAX_CLUSTERS);
 		}
 		
 		System.out.println(numClusters);
@@ -106,7 +108,7 @@ public class HierarchicalClustering {
 		}
 	}
 	
-	private int[] getLeastDissimilarPair(DoubleMatrix2D correlationMatrix) {
+	private int[] getLeastDissimilarPair(DoubleMatrix2D correlationMatrix, boolean force) {
 		double bestSimilarity = Double.NEGATIVE_INFINITY;
 		int[] leastDissimilarPair = {0,0};
 		
@@ -119,7 +121,7 @@ public class HierarchicalClustering {
 				}
 			}
 		
-		return (bestSimilarity < this.threshold) ? null : leastDissimilarPair;
+		return (bestSimilarity < this.threshold) ? (force ? leastDissimilarPair : null) : leastDissimilarPair;
 	}
 	
 	// implementing average linkage

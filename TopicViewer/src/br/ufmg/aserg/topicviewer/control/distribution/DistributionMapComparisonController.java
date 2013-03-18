@@ -2,11 +2,16 @@ package br.ufmg.aserg.topicviewer.control.distribution;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import ptstemmer.exceptions.PTStemmerException;
+
+import br.ufmg.aserg.topicviewer.control.semantic.SemanticTopicsCalculator;
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapGraphicPanel;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
@@ -44,13 +49,15 @@ public class DistributionMapComparisonController {
 	
 	private static Set<String> buildTermsSet(int[] cluster, String[] termIds, DoubleMatrix2D termDocMatrix) {
 		Set<String> terms = new HashSet<String>();
-		
-		for (int documentId : cluster) {
-			DoubleMatrix1D document = termDocMatrix.viewColumn(documentId);
-			for (int i = 0; i < document.size(); i++)
-				if (document.get(i) > 0D) terms.add(termIds[i]);
-		}
-		
+		for (int documentId : cluster)
+			terms.addAll(buildTermsSet(termDocMatrix.viewColumn(documentId), termIds));
+		return terms;
+	}
+	
+	private static Set<String> buildTermsSet(DoubleMatrix1D document, String[] termIds) {
+		Set<String> terms = new HashSet<String>();
+		for (int i = 0; i < document.size(); i++)
+			if (document.get(i) > 0D) terms.add(termIds[i]);
 		return terms;
 	}
 	
@@ -63,6 +70,61 @@ public class DistributionMapComparisonController {
 			if (!set1.contains(term)) union++;
 		
 		return intersect / union;
+	}
+	
+	// Retorna a nova configuração de clusters, dado o agrupamento de um projeto semente. Cada classe
+	// da versão mais nova será alocada para o cluster (da versão antiga) mais similar
+	private static int[][] getNewClustersFromFirstProject(String projectBefore, String projectAfter) throws IOException {
+		
+		// construindo conjunto de termos para o agrupamento antigo
+		DoubleMatrix2D termDocMatrix = new DoubleMatrix2D(projectBefore.replace(Properties.CORRELATION_MATRIX_OUTPUT, Properties.TERM_DOC_MATRIX_OUTPUT) + ".matrix");
+		String[] termIds = FileUtilities.readTermIds(projectBefore + ".ids");
+		int[][] clusteringBefore = FileUtilities.readClustering(projectBefore + ".clusters");
+		
+		List<Set<String>> clustersBefore = new ArrayList<Set<String>>();
+		for (int i = 0; i < clusteringBefore.length; i++)
+			clustersBefore.add(buildTermsSet(clusteringBefore[i], termIds, termDocMatrix));
+		
+		// atribuindo classes da versão nova para o cluster mais similar da versão antiga, segundo a
+		// similaridade de Jaccard. Não foi usada a similaridade do cosseno pois se tratam de dois es
+		// paços vetoriais diferentes
+		termDocMatrix = new DoubleMatrix2D(projectAfter.replace(Properties.CORRELATION_MATRIX_OUTPUT, Properties.TERM_DOC_MATRIX_OUTPUT) + ".matrix");
+		termIds = FileUtilities.readTermIds(projectAfter + ".ids");
+		
+		Map<Integer, List<Integer>> newClustering = new HashMap<Integer, List<Integer>>();
+		for (int i = 0; i < clusteringBefore.length; i++) newClustering.put(i, new LinkedList<Integer>());
+		for (int i = 0; i < termDocMatrix.columns(); i++) {
+			Set<String> terms = buildTermsSet(termDocMatrix.viewColumn(i), termIds);
+			
+			// calculando similaridades
+			double[] similarities = new double[clusteringBefore.length]; 
+			for (int j = 0; j < clusteringBefore.length; j++)
+				similarities[j] = calculateJaccardSimilarity(terms, clustersBefore.get(j));
+			
+			// verificando qual cluster é mais similar
+			int newClusterIndex = -1;
+			double bestSimilarity = Double.NEGATIVE_INFINITY;
+			for (int j = 0; j < similarities.length; j++)
+				if (similarities[j] > bestSimilarity) {
+					bestSimilarity = similarities[j];
+					newClusterIndex = j;
+				}
+			
+			newClustering.get(newClusterIndex).add(i);
+		}
+		
+		// transformando em array
+		int[][] newClusters = new int[clusteringBefore.length][0];
+		for (int i = 0; i < clusteringBefore.length; i++) {
+			newClusters[i] = new int[newClustering.get(i).size()];
+			int j = 0;
+			for (Integer classId : newClustering.get(i)) {
+				newClusters[i][j] = classId; 
+				j++;
+			}
+		}
+		
+		return newClusters;
 	}
 	
 	// Retorna a ordenação dos novos clusters, em relação ao clustering da versão anterior do projeto
@@ -122,8 +184,9 @@ public class DistributionMapComparisonController {
 		return newTopics;
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, PTStemmerException {
 		
+		Properties.load();
 		String[] projects = new String[args.length];
 		for (int i = 0; i < args.length; i++)
 			projects[i] = args[i].substring(0, args[i].lastIndexOf('.'));
@@ -139,9 +202,13 @@ public class DistributionMapComparisonController {
 			String[][] semanticTopics = FileUtilities.readSemanticTopics(project + ".topics");
 			
 			if (projectBefore != null) {
-				List<Integer> newOrdering = getNewClusters(projectBefore, project);
-				clusters = getNewClusters(clusters, newOrdering);
-				semanticTopics = getNewTopics(semanticTopics, newOrdering);
+//				List<Integer> newOrdering = getNewClusters(projectBefore, project);
+//				clusters = getNewClusters(clusters, newOrdering);
+//				semanticTopics = getNewTopics(semanticTopics, newOrdering);
+				
+				clusters = getNewClustersFromFirstProject(projectBefore, project);
+				String[] termIds = FileUtilities.readTermIds(project + ".ids");
+				semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromClasses(clusters, termIds, documentIds);
 			}
 			
 			for (String documentId : allClassNames) {
@@ -160,24 +227,5 @@ public class DistributionMapComparisonController {
         	if (projectBefore == null) projectBefore = project;
         	System.out.println("Merged Project: " + project);
 		}
-		
-//		for (String project : projects) {
-//			DistributionMap distributionMap = new DistributionMap(project + "-merge");
-//			String[] documentIds = FileUtilities.readDocumentIds(project + ".ids");
-//			int[][] clusters = FileUtilities.readClustering(project + ".clusters");
-//			
-//			for (String documentId : allClassNames) {
-//				String packageName = documentId.substring(documentId.lastIndexOf(':')+1, documentId.lastIndexOf('.'));
-//				String className = documentId.substring(documentId.lastIndexOf('.')+1);
-//				
-//				int documentIndex = getDocumentIndex(documentId, documentIds);
-//				int cluster = (documentIndex != -1) ? getClusterIndex(documentIndex, clusters) : -1;
-//				distributionMap.put(packageName, className, cluster);
-//			}
-//			
-//        	String[][] semanticTopics = FileUtilities.readSemanticTopics(project + ".topics");
-//        	new DistributionMapGraphicPanel(distributionMap, semanticTopics);
-//        	System.out.println("Merged Project: " + project);
-//		}
 	}
 }
