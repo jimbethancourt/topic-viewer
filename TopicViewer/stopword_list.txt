@@ -745,3 +745,10 @@ cdata
 cdat
 faster
 abstract
+wwwinfo
+http
+html
+cern
+focus
+fracpete
+revision

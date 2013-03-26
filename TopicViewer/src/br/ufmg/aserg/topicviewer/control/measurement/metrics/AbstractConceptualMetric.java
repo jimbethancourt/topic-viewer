@@ -88,6 +88,6 @@ public abstract class AbstractConceptualMetric {
 		
 		double cosineSimilarity = vector1.zDotProduct(vector2);
 		double denominator = Math.sqrt(vector1.zDotProduct(vector1) * vector2.zDotProduct(vector2));
-		return denominator == 0 ? 50000 : cosineSimilarity / denominator;
+		return denominator == 0 ? 1D : cosineSimilarity / denominator;
 	}
 }

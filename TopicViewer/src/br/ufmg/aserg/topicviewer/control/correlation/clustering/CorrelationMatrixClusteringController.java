@@ -51,10 +51,14 @@ public class CorrelationMatrixClusteringController extends AbstractController {
 				
 				String[] termIds = FileUtilities.readTermIds(idsFileName);
 				String[][] semanticTopics = SemanticTopicsCalculator.generateSemanticTopicsFromClasses(this.clusterer.getClusters(), termIds, documentIds);
-				
 				FileUtilities.saveSemanticTopics(semanticTopics, this.resultFolderName + File.separator + projectName + ".topics");
 				
 				int[][] clusters = this.clusterer.getClusters();
+				String lsiMatrixFile = matrixFile.getAbsolutePath().replace(Properties.CORRELATION_MATRIX_OUTPUT, Properties.TERM_DOC_MATRIX_OUTPUT);
+				lsiMatrixFile.replace(".matrix", "-lsi.matrix");
+				DoubleMatrix2D lsiTermDocMatrix = new DoubleMatrix2D(lsiMatrixFile);
+				ClusteringEvaluationController.calculateQualityMetrics(lsiTermDocMatrix, clusters);
+				
 				DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(this.resultFolderName + File.separator + projectName, documentIds, clusters);
 	        	new DistributionMapGraphicPanel(distributionMap, semanticTopics);
 	        	
