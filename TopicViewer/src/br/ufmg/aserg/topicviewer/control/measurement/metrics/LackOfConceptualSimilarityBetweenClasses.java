@@ -42,20 +42,20 @@ public class LackOfConceptualSimilarityBetweenClasses extends AbstractConceptual
 		for (int i = 0; i < numClasses; i++) C.put(i, new LinkedList<Integer>());
 		for (int i = 0; i < numClasses; i++)
 			for (int j = 0; j < numClasses; j++)
-				if (similarities[i][j] > meanSimilarities[i])
+				if (similarities[i][j] >= meanSimilarities[i])
 					C.get(i).add(j);
 		
 		// calculate intersection
 		similarities = null; meanSimilarities = null;
-		int intersect = 0;
-		int noInterset = 0;
+		double intersect = 0;
+		double noIntersect = 0;
 		for (int i = 0; i < numClasses; i++)
 			for (int j = i+1; j < numClasses; j++) {
 				if (intersect(C.get(i), C.get(j))) intersect++;
-				else noInterset++;
+				else noIntersect++;
 			}
 		
-		return (noInterset-intersect) / (noInterset+intersect);
+		return numClasses == 1 ? 0D : ((noIntersect-intersect) / (noIntersect+intersect));
 	}
 	
 	private boolean intersect(List<Integer> set1, List<Integer> set2) {
