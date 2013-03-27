@@ -243,7 +243,7 @@ public class SemanticTopicsCalculator {
 		return relevantTerms;
 	}
 	
-	private static cern.colt.matrix.DoubleMatrix2D getLsiTransformCopy(DoubleMatrix2D lsiTransform) {
+	public static cern.colt.matrix.DoubleMatrix2D getLsiTransformCopy(DoubleMatrix2D lsiTransform) {
 		cern.colt.matrix.DoubleMatrix2D matrix = new DenseDoubleMatrix2D(lsiTransform.rows(), lsiTransform.columns());
 		for (int i = 0; i < lsiTransform.rows(); i++)
     		for (int j = 0; j < lsiTransform.columns(); j++) 
