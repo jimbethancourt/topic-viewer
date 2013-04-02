@@ -93,12 +93,13 @@ public class FileUtilities {
 		saveBuffer(buffer, resultFileName);
 	}
 	
-	public static void saveResults(List<Map<String, Double>> results, String resultFileName) {
+	public static void saveMetricResults(String[] metricNames, List<Map<String, Double>> results, String resultFileName) {
 		final String TAB = "\t";
 		
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Package" + TAB + "CLCOC5" + TAB + "CCP" + TAB 
-				+ "LCSC" + TAB + "CCBP" + TAB + "CCoP" + TAB + SEPARATOR);
+		buffer.append("Package" + TAB);
+		for (String metricName : metricNames) buffer.append(metricName + TAB);
+		buffer.append(SEPARATOR);
 		
 		List<String> packages = new LinkedList<String>(results.get(0).keySet());
 		Collections.sort(packages);

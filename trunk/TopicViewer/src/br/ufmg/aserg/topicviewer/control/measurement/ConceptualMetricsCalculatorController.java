@@ -60,7 +60,7 @@ public class ConceptualMetricsCalculatorController extends AbstractController {
 				results.add(CCBP.calculate());
 				results.add(CCoP.calculate());
 				
-				FileUtilities.saveResults(results, this.resultFolderName + File.separator + projectName + ".results");
+				FileUtilities.saveMetricResults(new String[]{"CLCOC5", "CCP", "LCSC", "CCBP", "CCoP"}, results, this.resultFolderName + File.separator + projectName + ".results");
 			} catch (Exception e) {
 				this.failedProjects.add(matrixFile);
 				e.printStackTrace();
@@ -97,7 +97,7 @@ public class ConceptualMetricsCalculatorController extends AbstractController {
 				results.add(CCBP.calculate());
 				results.add(CCoP.calculate());
 				
-				FileUtilities.saveResults(results, resultFolderName + File.separator + projectName + ".results");
+				FileUtilities.saveMetricResults(new String[]{"CLCOC5", "CCP", "LCSC", "CCBP", "CCoP"}, results, resultFolderName + File.separator + projectName + ".results");
 				System.out.println(projectName);
 			} catch (Exception e) {
 				e.printStackTrace();

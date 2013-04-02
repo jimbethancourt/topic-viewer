@@ -10,15 +10,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -49,9 +44,6 @@ public class DistributionMapGraphicPanel extends JPanel {
 	private List<DistributionRectangle> classRectangles;
 	private List<DistributionRectangle> labelRectangles;
 	
-	private StringBuffer buffer;
-	private final String lineseparator = System.getProperty("line.separator");
-	
 	public DistributionMapGraphicPanel(DistributionMap distributionMap, String[][] semanticTopics) {
 		super();
 		
@@ -62,8 +54,6 @@ public class DistributionMapGraphicPanel extends JPanel {
 		this.pckgLabelRectangles = new LinkedList<DistributionRectangle>();
 		this.classRectangles = new LinkedList<DistributionRectangle>();
 		this.labelRectangles = new LinkedList<DistributionRectangle>();
-		
-		this.buffer = new StringBuffer();
 		
 		this.buildDistributionMap();
 		this.addMouseMotionListener(getMouseMotionListener());
@@ -77,14 +67,6 @@ public class DistributionMapGraphicPanel extends JPanel {
 			this.saveImage();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(this.distributionMap.getProjectName() + "-allClasses.txt"));
-			writer.write(this.buffer.toString());
-			writer.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
 		}
 	}
 	
@@ -110,8 +92,6 @@ public class DistributionMapGraphicPanel extends JPanel {
 					+ (numLines-1)*classSpace;
 			maxPackageHeight = Math.max(packageHeight, maxPackageHeight);
 			
-//			this.buffer.append("package: " + packageName + lineseparator);
-			this.buffer.append(packageName);
 			this.packageRectangles.add(new DistributionRectangle(packageX, packageY, packageWidth, packageHeight, packageName));
 			this.buildDistributionMap(classes, packageX, packageY);
 			
@@ -147,9 +127,6 @@ public class DistributionMapGraphicPanel extends JPanel {
 		int classX = packageX + packageStroke + classSpace;
 		int classY = packageY + packageStroke + classSpace;
 		
-		Set<Integer> packageTopics = new HashSet<Integer>();
-		double[] topicFrequency = new double[this.semanticTopics.length];
-		
 		for (String className : classes) {
 			
 			int classWidth = 2*classStroke + classSize;
@@ -158,12 +135,6 @@ public class DistributionMapGraphicPanel extends JPanel {
 			int clusterIndex = this.distributionMap.getCluster(className);
 			String[] topics = (clusterIndex != -1) ? this.semanticTopics[clusterIndex] : new String[]{};
 			this.classRectangles.add(new DistributionRectangle(classX, classY, classWidth, classHeight, className, clusterIndex, topics));
-//			this.buffer.append((className.lastIndexOf('.') != -1 ? className.substring(className.lastIndexOf('.')+1) : className) + " ");
-			
-			if (clusterIndex != -1) {
-				packageTopics.add(clusterIndex);
-				topicFrequency[clusterIndex]++;
-			}
 			
 			classX += classWidth + classSpace;
 			
@@ -172,23 +143,8 @@ public class DistributionMapGraphicPanel extends JPanel {
 				classX = packageX + packageStroke + classSpace;
 				classY += classHeight + classSpace;
 				classIndex = 0;
-//				this.buffer.append(lineseparator);
 			}
 		}
-		
-		Arrays.sort(topicFrequency);
-		double concentration = 0D;
-		double clusterSize = classes.size();
-		double strengthFactor = 1D;
-		for (int i = topicFrequency.length-1; i >= 0; i--) {
-			concentration += (topicFrequency[i]/clusterSize) * strengthFactor;
-			strengthFactor *= 0.5;
-		}
-		
-//		this.buffer.append(lineseparator + "#topics: " + packageTopics.size() + " concentration: " + concentration);
-//		this.buffer.append(lineseparator + lineseparator);
-		
-		this.buffer.append(" " + packageTopics.size() + " " + String.valueOf(concentration).replace('.', ',') + lineseparator);
 	}
 
 	@Override
@@ -263,5 +219,11 @@ public class DistributionMapGraphicPanel extends JPanel {
 			public void mouseDragged(MouseEvent e) {
 			}
 		};
+	}
+	
+	@Override
+	public void update(Graphics g) {
+		// TODO Auto-generated method stub
+		super.update(g);
 	}
 }

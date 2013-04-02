@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import ptstemmer.exceptions.PTStemmerException;
+import br.ufmg.aserg.topicviewer.control.measurement.metrics.AbstractSemanticTopicMetric;
+import br.ufmg.aserg.topicviewer.control.measurement.metrics.TopicConcentration;
+import br.ufmg.aserg.topicviewer.control.measurement.metrics.TopicFocus;
+import br.ufmg.aserg.topicviewer.control.measurement.metrics.TopicSpread;
 import br.ufmg.aserg.topicviewer.control.semantic.SemanticTopicsCalculator;
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapGraphicPanel;
@@ -161,8 +165,22 @@ public class DistributionMapComparisonController {
 			}
 			
 			distributionMap.organize();
-			
         	new DistributionMapGraphicPanel(distributionMap, semanticTopics);
+        	
+        	// calculating metrics - Topic Concentration on Packages
+        	AbstractSemanticTopicMetric concentration = new TopicConcentration(distributionMap, semanticTopics);
+        	List<Map<String, Double>> results = new LinkedList<Map<String, Double>>();
+			results.add(concentration.calculate());
+			FileUtilities.saveMetricResults(new String[]{"Concentration"}, results, project + "-package.results");
+			
+			// calculating metrics - Topic Spread and Focus
+			AbstractSemanticTopicMetric spread = new TopicSpread(distributionMap, semanticTopics);
+			AbstractSemanticTopicMetric focus = new TopicFocus(distributionMap, semanticTopics);
+			
+        	results = new LinkedList<Map<String, Double>>();
+			results.add(spread.calculate());
+			results.add(focus.calculate());
+			FileUtilities.saveMetricResults(new String[]{"Spread", "Focus"}, results, project + "-topic.results");
         	
         	if (projectBefore == null) projectBefore = project;
         	System.out.println("Merged Project: " + project);
