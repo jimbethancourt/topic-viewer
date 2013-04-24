@@ -19,15 +19,16 @@ import br.ufmg.aserg.topicviewer.util.Properties;
 public class ConceptualMetricsCalculatorController extends AbstractController {
 	
 	private File[] matrixFiles;
+	private String resultFolderName;
 	
 	public ConceptualMetricsCalculatorController(File[] matrixFiles) {
 		super();
 		
 		this.matrixFiles = matrixFiles;
 		this.resultFolderName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.METRICS_OUTPUT;
-		this.checkResultFolder();
+		this.checkResultFolder(this.resultFolderName);
 		
-		this.setAllProjectCount(matrixFiles.length);
+		this.setNumStages(matrixFiles.length);
 	}
 	
 	@Override
@@ -66,7 +67,7 @@ public class ConceptualMetricsCalculatorController extends AbstractController {
 				e.printStackTrace();
 			}
 			
-			this.addAnalyzedProject();
+			this.addCompletedStage();
 		}
 	}
 	

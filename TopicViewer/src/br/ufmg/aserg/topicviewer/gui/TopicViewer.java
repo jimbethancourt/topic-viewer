@@ -9,47 +9,43 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixCalculatorView;
-import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixClusteringView;
 import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixViewer;
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapViewer;
-import br.ufmg.aserg.topicviewer.gui.extraction.VocabularyExtractionView;
-import br.ufmg.aserg.topicviewer.gui.indexing.DocumentIndexingView;
-import br.ufmg.aserg.topicviewer.gui.measurement.ConceptualMetricsCalculatorView;
+import br.ufmg.aserg.topicviewer.gui.extraction.JavaVocabularyExtractionView;
+import br.ufmg.aserg.topicviewer.gui.indexing.SemanticClusteringView;
 import br.ufmg.aserg.topicviewer.util.Properties;
 
 public class TopicViewer extends javax.swing.JFrame {
 
 	private static final long serialVersionUID = -7144305228539220119L;
 	
-    private static final String EXTRACT_VOCABULARY_PANEL = "extract";
-    private static final String DOCUMENT_INDEXING_PANEL = "indexing";
-    private static final String CORRELATION_MATRIX_CALCULATOR_PANEL = "correlationCalculator";
-    private static final String CORRELATION_MATRIX_CLUSTERER_PANEL = "correlationClusterer";
-    private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationViewer";
-    private static final String DISTRIBUTION_MAP_VIEWER_PANEL = "distributionViewer";
-    private static final String CONCEPTUAL_METRICS_CALCULATOR_PANEL = "correlationMetricsCalculator";
+    private static final String EXTRACT_VOCABULARY_PANEL = "vocabularyExtraction";
+    private static final String SEMANTIC_CLUSTERING_PANEL = "semanticClustering";
+    private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationMatrixViewer";
+    private static final String DISTRIBUTION_MAP_VIEWER_PANEL = "distributionMapViewer";
 	
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JMenuBar mainMenuBar;
-    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator itemSeparator;
     
-    private javax.swing.JMenu activitiesMenu;
-    private javax.swing.JMenu aboutMenu;
-    private javax.swing.JMenu helpMenu;
-    
-    private javax.swing.JMenuItem configureWorkspaceMenuItem;
-    private javax.swing.JMenuItem extractVocabularyMenuItem;
-    private javax.swing.JMenuItem documentIndexingMenuItem;
-    private javax.swing.JMenu correlationMatrixMenu;
-    private javax.swing.JMenuItem correlationMatrixCalculatorMenuItem;
-    private javax.swing.JMenuItem correlationMatrixClustererMenuItem;
-    private javax.swing.JMenuItem correlationMatrixViewerMenuItem;
-    private javax.swing.JMenuItem distributionMapViewerMenuItem;
-    private javax.swing.JMenuItem conceptualMetricsCalculatorMenuItem;
-    private javax.swing.JMenuItem exitMenuItem;
+    private JMenu activitiesMenu;
+    private JMenuItem configureWorkspaceItem;
+    private JMenu vocabularyExtractionMenu;
+    private JMenuItem javaVocabularyExtractionItem;
+    private JMenuItem semanticClusteringItem;
+    private JMenu viewResultsMenu;
+    private JMenu correlationViewMenu;
+    private JMenu distributionMapMenu;
+    private JMenuItem correlationViewLoadItem;
+    private JMenuItem distributionMapLoadItem;
+    private JMenuItem comparativeDistributionMapItem;
+    private JMenuItem exitItem;
+    private JMenu aboutMenu;
+    private JMenu helpMenu;
     
     private Map<String, AbstractView> internalFrames;
 	
@@ -64,49 +60,34 @@ public class TopicViewer extends javax.swing.JFrame {
     }
 
     private void initComponents() {
-
     	setTitle("TopicViewer");
         desktop = new javax.swing.JDesktopPane();
         
         mainMenuBar = new javax.swing.JMenuBar();
-        activitiesMenu = new javax.swing.JMenu();
+    	itemSeparator = new javax.swing.JPopupMenu.Separator();
+        itemSeparator.setBackground(new java.awt.Color(0, 0, 0));
+    	
+    	activitiesMenu = new JMenu("Activities");
         activitiesMenu.setMnemonic('A');
-        activitiesMenu.setText("Activities");
         
-        jSeparator1 = new javax.swing.JPopupMenu.Separator();
-        jSeparator1.setBackground(new java.awt.Color(0, 0, 0));
+        configureWorkspaceItem = new JMenuItem("Configure Workspace");
+        vocabularyExtractionMenu = new JMenu("Vocabulary Extraction");
+        javaVocabularyExtractionItem = new JMenuItem("Java Vocabulary Extraction");
+        semanticClusteringItem = new JMenuItem("Semantic Clustering");
+        viewResultsMenu = new JMenu("View Results");
+        correlationViewMenu = new JMenu("Correlation Matrix");
+        distributionMapMenu = new JMenu("Distribution Map");
+        correlationViewLoadItem = new JMenuItem("Load...");
+        distributionMapLoadItem = new JMenuItem("Load...");
+        comparativeDistributionMapItem = new JMenuItem("Comparative Distribution Map");
+        exitItem = new JMenuItem("Exit");
+        exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         
-        configureWorkspaceMenuItem = new javax.swing.JMenuItem();
-        extractVocabularyMenuItem = new javax.swing.JMenuItem();
-        documentIndexingMenuItem = new javax.swing.JMenuItem();
-        correlationMatrixMenu = new javax.swing.JMenu();
-        correlationMatrixCalculatorMenuItem = new javax.swing.JMenuItem();
-        correlationMatrixClustererMenuItem = new javax.swing.JMenuItem();
-        correlationMatrixViewerMenuItem = new javax.swing.JMenuItem();
-        distributionMapViewerMenuItem = new javax.swing.JMenuItem();
-        conceptualMetricsCalculatorMenuItem = new javax.swing.JMenuItem();
-        exitMenuItem = new javax.swing.JMenuItem();
-
-        configureWorkspaceMenuItem.setText("Configure Workspace");
-        extractVocabularyMenuItem.setText("Extract Vocabulary");
-        documentIndexingMenuItem.setText("Document Indexing with LSI");
-        correlationMatrixMenu.setText("Correlation Matrix");
-        correlationMatrixCalculatorMenuItem.setText("Correlation Matrix Calculator");
-        correlationMatrixClustererMenuItem.setText("Correlation Matrix Clusterer");
-        correlationMatrixViewerMenuItem.setText("Correlation Matrix Viewer");
-        distributionMapViewerMenuItem.setText("Distribution Map Viewer");
-        conceptualMetricsCalculatorMenuItem.setText("Conceptual Metrics Calculator");
-        exitMenuItem.setText("Exit");
-        
-        exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
-        
-        aboutMenu = new javax.swing.JMenu();
+        aboutMenu = new javax.swing.JMenu("About");
         aboutMenu.setMnemonic('b');
-        aboutMenu.setText("About");
         
-        helpMenu = new javax.swing.JMenu();
-        helpMenu.setMnemonic('H');
-        helpMenu.setText("Help");
+        helpMenu = new javax.swing.JMenu("Help");
+        helpMenu.setMnemonic('H');        
         
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setExtendedState(Frame.MAXIMIZED_BOTH);
@@ -115,19 +96,18 @@ public class TopicViewer extends javax.swing.JFrame {
         getContentPane().setLayout(new java.awt.GridLayout(1, 0));
         getContentPane().add(desktop);
 
-        activitiesMenu.add(configureWorkspaceMenuItem);
-        activitiesMenu.add(extractVocabularyMenuItem);
-        activitiesMenu.add(documentIndexingMenuItem);
-        activitiesMenu.add(correlationMatrixMenu);
-        correlationMatrixMenu.add(correlationMatrixCalculatorMenuItem);
-        correlationMatrixMenu.add(correlationMatrixClustererMenuItem);
-        correlationMatrixMenu.add(correlationMatrixViewerMenuItem);
-        activitiesMenu.add(jSeparator1);
-        activitiesMenu.add(distributionMapViewerMenuItem);
-        activitiesMenu.add(jSeparator1);
-        activitiesMenu.add(conceptualMetricsCalculatorMenuItem);
-        activitiesMenu.add(jSeparator1);
-        activitiesMenu.add(exitMenuItem);
+        activitiesMenu.add(configureWorkspaceItem);
+        activitiesMenu.add(vocabularyExtractionMenu);
+        vocabularyExtractionMenu.add(javaVocabularyExtractionItem);
+        activitiesMenu.add(semanticClusteringItem);
+        activitiesMenu.add(viewResultsMenu);
+        correlationViewMenu.add(correlationViewLoadItem);
+        distributionMapMenu.add(distributionMapLoadItem);
+        distributionMapMenu.add(comparativeDistributionMapItem);
+//        viewResultsMenu.add(correlationViewMenu);
+        viewResultsMenu.add(distributionMapMenu);
+        activitiesMenu.add(itemSeparator);
+        activitiesMenu.add(exitItem);
 
         mainMenuBar.add(activitiesMenu);
         mainMenuBar.add(aboutMenu);
@@ -137,55 +117,45 @@ public class TopicViewer extends javax.swing.JFrame {
     }
     
     private void initListeners() {
-    	configureWorkspaceMenuItem.addActionListener(new java.awt.event.ActionListener() {
+    	configureWorkspaceItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuConfigureWorkspaceActionPerformed(evt);
             }
         });
     	
-    	extractVocabularyMenuItem.addActionListener(new java.awt.event.ActionListener() {
+    	javaVocabularyExtractionItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuExtractVocabularyActionPerformed(evt);
             }
         });
     	
-    	documentIndexingMenuItem.addActionListener(new java.awt.event.ActionListener() {
+    	semanticClusteringItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuDocumentIndexingActionPerformed(evt);
             }
         });
     	
-    	correlationMatrixCalculatorMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuCorrelationMatrixCalculatorActionPerformed(evt);
-            }
-        });
-    	
-    	correlationMatrixClustererMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuCorrelationMatrixClustererActionPerformed(evt);
-            }
-        });
-    	
-    	correlationMatrixViewerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+    	correlationViewLoadItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuCorrelationMatrixViewerActionPerformed(evt);
             }
         });
     	
-    	distributionMapViewerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+    	distributionMapLoadItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuDistributionMapViewerActionPerformed(evt);
             }
         });
     	
-    	conceptualMetricsCalculatorMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuConceptualMetricsCalculatorActionPerformed(evt);
-            }
-        });
+    	// TODO comparative distribution map
     	
-    	exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//    	conceptualMetricsCalculatorMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                menuConceptualMetricsCalculatorActionPerformed(evt);
+//            }
+//        });
+    	
+    	exitItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuExitActionPerformed(evt);
             }
@@ -208,33 +178,17 @@ public class TopicViewer extends javax.swing.JFrame {
 
     private void menuExtractVocabularyActionPerformed(java.awt.event.ActionEvent evt) {
     	if (!invokeView(EXTRACT_VOCABULARY_PANEL)) {
-    		VocabularyExtractionView extractVocabulary = new VocabularyExtractionView();
+    		JavaVocabularyExtractionView extractVocabulary = new JavaVocabularyExtractionView();
     		this.internalFrames.put(EXTRACT_VOCABULARY_PANEL, extractVocabulary);
     		this.desktop.add(extractVocabulary, javax.swing.JLayeredPane.DEFAULT_LAYER);
     	}
     }
     
     private void menuDocumentIndexingActionPerformed(java.awt.event.ActionEvent evt) {
-    	if (!invokeView(DOCUMENT_INDEXING_PANEL)) {
-    		DocumentIndexingView documentIndexing = new DocumentIndexingView();
-    		this.internalFrames.put(DOCUMENT_INDEXING_PANEL, documentIndexing);
-    		this.desktop.add(documentIndexing, javax.swing.JLayeredPane.DEFAULT_LAYER);
-    	}
-    }
-    
-    private void menuCorrelationMatrixCalculatorActionPerformed(java.awt.event.ActionEvent evt) {
-    	if (!invokeView(CORRELATION_MATRIX_CALCULATOR_PANEL)) {
-    		CorrelationMatrixCalculatorView correlationMatrixCalculator = new CorrelationMatrixCalculatorView();
-    		this.internalFrames.put(CORRELATION_MATRIX_CALCULATOR_PANEL, correlationMatrixCalculator);
-    		this.desktop.add(correlationMatrixCalculator, javax.swing.JLayeredPane.DEFAULT_LAYER);
-    	}
-    }
-    
-    private void menuCorrelationMatrixClustererActionPerformed(java.awt.event.ActionEvent evt) {
-    	if (!invokeView(CORRELATION_MATRIX_CLUSTERER_PANEL)) {
-    		CorrelationMatrixClusteringView correlationMatrixClustering = new CorrelationMatrixClusteringView();
-    		this.internalFrames.put(CORRELATION_MATRIX_CLUSTERER_PANEL, correlationMatrixClustering);
-    		this.desktop.add(correlationMatrixClustering, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    	if (!invokeView(SEMANTIC_CLUSTERING_PANEL)) {
+    		SemanticClusteringView semanticClustering = new SemanticClusteringView();
+    		this.internalFrames.put(SEMANTIC_CLUSTERING_PANEL, semanticClustering);
+    		this.desktop.add(semanticClustering, javax.swing.JLayeredPane.DEFAULT_LAYER);
     	}
     }
     
@@ -254,14 +208,6 @@ public class TopicViewer extends javax.swing.JFrame {
     	}
     }
     
-    private void menuConceptualMetricsCalculatorActionPerformed(java.awt.event.ActionEvent evt) {
-    	if (!invokeView(CONCEPTUAL_METRICS_CALCULATOR_PANEL)) {
-    		ConceptualMetricsCalculatorView conceptualMetricsCalculator = new ConceptualMetricsCalculatorView();
-    		this.internalFrames.put(CONCEPTUAL_METRICS_CALCULATOR_PANEL, conceptualMetricsCalculator);
-    		this.desktop.add(conceptualMetricsCalculator, javax.swing.JLayeredPane.DEFAULT_LAYER);
-    	}
-    }
-
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {
         System.gc();
         System.exit(0);
@@ -276,14 +222,14 @@ public class TopicViewer extends javax.swing.JFrame {
     }
     
     private void enableButtons(boolean enable) {
-    	extractVocabularyMenuItem.setEnabled(enable);
-    	documentIndexingMenuItem.setEnabled(enable);
-    	correlationMatrixMenu.setEnabled(enable);
-    	correlationMatrixCalculatorMenuItem.setEnabled(enable);
-    	correlationMatrixClustererMenuItem.setEnabled(enable);
-    	correlationMatrixViewerMenuItem.setEnabled(enable);
-    	distributionMapViewerMenuItem.setEnabled(enable);
-    	conceptualMetricsCalculatorMenuItem.setEnabled(enable);
+//    	extractVocabularyMenuItem.setEnabled(enable);
+//    	documentIndexingMenuItem.setEnabled(enable);
+//    	correlationMatrixMenu.setEnabled(enable);
+//    	correlationMatrixCalculatorMenuItem.setEnabled(enable);
+//    	correlationMatrixClustererMenuItem.setEnabled(enable);
+//    	correlationMatrixViewerMenuItem.setEnabled(enable);
+//    	distributionMapViewerMenuItem.setEnabled(enable);
+//    	conceptualMetricsCalculatorMenuItem.setEnabled(enable);
     }
     
     private boolean invokeView(String viewId) {

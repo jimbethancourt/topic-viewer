@@ -16,17 +16,12 @@ public class HierarchicalClustering {
 	private int numDocuments;
 	private int minClusters;
 	private double threshold;
-	private final int MAX_CLUSTERS = 50;
 	
 	private DisjointTree clustersTree;
 	
-	private DoubleMatrix2D clusteredMatrix;
-	private DoubleMatrix2D clusteredWithLinksMatrix;
-	private Map<Integer, Integer> indexMapping;
-	
 	private int[][] clusters;
 	
-	public HierarchicalClustering(String projectName, CorrelationMatrix correlationMatrix, String[] documentIds, int numClusters, double threshold) throws IOException {
+	public HierarchicalClustering(CorrelationMatrix correlationMatrix, boolean useThreshold, boolean useBestThreshold, int numClusters, double threshold) throws IOException {
 		this.numDocuments = correlationMatrix.getNumEntities();
 		this.minClusters = numClusters;
 		this.threshold = threshold;
@@ -40,22 +35,10 @@ public class HierarchicalClustering {
 			clustersTree.makeSet(new Vertex(i));
 		}
 		
+		if (useBestThreshold)
+			this.threshold = getBestThreshold(correlationMatrix.getCorrelationMatrix());
+		
 		initClustering(correlationMatrix2D.copy());
-		this.indexMapping = ClusteredMatrixCalculator.generateIndexMapping(this.clusters);
-		this.clusteredMatrix = ClusteredMatrixCalculator.generateClusteredMatrix(correlationMatrix2D, this.clusters, this.indexMapping);
-		this.clusteredWithLinksMatrix = ClusteredMatrixCalculator.generateClusteredWithLinksMatrix(correlationMatrix2D, this.clusteredMatrix, this.indexMapping);
-	}
-	
-	public DoubleMatrix2D getClusteredMatrix() {
-		return this.clusteredMatrix;
-	}
-	
-	public DoubleMatrix2D getClusteredWithLinksMatrix() {
-		return this.clusteredWithLinksMatrix;
-	}
-	
-	public Map<Integer, Integer> getIndexMapping() {
-		return this.indexMapping;
 	}
 	
 	public int[][] getClusters() {
@@ -77,10 +60,10 @@ public class HierarchicalClustering {
 //				System.out.println(numClusters);
 			}
 			
-			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, numClusters > MAX_CLUSTERS);
+			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
 		}
 		
-		System.out.println(numClusters);
+		System.out.print(numClusters + "\t");
 		
 		this.generateClusters();
 	}
@@ -170,6 +153,47 @@ public class HierarchicalClustering {
 			if (this.clustersTree.findSet(new Vertex(i)).index == rootIndex)
 				clusterSet.add(i);
 		return clusterSet;
+	}
+	
+	public double getBestThreshold(DoubleMatrix2D correlationMatrix) {
+		final double[] thresholdSet = {.55, .60, .65, .70, .75};
+		double[] clusteringQuality = new double[thresholdSet.length];
+		int thresholdIndex = thresholdSet.length-1;
+		
+		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, true);
+		while (leastDissimilarPair != null && thresholdIndex >= 0) {
+			this.threshold = thresholdSet[thresholdIndex];
+			
+			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
+			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
+			
+			if (set1 != set2) {
+				this.clustersTree.union(set1, set2);
+				updateCorrelationMatrix(set1.index, correlationMatrix);
+			}
+			
+			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
+			
+			if (leastDissimilarPair == null && thresholdIndex > 0) {
+				this.generateClusters();
+				clusteringQuality[thresholdIndex] = ClusteringEvaluationController.calculateCCClus(correlationMatrix, clusters);
+				
+				thresholdIndex--;
+				this.threshold = thresholdSet[thresholdIndex];
+				
+				leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
+			}
+		}
+		
+		double bestThreshold = 0D;
+		double bestQuality = Double.NEGATIVE_INFINITY;
+		for (int i = 0; i < thresholdSet.length; i++)
+			if (clusteringQuality[i] > bestQuality) {
+				bestThreshold = thresholdSet[i];
+				bestQuality = clusteringQuality[i];
+			}
+		
+		return bestThreshold;
 	}
 	
 	static class Vertex {

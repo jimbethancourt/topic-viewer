@@ -68,15 +68,18 @@ public class DistributionMap {
 		for (String packageName : this.packageMapping.keySet()) {
 			List<String> classes = this.packageMapping.get(packageName);
 			
-			Collections.sort(classes, new Comparator<String>() {
-				@Override
-				public int compare(String class1, String class2) {
-					return Integer.compare(
-							classMapping.get(class1), 
-							classMapping.get(class2));
-				}
-			});
-//			Collections.sort(classes);
+			// sort by cluster index, group all classes of a cluster
+//			Collections.sort(classes, new Comparator<String>() {
+//				@Override
+//				public int compare(String class1, String class2) {
+//					return Integer.compare(
+//							classMapping.get(class1), 
+//							classMapping.get(class2));
+//				}
+//			});
+			
+			// sort classes alphabetically
+			Collections.sort(classes);
 		}
 	}
 }

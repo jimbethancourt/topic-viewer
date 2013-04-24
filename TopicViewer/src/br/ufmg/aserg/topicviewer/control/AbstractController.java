@@ -6,32 +6,34 @@ import java.util.List;
 
 public abstract class AbstractController implements Runnable {
 	
-	protected int allProjectCount;
-	protected int analyzedProjectsCount;
+	protected int numStages;
+	protected int completedStages;
+	
 	protected List<File> failedProjects;
-	protected String resultFolderName;
+	
+	protected String progressMessage;
 	
 	public AbstractController() {
-		this.allProjectCount = 0;
-		this.analyzedProjectsCount = 0;
+		this.numStages = 0;
+		this.completedStages = 0;
 		
 		this.failedProjects = new LinkedList<File>();
 	}
 	
-	public int getAllProjectCount() {
-		return this.allProjectCount;
+	public int numStages() {
+		return this.numStages;
 	}
 	
-	protected void setAllProjectCount(int projectCount) {
-		this.allProjectCount = projectCount;
+	protected void setNumStages(int numStages) {
+		this.numStages = numStages;
 	}
 	
-	public int getAnalyzedProjectCount() {
-		return this.analyzedProjectsCount;
+	public int numCompletedStages() {
+		return this.completedStages;
 	}
 	
-	protected void addAnalyzedProject() {
-		this.analyzedProjectsCount++;
+	protected void addCompletedStage() {
+		this.completedStages++;
 	}
 	
 	public List<File> getFailedProjects() {
@@ -42,8 +44,16 @@ public abstract class AbstractController implements Runnable {
 		this.failedProjects.add(failedProject);
 	}
 	
-	protected void checkResultFolder() {
-		File resultFolder = new File(this.resultFolderName);
+	public String getProgressMessage() {
+		return this.progressMessage;
+	}
+	
+	protected void setProgressMessage(String message) {
+		this.progressMessage = message;
+	}
+	
+	protected static void checkResultFolder(String folderName) {
+		File resultFolder = new File(folderName);
 		if (!resultFolder.exists()) resultFolder.mkdirs();
 	}
 }
