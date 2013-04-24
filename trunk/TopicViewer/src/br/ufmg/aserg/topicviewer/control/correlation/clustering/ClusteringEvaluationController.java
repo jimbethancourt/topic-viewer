@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import cern.colt.matrix.DoubleMatrix1D;
-
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class ClusteringEvaluationController {
@@ -17,7 +15,7 @@ public class ClusteringEvaluationController {
 	 * (CMmax - CMmin) / AMM, where AMM - Average Module Membership is calcula
 	 * ted as numClasses / numClusters
 	 */
-	private static double calculateRMD(int[][] clusters) {
+	public static double calculateRMD(int[][] clusters) {
 		double numClasses = 0D;
 		double numClusters = clusters.length;
 		double cmMin = Double.POSITIVE_INFINITY;
@@ -40,7 +38,7 @@ public class ClusteringEvaluationController {
 	 * numClassesNonExtreme / numClasses, where numClassesNonExtreme is calculated
 	 * by the number of classes of clusters whose size is between length thresholds
 	 */
-	private static double calculateNED(int[][] clusters) {
+	public static double calculateNED(int[][] clusters) {
 		double numClasses = 0D;
 		double numClusters = clusters.length;
 		for (int[] cluster : clusters)
@@ -64,7 +62,7 @@ public class ClusteringEvaluationController {
 	 * similarity between each pair of classes of one cluster. We then calculate the
 	 * average CCP of all clusters as the CCP of the clustering
 	 */
-	private static double calculateCCP(DoubleMatrix2D termDocMatrix, int[][] clusters) {
+	public static double calculateCCClus(DoubleMatrix2D correlationMatrix, int[][] clusters) {
 		double ccp = 0D;
 		double numClusters = clusters.length;
 		
@@ -75,7 +73,7 @@ public class ClusteringEvaluationController {
 			double similarity = 0D;
 			for (int i = 0; i < numClasses; i++) {
 				for (int j = i+1; j < numClasses; j++) {
-					similarity += calculateSimilarity(termDocMatrix, cluster[i], cluster[j]);
+					similarity += correlationMatrix.get(cluster[i], cluster[j]);
 					numCombinations++;
 				}
 			}
@@ -93,7 +91,7 @@ public class ClusteringEvaluationController {
 	 * as the ratio of the number of pairs of classes whose similarity was above the
 	 * mean similarity of their cluster
 	 * */
-	private static double calculateLCSC(DoubleMatrix2D termDocMatrix, int[][] clusters) {
+	public static double calculateLCSC(DoubleMatrix2D correlationMatrix, int[][] clusters) {
 		double lcsc = 0D;
 		double numClusters = clusters.length;
 		
@@ -104,7 +102,7 @@ public class ClusteringEvaluationController {
 			double[][] similarities = new double[numClasses][numClasses];
 			for (int i = 0; i < numClasses; i++)
 				for (int j = i+1; j < numClasses; j++)
-					similarities[i][j] = similarities[j][i] = calculateSimilarity(termDocMatrix, cluster[i], cluster[j]);
+					similarities[i][j] = similarities[j][i] = correlationMatrix.get(cluster[i], cluster[j]);
 			
 			// calculate mean similarity
 			double[] meanSimilarities = new double[numClasses];
@@ -139,26 +137,10 @@ public class ClusteringEvaluationController {
 		return lcsc / numClusters;
 	}
 	
-	private static double calculateSimilarity(final DoubleMatrix2D termDocMatrix, int document1, int document2) {
-		DoubleMatrix1D vector1 = termDocMatrix.viewColumn(document1);
-		DoubleMatrix1D vector2 = termDocMatrix.viewColumn(document2);
-		
-		double cosineSimilarity = vector1.zDotProduct(vector2);
-		double denominator = Math.sqrt(vector1.zDotProduct(vector1) * vector2.zDotProduct(vector2));
-		return denominator == 0 ? 1D : cosineSimilarity / denominator;
-	}
-	
 	private static boolean intersect(List<Integer> set1, List<Integer> set2) {
 		for (Integer element1 : set1)
 			if (set2.contains(element1))
 				return true;
 		return false;
-	}
-	
-	public static void calculateQualityMetrics(DoubleMatrix2D termDocMatrix, int[][] clusters) {
-		System.out.print(calculateRMD(clusters) + "\t");
-		System.out.print(calculateNED(clusters) + "\t");
-		System.out.print(calculateCCP(termDocMatrix, clusters) + "\t");
-		System.out.println(calculateLCSC(termDocMatrix, clusters));
 	}
 }

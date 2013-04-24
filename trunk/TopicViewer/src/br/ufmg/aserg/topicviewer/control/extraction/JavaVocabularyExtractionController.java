@@ -1,8 +1,9 @@
-package br.ufmg.aserg.topicviewer.control.indexing;
+package br.ufmg.aserg.topicviewer.control.extraction;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,44 +13,52 @@ import org.splabs.vocabulary.filter.FilterProperties;
 import org.splabs.vocabulary.filter.IdentifierFilter;
 import org.splabs.vocabulary.iR.IR;
 import org.splabs.vocabulary.iR.IRPropertyKeys;
-import org.splabs.vocabulary.iR.info.LSIInfo;
+import org.splabs.vocabulary.iR.info.IRInfo;
 import org.splabs.vocabulary.vxl.VXLReader;
+import org.splabs.vocabulary.vxl.browsers.DirectoriesBrowser;
 import org.splabs.vocabulary.vxl.iterator.VXLIterator;
 import org.splabs.vocabulary.vxl.iterator.javamodel.ContainerEntity;
 import org.splabs.vocabulary.vxl.iterator.util.VXLReaderPropertyKeys;
+import org.splabs.vocabulary.vxl.util.LOCManager;
+import org.splabs.vocabulary.vxl.util.VxlManager;
+import org.splabs.vocabulary.vxl.vloccount.LOCParameters;
 
 import ptstemmer.exceptions.PTStemmerException;
-
 import br.ufmg.aserg.topicviewer.control.AbstractController;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 
-public class DocumentIndexingController extends AbstractController {
+public class JavaVocabularyExtractionController extends AbstractController {
 	
-	private File[] vocabularyFiles;
+	private File[] projects;
+	private String vocabularyResultFolder;
+	private String termDocResultFolder;
 	
 	private VXLReader vxlReader;
 	private IdentifierFilter identifierFilter;
-	private LSIInfo retrievedInfo;
+	private IRInfo retrievedInfo;
 	
 	private java.util.Properties props;
 	
-	public DocumentIndexingController(File[] vocabularyFiles, String weightFunction, String tfVariant, Integer lowRank) {
+	public JavaVocabularyExtractionController(File[] projects, boolean includeComment, boolean includeJavaDoc, boolean removeStopWords, boolean removeSmallWords, int minimalTermLength) {
 		super();
 		checkDefaultProperties();
 		
-		this.vocabularyFiles = vocabularyFiles;
-		this.setAllProjectCount(this.vocabularyFiles.length);
-		
-		this.resultFolderName = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT;
-		checkResultFolder();
+		this.projects = projects;
+		this.setNumStages(this.projects.length*2);
 		
 		Map<String, String> properties = new HashMap<String, String>();
-		properties.put(IRPropertyKeys.SCORE_CALCULATOR_TYPE, weightFunction);
-		properties.put(IRPropertyKeys.TERM_FREQUENCY_VARIANT_TYPE, tfVariant);
-		properties.put(IRPropertyKeys.LSI_LOW_RANK_VALUE, lowRank.toString());
+		properties.put(VXLReaderPropertyKeys.INCLUDE_COMMENTS, String.valueOf(includeComment));
+		properties.put(VXLReaderPropertyKeys.INCLUDE_JAVADOC, String.valueOf(includeJavaDoc));
+		properties.put(FilterProperties.STOPWORDS, removeStopWords ? "yes" : "no");
+		properties.put(FilterProperties.LIMIT_TERM_LENGTH, removeSmallWords ? new Integer(minimalTermLength).toString() : new Integer(0).toString());
 		Properties.setProperties(properties);
+		
+		this.vocabularyResultFolder = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.VOCABULARY_OUTPUT;
+		this.termDocResultFolder = Properties.getProperty(Properties.WORKSPACE) + File.separator + Properties.TERM_DOC_MATRIX_OUTPUT;
+		checkResultFolder(this.vocabularyResultFolder);
+		checkResultFolder(this.termDocResultFolder);
 		
 		props = Properties.getProperties();
 		this.vxlReader = new VXLReader(props);
@@ -83,7 +92,45 @@ public class DocumentIndexingController extends AbstractController {
 		}
 		
 		IR ir = new IR(termsEntitiesMap, props);
-		retrievedInfo = new LSIInfo(ir.calculate(), props);
+		retrievedInfo = new IRInfo(ir.calculate(), props);
+	}
+	
+	@Override
+	public void run() {
+		for (File project : this.projects) {
+			String projectName = project.getName();
+			
+			try {
+			// -------------------------------------- Vocabulary Extraction --------------------------------------
+				this.setProgressMessage("Extracting vocabulary from " + projectName + " project");
+				
+				LOCManager.locParameters = new LinkedList<LOCParameters>();
+				DirectoriesBrowser.browse(project.getAbsolutePath(), projectName, "");
+				VxlManager.save(this.vocabularyResultFolder + File.separator + projectName + ".vxl");
+				
+				this.setProgressMessage("Vocabulary from " + projectName + " extracted successfully");
+				this.addCompletedStage();
+			
+			// -------------------------------------- Term Document Indexing --------------------------------------
+				this.setProgressMessage("Indexing terms and documents from " + projectName + " project");
+				
+				this.loadVXLFile(this.vocabularyResultFolder + File.separator + projectName + ".vxl");
+				this.createIRInfoTermsPerEntity();
+				
+				FileUtilities.saveTermDocumentInfo(this.retrievedInfo, this.termDocResultFolder + File.separator + projectName + ".ids");
+				new DoubleMatrix2D(this.retrievedInfo.getTermDocumentMatrix()).save(this.termDocResultFolder + File.separator + projectName + ".matrix");
+				
+				this.setProgressMessage("Term-Document Matrix from " + projectName + " saved successfully");
+				this.addCompletedStage();
+			} catch (Exception e) {
+				this.failedProjects.add(project);
+				e.printStackTrace();
+				
+				this.addCompletedStage(); this.addCompletedStage();
+			}
+		}
+		
+		this.setProgressMessage("Finished");
 	}
 	
 	private void checkDefaultProperties() {
@@ -115,28 +162,6 @@ public class DocumentIndexingController extends AbstractController {
 			properties.put(IRPropertyKeys.DISTANCE_FUNCTION, IRPropertyKeys.DistanceFunctionType.COSINE.toString());
 			
 			Properties.setProperties(properties);
-		}
-	}
-
-	@Override
-	public void run() {
-		for (File vocabularyFile : this.vocabularyFiles) {
-			try {
-				String projectName = vocabularyFile.getName().substring(0, vocabularyFile.getName().lastIndexOf('.'));
-				
-				this.loadVXLFile(vocabularyFile.getAbsolutePath());
-				this.createIRInfoTermsPerEntity();
-				
-				FileUtilities.saveTermDocumentInfo(this.retrievedInfo, this.resultFolderName + File.separator + projectName + ".ids");
-				new DoubleMatrix2D(this.retrievedInfo.getTermDocumentMatrix()).save(this.resultFolderName + File.separator + projectName + ".matrix");
-				new DoubleMatrix2D(this.retrievedInfo.getLsiTermDocumentMatrix()).save(this.resultFolderName + File.separator + projectName + "-lsi.matrix");
-				new DoubleMatrix2D(this.retrievedInfo.getLsiTransformMatrix()).save(this.resultFolderName + File.separator + projectName + ".lsi");
-			} catch (Exception e) {
-				this.failedProjects.add(vocabularyFile);
-				e.printStackTrace();
-			}
-			
-			this.addAnalyzedProject();
 		}
 	}
 }

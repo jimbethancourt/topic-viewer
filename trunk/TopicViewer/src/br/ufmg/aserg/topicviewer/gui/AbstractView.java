@@ -49,8 +49,9 @@ public abstract class AbstractView extends JInternalFrame {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
                 }
                 
-                value = ((double) controller.getAnalyzedProjectCount() / controller.getAllProjectCount()) * 100;
+                value = ((double) controller.numCompletedStages() / controller.numStages()) * 100;
                 progressBar.setValue((int) value);
+                progressBar.setString(controller.getProgressMessage());
                 progressBar.repaint();
             }
             

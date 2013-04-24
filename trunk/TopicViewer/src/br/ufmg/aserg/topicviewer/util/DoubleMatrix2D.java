@@ -17,6 +17,7 @@ import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class DoubleMatrix2D implements Closeable {
 	
@@ -142,6 +143,14 @@ public class DoubleMatrix2D implements Closeable {
     			copy.set(i, j, this.get(i, j));
     	return copy;
     }
+    
+	public static cern.colt.matrix.DoubleMatrix2D copy(DoubleMatrix2D lsiTransform) {
+		cern.colt.matrix.DoubleMatrix2D matrix = new DenseDoubleMatrix2D(lsiTransform.rows(), lsiTransform.columns());
+		for (int i = 0; i < lsiTransform.rows(); i++)
+    		for (int j = 0; j < lsiTransform.columns(); j++) 
+    			matrix.set(i, j, lsiTransform.get(i, j));
+		return matrix;
+	}
     
     public void save(String fileName) throws IOException {
     	this.close();
