@@ -2,6 +2,8 @@ package br.ufmg.aserg.topicviewer.gui.draw;
 
 import java.awt.Color;
 
+import br.ufmg.aserg.topicviewer.util.UnsufficientNumberOfColorsException;
+
 public class ColorUtil {
 	
 	public static Color generateGreyColor(double value, double minValue, double maxValue) { 
@@ -67,7 +69,10 @@ public class ColorUtil {
 		new Color(139, 136, 120) // cornsilk4
 	};
 	
-	public static Color getDistributionColor(int colorIndex) {
+	public static Color getDistributionColor(int colorIndex) throws UnsufficientNumberOfColorsException {
+		if (colorIndex >= distributionColors.length)
+			throw new UnsufficientNumberOfColorsException(distributionColors.length);
+		
 		Color color = distributionColors[colorIndex];
 		return color;
 	}

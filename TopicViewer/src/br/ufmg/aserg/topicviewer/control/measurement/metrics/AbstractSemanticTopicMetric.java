@@ -7,17 +7,16 @@ import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 
 public abstract class AbstractSemanticTopicMetric {
 	
-	protected int numTopics;
+	protected int numClusters;
 	protected DistributionMap distributionMap;
 	
-	protected AbstractSemanticTopicMetric(DistributionMap distributionMap, String[][] semanticTopics) {
-		this.numTopics = semanticTopics.length;
+	protected AbstractSemanticTopicMetric(DistributionMap distributionMap, int numClusters) {
+		this.numClusters = numClusters;
 		this.distributionMap = distributionMap;
 	}
 	
 	public abstract Map<String, Double> calculate();
 	
-	//TODO util methods
 	protected double calculateTopicTouch(int topicIndex, String packageName) {
 		List<String> classes = this.distributionMap.getClasses(packageName); 
 		double numClasses = classes.size();

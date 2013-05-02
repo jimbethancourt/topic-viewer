@@ -7,8 +7,8 @@ import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 
 public class TopicFocus extends AbstractSemanticTopicMetric {
 	
-	public TopicFocus(DistributionMap distributionMap, String[][] semanticTopics) {
-		super(distributionMap, semanticTopics);
+	public TopicFocus(DistributionMap distributionMap, int numClusters) {
+		super(distributionMap, numClusters);
 	}
 
 	private double calculate(int topicIndex) {
@@ -20,7 +20,7 @@ public class TopicFocus extends AbstractSemanticTopicMetric {
 
 	public Map<String, Double> calculate() {
 		Map<String, Double> metricMapping = new HashMap<String, Double>();
-		for (int topicIndex = 0; topicIndex < this.numTopics; topicIndex++)
+		for (int topicIndex = 0; topicIndex < this.numClusters; topicIndex++)
 			metricMapping.put(String.valueOf(topicIndex), calculate(topicIndex));
 		return metricMapping;
 	}

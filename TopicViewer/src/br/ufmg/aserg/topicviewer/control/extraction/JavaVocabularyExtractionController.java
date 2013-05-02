@@ -106,7 +106,10 @@ public class JavaVocabularyExtractionController extends AbstractController {
 				
 				LOCManager.locParameters = new LinkedList<LOCParameters>();
 				DirectoriesBrowser.browse(project.getAbsolutePath(), projectName, "");
-				VxlManager.save(this.vocabularyResultFolder + File.separator + projectName + ".vxl");
+				
+				String vocabularyFile = this.vocabularyResultFolder + File.separator + projectName + ".vxl";
+				checkExistingFile(vocabularyFile);
+				VxlManager.save(vocabularyFile);
 				
 				this.setProgressMessage("Vocabulary from " + projectName + " extracted successfully");
 				this.addCompletedStage();
@@ -114,7 +117,7 @@ public class JavaVocabularyExtractionController extends AbstractController {
 			// -------------------------------------- Term Document Indexing --------------------------------------
 				this.setProgressMessage("Indexing terms and documents from " + projectName + " project");
 				
-				this.loadVXLFile(this.vocabularyResultFolder + File.separator + projectName + ".vxl");
+				this.loadVXLFile(vocabularyFile);
 				this.createIRInfoTermsPerEntity();
 				
 				FileUtilities.saveTermDocumentInfo(this.retrievedInfo, this.termDocResultFolder + File.separator + projectName + ".ids");
@@ -131,6 +134,12 @@ public class JavaVocabularyExtractionController extends AbstractController {
 		}
 		
 		this.setProgressMessage("Finished");
+	}
+	
+	// evitar append no arquivo
+	private void checkExistingFile(String fileName) {
+		File file = new File(fileName);
+		if (file.exists()) file.delete();
 	}
 	
 	private void checkDefaultProperties() {

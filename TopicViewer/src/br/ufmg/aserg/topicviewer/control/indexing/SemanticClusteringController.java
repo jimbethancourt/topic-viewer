@@ -11,10 +11,7 @@ import org.splabs.vocabulary.iR.info.LSIInfo;
 import br.ufmg.aserg.topicviewer.control.AbstractController;
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.control.correlation.clustering.HierarchicalClustering;
-import br.ufmg.aserg.topicviewer.control.distribution.DistributionMapCalculator;
 import br.ufmg.aserg.topicviewer.control.semantic.SemanticTopicsCalculator;
-import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
-import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapGraphicPanel;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
@@ -100,29 +97,31 @@ public class SemanticClusteringController extends AbstractController {
 				
 				LSIInfo lsiInfo = new LSIInfo(terms, documents, DoubleMatrix2D.copy(termDocumentMatrix), props);
 				DoubleMatrix2D lsiTermDocumentMatrix = new DoubleMatrix2D(lsiInfo.getLsiTermDocumentMatrix());
-				lsiTermDocumentMatrix.save(this.lsiTermDocFolder + File.separator + projectName + "-lsi.matrix");
 				new DoubleMatrix2D(lsiInfo.getLsiTransformMatrix()).save(this.lsiTermDocFolder + File.separator + projectName + ".lsi");
 				
 				this.setProgressMessage("Vector Space reduced with LSI successfully for " + projectName + " project");
 				this.addCompletedStage();
+				
+				termDocumentMatrix.close();
 			
 			// ------------------------------- Correlation Matrix indexing ------------------------------
 				this.setProgressMessage("Calculating Correlation Matrix for " + projectName + " project");
 				
 				DoubleMatrix2D correlationMatrix = this.buildCorrelationMatrix(lsiTermDocumentMatrix);
+				lsiTermDocumentMatrix.save(this.lsiTermDocFolder + File.separator + projectName + "-lsi.matrix");
 				
 				String idsFileName = termDocumentMatrixFile.getAbsolutePath().substring(0, termDocumentMatrixFile.getAbsolutePath().lastIndexOf('.')) + ".ids";
 				FileUtilities.copyFile(idsFileName, this.correlationFolder + File.separator + projectName + ".ids");
-				correlationMatrix.save(this.correlationFolder + File.separator + projectName + ".matrix");
 			
-				this.setProgressMessage("");
+				this.setProgressMessage("Correlation Matrix generated for " + projectName + " project");
 				this.addCompletedStage();
-			
+				
 			// --------------------------------- Hierarchical Clustering --------------------------------
             	this.setProgressMessage("Executing Hierarchical Clustering for " + projectName + " project");
 				
             	CorrelationMatrix matrix = new CorrelationMatrix(documents, correlationMatrix);
             	this.clusterer = new HierarchicalClustering(matrix, useThreshold, getBestThreshold, numClusters, threshold);
+            	correlationMatrix.save(this.correlationFolder + File.separator + projectName + ".matrix");
 				FileUtilities.saveClustering(this.clusterer.getClusters(), documents, this.correlationFolder + File.separator + projectName + ".clusters");
 				
 				this.setProgressMessage("Generating Semantic Topics for " + projectName + " project");
@@ -132,7 +131,7 @@ public class SemanticClusteringController extends AbstractController {
 				
 	        	this.setProgressMessage("Semantic Topics generated for " + projectName + " project successfully");
 	        	this.addCompletedStage();
-				
+	        	
 			} catch (Exception e) {
 				this.failedProjects.add(termDocumentMatrixFile);
 				e.printStackTrace();

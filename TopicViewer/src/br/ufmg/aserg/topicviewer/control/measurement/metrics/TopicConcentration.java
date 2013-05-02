@@ -11,14 +11,14 @@ import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 
 public class TopicConcentration extends AbstractSemanticTopicMetric {
 	
-	public TopicConcentration(DistributionMap distributionMap, String[][] semanticTopics) {
-		super(distributionMap, semanticTopics);
+	public TopicConcentration(DistributionMap distributionMap, int numClusters) {
+		super(distributionMap, numClusters);
 	}
 
 	private double calculate(String packageName) {
 		
 		Set<Integer> packageTopics = new HashSet<Integer>();
-		double[] topicFrequency = new double[this.numTopics];
+		double[] topicFrequency = new double[this.numClusters];
 		double numClasses = 0D;
 		
 		List<String> classes = this.distributionMap.getClasses(packageName);
