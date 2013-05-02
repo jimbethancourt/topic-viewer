@@ -57,13 +57,10 @@ public class HierarchicalClustering {
 				this.clustersTree.union(set1, set2);
 				updateCorrelationMatrix(set1.index, correlationMatrix);
 				numClusters--;
-//				System.out.println(numClusters);
 			}
 			
 			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
 		}
-		
-		System.out.print(numClusters + "\t");
 		
 		this.generateClusters();
 	}

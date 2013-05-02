@@ -10,23 +10,29 @@ import java.util.Map;
 public class DistributionMap {
 	
 	private String projectName;
-	private Map<String, List<String>> packageMapping;
-	private Map<String, Integer> classMapping;
+	private Map<String, PackageInfo> packageMapping;
+	private Map<String, ClassInfo> classMapping;
+	private Map<Integer, TopicInfo> topicMapping;
 	
 	public DistributionMap(String projectName) {
 		this.projectName = projectName;
-		this.packageMapping = new HashMap<String, List<String>>();
-		this.classMapping = new HashMap<String, Integer>();
+		this.packageMapping = new HashMap<String, PackageInfo>();
+		this.classMapping = new HashMap<String, ClassInfo>();
+		this.topicMapping = new HashMap<Integer, TopicInfo>();
 	}
 	
-	public void put(String packageName, String className, int clusterIndex) {
+	public void put(String packageName, String className, int clusterIndex, double ccp) {
 		List<String> classes = (this.packageMapping.containsKey(packageName)) ? 
-				this.packageMapping.get(packageName) : 
+				this.packageMapping.get(packageName).classNames : 
 				new LinkedList<String>();
 		classes.add(className);
 				
-		this.packageMapping.put(packageName, classes);
-		this.classMapping.put(className, clusterIndex);
+		this.packageMapping.put(packageName, new PackageInfo(classes, ccp));
+		this.classMapping.put(className, new ClassInfo(clusterIndex));
+	}
+	
+	public void put(int clusterIndex, double spread, double focus) {
+		this.topicMapping.put(clusterIndex, new TopicInfo(spread, focus));
 	}
 	
 	public String getProjectName() {
@@ -45,8 +51,8 @@ public class DistributionMap {
 			@Override
 			public int compare(String package1, String package2) {
 				return Integer.compare(
-						packageMapping.get(package2).size(), 
-						packageMapping.get(package1).size());
+						packageMapping.get(package2).classNames.size(), 
+						packageMapping.get(package1).classNames.size());
 			}
 		});
 		
@@ -54,32 +60,68 @@ public class DistributionMap {
 	}
 	
 	public List<String> getClasses(String packageName) {
-		return this.packageMapping.get(packageName);
+		return this.packageMapping.get(packageName).classNames;
 	}
 	
 	public Integer getCluster(String className) {
-		return this.classMapping.get(className);
+		return this.classMapping.get(className).clusterIndex;
+	}
+	
+	public Double getSpread(int clusterIndex) {
+		return this.topicMapping.get(clusterIndex).spread;
+	}
+	
+	public Double getFocus(int clusterIndex) {
+		return this.topicMapping.get(clusterIndex).focus;
 	}
 	
 	/**
 	 * Sort all class names by the cluster they're in
 	 */
-	public void organize() {
+	public void organize(boolean byName) {
 		for (String packageName : this.packageMapping.keySet()) {
-			List<String> classes = this.packageMapping.get(packageName);
+			List<String> classes = this.packageMapping.get(packageName).classNames;
 			
-			// sort by cluster index, group all classes of a cluster
-//			Collections.sort(classes, new Comparator<String>() {
-//				@Override
-//				public int compare(String class1, String class2) {
-//					return Integer.compare(
-//							classMapping.get(class1), 
-//							classMapping.get(class2));
-//				}
-//			});
-			
-			// sort classes alphabetically
-			Collections.sort(classes);
+			if (byName) {
+				Collections.sort(classes);
+			} else {
+				Collections.sort(classes, new Comparator<String>() {
+					@Override
+					public int compare(String class1, String class2) {
+						return Integer.compare(
+								classMapping.get(class1).clusterIndex, 
+								classMapping.get(class2).clusterIndex);
+					}
+				});
+			}
+		}
+	}
+	
+	static class PackageInfo {
+		List<String> classNames;
+		double ccp;
+		
+		PackageInfo(List<String> classNames, double ccp) {
+			this.classNames = classNames;
+			this.ccp = ccp;
+		}
+	}
+	
+	static class ClassInfo {
+		int clusterIndex;
+		
+		ClassInfo(int topicIndex) {
+			this.clusterIndex = topicIndex;
+		}
+	}
+	
+	static class TopicInfo {
+		double spread;
+		double focus;
+		
+		TopicInfo(double spread, double focus) {
+			this.spread = spread;
+			this.focus = focus;
 		}
 	}
 }

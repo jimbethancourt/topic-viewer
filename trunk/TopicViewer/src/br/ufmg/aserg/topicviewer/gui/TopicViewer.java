@@ -9,11 +9,15 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
-import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixViewer;
+import org.pushingpixels.substance.api.SubstanceLookAndFeel;
+import org.pushingpixels.substance.api.skin.DustSkin;
+
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapViewer;
 import br.ufmg.aserg.topicviewer.gui.extraction.JavaVocabularyExtractionView;
 import br.ufmg.aserg.topicviewer.gui.indexing.SemanticClusteringView;
@@ -25,7 +29,7 @@ public class TopicViewer extends javax.swing.JFrame {
 	
     private static final String EXTRACT_VOCABULARY_PANEL = "vocabularyExtraction";
     private static final String SEMANTIC_CLUSTERING_PANEL = "semanticClustering";
-    private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationMatrixViewer";
+//    private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationMatrixViewer";
     private static final String DISTRIBUTION_MAP_VIEWER_PANEL = "distributionMapViewer";
 	
     private javax.swing.JDesktopPane desktop;
@@ -38,11 +42,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private JMenuItem javaVocabularyExtractionItem;
     private JMenuItem semanticClusteringItem;
     private JMenu viewResultsMenu;
-    private JMenu correlationViewMenu;
-    private JMenu distributionMapMenu;
-    private JMenuItem correlationViewLoadItem;
     private JMenuItem distributionMapLoadItem;
-    private JMenuItem comparativeDistributionMapItem;
     private JMenuItem exitItem;
     private JMenu aboutMenu;
     private JMenu helpMenu;
@@ -75,11 +75,7 @@ public class TopicViewer extends javax.swing.JFrame {
         javaVocabularyExtractionItem = new JMenuItem("Java Vocabulary Extraction");
         semanticClusteringItem = new JMenuItem("Semantic Clustering");
         viewResultsMenu = new JMenu("View Results");
-        correlationViewMenu = new JMenu("Correlation Matrix");
-        distributionMapMenu = new JMenu("Distribution Map");
-        correlationViewLoadItem = new JMenuItem("Load...");
-        distributionMapLoadItem = new JMenuItem("Load...");
-        comparativeDistributionMapItem = new JMenuItem("Comparative Distribution Map");
+        distributionMapLoadItem = new JMenuItem("Distribution Map");
         exitItem = new JMenuItem("Exit");
         exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         
@@ -101,11 +97,7 @@ public class TopicViewer extends javax.swing.JFrame {
         vocabularyExtractionMenu.add(javaVocabularyExtractionItem);
         activitiesMenu.add(semanticClusteringItem);
         activitiesMenu.add(viewResultsMenu);
-        correlationViewMenu.add(correlationViewLoadItem);
-        distributionMapMenu.add(distributionMapLoadItem);
-        distributionMapMenu.add(comparativeDistributionMapItem);
-//        viewResultsMenu.add(correlationViewMenu);
-        viewResultsMenu.add(distributionMapMenu);
+        viewResultsMenu.add(distributionMapLoadItem);
         activitiesMenu.add(itemSeparator);
         activitiesMenu.add(exitItem);
 
@@ -135,25 +127,17 @@ public class TopicViewer extends javax.swing.JFrame {
             }
         });
     	
-    	correlationViewLoadItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuCorrelationMatrixViewerActionPerformed(evt);
-            }
-        });
+//    	correlationViewLoadItem.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                menuCorrelationMatrixViewerActionPerformed(evt);
+//            }
+//        });
     	
     	distributionMapLoadItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuDistributionMapViewerActionPerformed(evt);
             }
         });
-    	
-    	// TODO comparative distribution map
-    	
-//    	conceptualMetricsCalculatorMenuItem.addActionListener(new java.awt.event.ActionListener() {
-//            public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                menuConceptualMetricsCalculatorActionPerformed(evt);
-//            }
-//        });
     	
     	exitItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -192,13 +176,13 @@ public class TopicViewer extends javax.swing.JFrame {
     	}
     }
     
-    private void menuCorrelationMatrixViewerActionPerformed(java.awt.event.ActionEvent evt) {
-    	if (!invokeView(CORRELATION_MATRIX_VIEWER_PANEL)) {
-    		CorrelationMatrixViewer correlationMatrixViewer = new CorrelationMatrixViewer();
-    		this.internalFrames.put(CORRELATION_MATRIX_VIEWER_PANEL, correlationMatrixViewer);
-    		this.desktop.add(correlationMatrixViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
-    	}
-    }
+//    private void menuCorrelationMatrixViewerActionPerformed(java.awt.event.ActionEvent evt) {
+//    	if (!invokeView(CORRELATION_MATRIX_VIEWER_PANEL)) {
+//    		CorrelationMatrixViewer correlationMatrixViewer = new CorrelationMatrixViewer();
+//    		this.internalFrames.put(CORRELATION_MATRIX_VIEWER_PANEL, correlationMatrixViewer);
+//    		this.desktop.add(correlationMatrixViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
+//    	}
+//    }
     
     private void menuDistributionMapViewerActionPerformed(java.awt.event.ActionEvent evt) {
     	if (!invokeView(DISTRIBUTION_MAP_VIEWER_PANEL)) {
@@ -244,37 +228,30 @@ public class TopicViewer extends javax.swing.JFrame {
     public static void main(String args[]) {
     	
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TopicViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TopicViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TopicViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        	JFrame.setDefaultLookAndFeelDecorated(true);
+        	SwingUtilities.invokeLater(new Runnable() {
+
+    			@Override
+    			public void run() {
+    				SubstanceLookAndFeel.setSkin(new DustSkin());
+    				TopicViewer frame = new TopicViewer();
+    				frame.setSize(800, 600);
+                	
+        			BufferedImage image = null;
+        			try {
+        				image = ImageIO.read(frame.getClass().getResource("../img/icon.png"));
+        			} catch (IOException e) {
+        				e.printStackTrace();
+        			}
+        			
+        			frame.setIconImage(image);
+                    frame.setVisible(true);
+    			}
+        		
+        	});
+        } catch (Exception ex) {
             java.util.logging.Logger.getLogger(TopicViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-            	TopicViewer frame = new TopicViewer();
-            	
-    			BufferedImage image = null;
-    			try {
-    				image = ImageIO.read(frame.getClass().getResource("../img/icon.png"));
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-    			
-    			frame.setIconImage(image);
-                frame.setVisible(true);
-            }
-        });
+        
     }
 }

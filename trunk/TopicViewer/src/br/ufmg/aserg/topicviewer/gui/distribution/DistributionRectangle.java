@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 
 import br.ufmg.aserg.topicviewer.gui.draw.ColorUtil;
+import br.ufmg.aserg.topicviewer.util.UnsufficientNumberOfColorsException;
 
 public class DistributionRectangle extends Rectangle2D.Double {
 
@@ -13,7 +14,7 @@ public class DistributionRectangle extends Rectangle2D.Double {
 	private String clusterTopics;
 	private Color clusterColor;
 	
-	public DistributionRectangle(int x, int y, int width, int height, String className, int clusterIndex, String[] clusterTopics) {
+	public DistributionRectangle(int x, int y, int width, int height, String className, int clusterIndex, String[] clusterTopics) throws UnsufficientNumberOfColorsException {
 		this.setRect(x, y, width, height);
 		
 		this.entityName = className;
