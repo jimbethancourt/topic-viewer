@@ -130,12 +130,12 @@ public class ConceptualMetricsCalculatorView extends AbstractView {
         chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
             @Override
             public boolean accept(File f) {
-                return f.getName().toLowerCase().endsWith(".matrix") || f.isDirectory();
+                return f.getName().toLowerCase().endsWith(".cmatrix") || f.isDirectory();
             }
 
             @Override
             public String getDescription() {
-                return "Matrix Files (.matrix)";
+                return "Correlation Matrix Files (.matrix)";
             }
         });
         
