@@ -121,7 +121,7 @@ public class SemanticClusteringController extends AbstractController {
 				
             	CorrelationMatrix matrix = new CorrelationMatrix(documents, correlationMatrix);
             	this.clusterer = new HierarchicalClustering(matrix, useThreshold, getBestThreshold, numClusters, threshold);
-            	correlationMatrix.save(this.correlationFolder + File.separator + projectName + ".matrix");
+            	correlationMatrix.save(this.correlationFolder + File.separator + projectName + ".cmatrix");
 				FileUtilities.saveClustering(this.clusterer.getClusters(), documents, this.correlationFolder + File.separator + projectName + ".clusters");
 				
 				this.setProgressMessage("Generating Semantic Topics for " + projectName + " project");

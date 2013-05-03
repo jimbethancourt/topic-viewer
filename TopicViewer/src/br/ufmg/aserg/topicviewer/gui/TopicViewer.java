@@ -1,5 +1,6 @@
 package br.ufmg.aserg.topicviewer.gui;
 
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -18,6 +19,7 @@ import javax.swing.SwingUtilities;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.DustSkin;
 
+import br.ufmg.aserg.topicviewer.gui.correlation.CorrelationMatrixViewer;
 import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMapViewer;
 import br.ufmg.aserg.topicviewer.gui.extraction.JavaVocabularyExtractionView;
 import br.ufmg.aserg.topicviewer.gui.indexing.SemanticClusteringView;
@@ -29,7 +31,7 @@ public class TopicViewer extends javax.swing.JFrame {
 	
     private static final String EXTRACT_VOCABULARY_PANEL = "vocabularyExtraction";
     private static final String SEMANTIC_CLUSTERING_PANEL = "semanticClustering";
-//    private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationMatrixViewer";
+    private static final String CORRELATION_MATRIX_VIEWER_PANEL = "correlationMatrixViewer";
     private static final String DISTRIBUTION_MAP_VIEWER_PANEL = "distributionMapViewer";
 	
     private javax.swing.JDesktopPane desktop;
@@ -42,6 +44,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private JMenuItem javaVocabularyExtractionItem;
     private JMenuItem semanticClusteringItem;
     private JMenu viewResultsMenu;
+    private JMenuItem correlationMatrixLoadItem;
     private JMenuItem distributionMapLoadItem;
     private JMenuItem exitItem;
     private JMenu aboutMenu;
@@ -49,8 +52,6 @@ public class TopicViewer extends javax.swing.JFrame {
     
     private Map<String, AbstractView> internalFrames;
 	
-    // TODO implementar logging, tratamento de erros e mensagens de tooltip
-    
 	public TopicViewer() {
         initComponents();
         initListeners();	
@@ -75,6 +76,7 @@ public class TopicViewer extends javax.swing.JFrame {
         javaVocabularyExtractionItem = new JMenuItem("Java Vocabulary Extraction");
         semanticClusteringItem = new JMenuItem("Semantic Clustering");
         viewResultsMenu = new JMenu("View Results");
+        correlationMatrixLoadItem = new JMenuItem("Correlation Matrix");
         distributionMapLoadItem = new JMenuItem("Distribution Map");
         exitItem = new JMenuItem("Exit");
         exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
@@ -97,6 +99,7 @@ public class TopicViewer extends javax.swing.JFrame {
         vocabularyExtractionMenu.add(javaVocabularyExtractionItem);
         activitiesMenu.add(semanticClusteringItem);
         activitiesMenu.add(viewResultsMenu);
+        viewResultsMenu.add(correlationMatrixLoadItem);
         viewResultsMenu.add(distributionMapLoadItem);
         activitiesMenu.add(itemSeparator);
         activitiesMenu.add(exitItem);
@@ -106,6 +109,9 @@ public class TopicViewer extends javax.swing.JFrame {
         mainMenuBar.add(helpMenu);
 
         setJMenuBar(mainMenuBar);
+        
+        setSize(800, 600);
+		setPreferredSize(new Dimension(800, 600));
     }
     
     private void initListeners() {
@@ -127,11 +133,11 @@ public class TopicViewer extends javax.swing.JFrame {
             }
         });
     	
-//    	correlationViewLoadItem.addActionListener(new java.awt.event.ActionListener() {
-//            public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                menuCorrelationMatrixViewerActionPerformed(evt);
-//            }
-//        });
+    	correlationMatrixLoadItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCorrelationMatrixViewerActionPerformed(evt);
+            }
+        });
     	
     	distributionMapLoadItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -164,7 +170,7 @@ public class TopicViewer extends javax.swing.JFrame {
     	if (!invokeView(EXTRACT_VOCABULARY_PANEL)) {
     		JavaVocabularyExtractionView extractVocabulary = new JavaVocabularyExtractionView();
     		this.internalFrames.put(EXTRACT_VOCABULARY_PANEL, extractVocabulary);
-    		this.desktop.add(extractVocabulary, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    		this.desktop.add(extractVocabulary);
     	}
     }
     
@@ -172,23 +178,23 @@ public class TopicViewer extends javax.swing.JFrame {
     	if (!invokeView(SEMANTIC_CLUSTERING_PANEL)) {
     		SemanticClusteringView semanticClustering = new SemanticClusteringView();
     		this.internalFrames.put(SEMANTIC_CLUSTERING_PANEL, semanticClustering);
-    		this.desktop.add(semanticClustering, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    		this.desktop.add(semanticClustering);
     	}
     }
     
-//    private void menuCorrelationMatrixViewerActionPerformed(java.awt.event.ActionEvent evt) {
-//    	if (!invokeView(CORRELATION_MATRIX_VIEWER_PANEL)) {
-//    		CorrelationMatrixViewer correlationMatrixViewer = new CorrelationMatrixViewer();
-//    		this.internalFrames.put(CORRELATION_MATRIX_VIEWER_PANEL, correlationMatrixViewer);
-//    		this.desktop.add(correlationMatrixViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
-//    	}
-//    }
+    private void menuCorrelationMatrixViewerActionPerformed(java.awt.event.ActionEvent evt) {
+    	if (!invokeView(CORRELATION_MATRIX_VIEWER_PANEL)) {
+    		CorrelationMatrixViewer correlationMatrixViewer = new CorrelationMatrixViewer();
+    		this.internalFrames.put(CORRELATION_MATRIX_VIEWER_PANEL, correlationMatrixViewer);
+    		this.desktop.add(correlationMatrixViewer);
+    	}
+    }
     
     private void menuDistributionMapViewerActionPerformed(java.awt.event.ActionEvent evt) {
     	if (!invokeView(DISTRIBUTION_MAP_VIEWER_PANEL)) {
     		DistributionMapViewer distributionMapViewer = new DistributionMapViewer();
     		this.internalFrames.put(DISTRIBUTION_MAP_VIEWER_PANEL, distributionMapViewer);
-    		this.desktop.add(distributionMapViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
+    		this.desktop.add(distributionMapViewer);
     	}
     }
     
@@ -206,14 +212,12 @@ public class TopicViewer extends javax.swing.JFrame {
     }
     
     private void enableButtons(boolean enable) {
-//    	extractVocabularyMenuItem.setEnabled(enable);
-//    	documentIndexingMenuItem.setEnabled(enable);
-//    	correlationMatrixMenu.setEnabled(enable);
-//    	correlationMatrixCalculatorMenuItem.setEnabled(enable);
-//    	correlationMatrixClustererMenuItem.setEnabled(enable);
-//    	correlationMatrixViewerMenuItem.setEnabled(enable);
-//    	distributionMapViewerMenuItem.setEnabled(enable);
-//    	conceptualMetricsCalculatorMenuItem.setEnabled(enable);
+    	vocabularyExtractionMenu.setEnabled(enable);
+    	javaVocabularyExtractionItem.setEnabled(enable);
+    	semanticClusteringItem.setEnabled(enable);
+    	viewResultsMenu.setEnabled(enable);
+    	correlationMatrixLoadItem.setEnabled(enable);
+    	distributionMapLoadItem.setEnabled(enable);
     }
     
     private boolean invokeView(String viewId) {
@@ -235,7 +239,6 @@ public class TopicViewer extends javax.swing.JFrame {
     			public void run() {
     				SubstanceLookAndFeel.setSkin(new DustSkin());
     				TopicViewer frame = new TopicViewer();
-    				frame.setSize(800, 600);
                 	
         			BufferedImage image = null;
         			try {

@@ -211,11 +211,6 @@ public class JavaVocabularyExtractionView extends AbstractView {
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-
-        pack();
-        java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        java.awt.Dimension dialogSize = getSize();
-        setLocation((screenSize.width-dialogSize.width)/2,(screenSize.height-dialogSize.height)/2);
     }
     
     private void initListeners() {
