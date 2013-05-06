@@ -8,7 +8,7 @@ import javax.swing.JScrollPane;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.gui.AbstractView;
-import br.ufmg.aserg.topicviewer.gui.correlation.ClusteredCorrelationMatrixGraphicPanel.ClusteredMatrixListener;
+import br.ufmg.aserg.topicviewer.gui.correlation.ClusteredCorrelationMatrixPanel.ClusteredMatrixListener;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
@@ -163,7 +163,7 @@ public class CorrelationMatrixViewer extends AbstractView implements ClusteredMa
             	DoubleMatrix2D correlationMatrix = new DoubleMatrix2D(selectedFile.getAbsolutePath());
             	CorrelationMatrix matrix = new CorrelationMatrix(documentIds, correlationMatrix);
             	
-            	CorrelationMatrixGraphicPanel graphicPanel = null;
+            	CorrelationMatrixPanel graphicPanel = null;
             	
             	boolean isClusteredMatrix = selectedFile.getName().contains("clustered");
             	this.detailsPanel.setVisible(isClusteredMatrix);
@@ -174,10 +174,10 @@ public class CorrelationMatrixViewer extends AbstractView implements ClusteredMa
             		
             		int[][] clusters = FileUtilities.readClustering(clustersFileName);
             		this.semanticTopics = FileUtilities.readSemanticTopics(topicsFileName);
-            		graphicPanel = new ClusteredCorrelationMatrixGraphicPanel(matrix, clusters);
-            		((ClusteredCorrelationMatrixGraphicPanel) graphicPanel).addListener(this);
+            		graphicPanel = new ClusteredCorrelationMatrixPanel(matrix, clusters);
+            		((ClusteredCorrelationMatrixPanel) graphicPanel).addListener(this);
             	} else 
-            		graphicPanel = new CorrelationMatrixGraphicPanel(matrix);
+            		graphicPanel = new CorrelationMatrixPanel(matrix);
             	
                 this.correlationMatrixScrollPane.setViewportView(graphicPanel);
                 this.correlationMatrixScrollPane.revalidate();

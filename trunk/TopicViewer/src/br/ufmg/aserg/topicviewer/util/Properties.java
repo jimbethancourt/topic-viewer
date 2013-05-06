@@ -11,6 +11,8 @@ import java.util.Map;
 public class Properties {
 
 	private static final String PROPERTIES_FILE = "project.properties";
+	public static final String ORIGINAL_STOPWORDS_FILE = "originalstopwordlist.txt";
+	public static final String STOPWORDS_FILE = "stopwordlist.txt";
 
 	private static InputStream propertiesInputStream = null;
 	private static java.util.Properties prop = new java.util.Properties();

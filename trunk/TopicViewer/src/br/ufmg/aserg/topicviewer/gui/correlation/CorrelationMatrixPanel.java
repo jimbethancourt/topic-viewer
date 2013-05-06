@@ -8,16 +8,25 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.gui.draw.CorrelationRectangle;
+import br.ufmg.aserg.topicviewer.util.Properties;
 
-public class CorrelationMatrixGraphicPanel extends JPanel {
+public class CorrelationMatrixPanel extends JPanel {
 	
 	private static final long serialVersionUID = -6391510670978885799L;
 
@@ -27,22 +36,28 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 	protected static final Integer matrixStrokeSize = 5;
 	protected static final Integer entitySize = 8;
 	
+	private int bound;
+	
 	private List<CorrelationRectangle> rectangles;
 	
-	public CorrelationMatrixGraphicPanel(CorrelationMatrix matrix) {
+	private JMenuItem saveImageMenuItem;
+	private JPopupMenu rightClickPopupMenu;
+	
+	public CorrelationMatrixPanel(CorrelationMatrix matrix) {
 		super();
 		
 		this.correlationMatrix = matrix;
 		this.rectangles = new LinkedList<CorrelationRectangle>();
 		
-		int bounds = (matrixStrokeSize * 2) + entitySize * (this.correlationMatrix.getNumEntities());
-		this.matrixExternalView = new Rectangle2D.Double(5, 5, bounds, bounds);
+		this.bound = (matrixStrokeSize * 2) + entitySize * (this.correlationMatrix.getNumEntities());
+		this.matrixExternalView = new Rectangle2D.Double(5, 5, bound, bound);
 		
 		this.buildCorrelationMatrix();
+		this.addRightClickListener();
 		this.addMouseMotionListener(getMouseMotionListener());
 		this.setLayout(new BorderLayout());
-		this.setSize(new Dimension(bounds, bounds));
-		this.setPreferredSize(new Dimension(bounds, bounds));
+		this.setSize(new Dimension(bound, bound));
+		this.setPreferredSize(new Dimension(bound, bound));
 	}
 	
 	private void buildCorrelationMatrix() {
@@ -74,6 +89,52 @@ public class CorrelationMatrixGraphicPanel extends JPanel {
 			graphics.setColor(rectangle.getColor());
 			graphics.fill(rectangle);
 		}
+	}
+	
+	private void addRightClickListener() {
+		this.saveImageMenuItem = new JMenuItem("Save Image...");
+		this.rightClickPopupMenu = new JPopupMenu();
+		
+		this.rightClickPopupMenu.add(saveImageMenuItem);
+        this.setComponentPopupMenu(rightClickPopupMenu);
+        
+        this.saveImageMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+					saveImageActionPerformed();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Error Saving File:\nCause:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+				}
+            }
+        });
+	}
+	
+	private void saveImageActionPerformed() throws IOException {
+		JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File(Properties.getProperty(Properties.WORKSPACE)));
+        chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.getName().toLowerCase().endsWith(".png") || f.isDirectory();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Image Files (.png)";
+            }
+        });
+        
+		if (chooser.showSaveDialog(this) != JFileChooser.CANCEL_OPTION) {
+			this.saveImage(chooser.getSelectedFile());
+		}
+	}
+	
+	public void saveImage(File file) throws IOException {
+		BufferedImage image = new BufferedImage(this.bound, this.bound, BufferedImage.TYPE_INT_RGB);
+		this.paintComponent(image.getGraphics());
+
+	    ImageIO.write(image, "PNG", new File(file.getAbsolutePath() + ".png"));
 	}
 	
 	private MouseMotionListener getMouseMotionListener() {
