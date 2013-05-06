@@ -44,6 +44,15 @@ public class FileUtilities {
 		return buffer.toString();
 	}
 	
+	public static void appendFile(String content, String fileName) throws IOException {
+        FileWriter fstream = new FileWriter(fileName, true);
+        BufferedWriter fbw = new BufferedWriter(fstream);
+        for (String line : content.split("\n")) {
+        	fbw.newLine(); fbw.write(line);
+        }
+        fbw.close();
+	}
+	
 	public static void copyFile(String fileName, String copyFileName) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileName));
 		

@@ -13,14 +13,14 @@ import java.util.List;
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.gui.draw.CorrelationRectangle;
 
-public class ClusteredCorrelationMatrixGraphicPanel extends CorrelationMatrixGraphicPanel {
+public class ClusteredCorrelationMatrixPanel extends CorrelationMatrixPanel {
 
 	private static final long serialVersionUID = -1410541470646368686L;
 	
 	private List<CorrelationRectangle> clusterRectangles;
 	private List<ClusteredMatrixListener> listeners;
 	
-	public ClusteredCorrelationMatrixGraphicPanel(CorrelationMatrix matrix, int[][] clusters) {
+	public ClusteredCorrelationMatrixPanel(CorrelationMatrix matrix, int[][] clusters) {
 		super(matrix);
 		this.clusterRectangles = new LinkedList<CorrelationRectangle>();
 		this.listeners = new LinkedList<ClusteredMatrixListener>();

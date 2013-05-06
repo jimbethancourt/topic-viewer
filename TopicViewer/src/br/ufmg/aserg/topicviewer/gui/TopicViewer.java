@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -25,7 +26,7 @@ import br.ufmg.aserg.topicviewer.gui.extraction.JavaVocabularyExtractionView;
 import br.ufmg.aserg.topicviewer.gui.indexing.SemanticClusteringView;
 import br.ufmg.aserg.topicviewer.util.Properties;
 
-public class TopicViewer extends javax.swing.JFrame {
+public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListener {
 
 	private static final long serialVersionUID = -7144305228539220119L;
 	
@@ -169,6 +170,7 @@ public class TopicViewer extends javax.swing.JFrame {
     private void menuExtractVocabularyActionPerformed(java.awt.event.ActionEvent evt) {
     	if (!invokeView(EXTRACT_VOCABULARY_PANEL)) {
     		JavaVocabularyExtractionView extractVocabulary = new JavaVocabularyExtractionView();
+    		extractVocabulary.addListener(this);
     		this.internalFrames.put(EXTRACT_VOCABULARY_PANEL, extractVocabulary);
     		this.desktop.add(extractVocabulary);
     	}
@@ -227,6 +229,10 @@ public class TopicViewer extends javax.swing.JFrame {
     		return true;
     	}
     	else return false;
+    }
+    
+    public void notifyNewWindow(JInternalFrame frame) {
+    	this.desktop.add(frame);
     }
 
     public static void main(String args[]) {

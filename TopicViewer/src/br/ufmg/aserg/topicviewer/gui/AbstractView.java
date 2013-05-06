@@ -1,6 +1,8 @@
 package br.ufmg.aserg.topicviewer.gui;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +21,8 @@ public abstract class AbstractView extends JInternalFrame {
 	protected javax.swing.JProgressBar progressBar;
 	protected javax.swing.JButton startExecutionButton;
 	
+	protected List<PanelUpdateListener> listeners;
+	
 	protected AbstractController controller;
 
 	public AbstractView() {
@@ -27,11 +31,17 @@ public abstract class AbstractView extends JInternalFrame {
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         
+        this.listeners = new LinkedList<>();
+        
         progressBar = new javax.swing.JProgressBar();
         progressBar.setStringPainted(true);
         startExecutionButton = new javax.swing.JButton();
         startExecutionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../img/start.png")));
         startExecutionButton.setText("Start");
+	}
+	
+	public void addListener(PanelUpdateListener listener) {
+		this.listeners.add(listener);
 	}
 	
 	public abstract void refresh();

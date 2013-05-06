@@ -166,7 +166,7 @@ public class JavaVocabularyExtractionController extends AbstractController {
 			properties.put(FilterProperties.STEMMING, YES);
 			properties.put(FilterProperties.CONVERT_TO_LOWER_CASE, YES);
 			properties.put(FilterProperties.LIMIT_TERM_LENGTH, new Integer(3).toString());
-			properties.put(FilterProperties.STOPWORDS_FILE, "stopword_list.txt");
+			properties.put(FilterProperties.STOPWORDS_FILE, Properties.STOPWORDS_FILE);
 			// ir vector model
 			properties.put(IRPropertyKeys.DISTANCE_FUNCTION, IRPropertyKeys.DistanceFunctionType.COSINE.toString());
 			

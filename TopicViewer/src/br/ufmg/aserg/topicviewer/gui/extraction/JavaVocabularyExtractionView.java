@@ -3,6 +3,7 @@ package br.ufmg.aserg.topicviewer.gui.extraction;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
@@ -10,6 +11,8 @@ import javax.swing.JOptionPane;
 
 import br.ufmg.aserg.topicviewer.control.extraction.JavaVocabularyExtractionController;
 import br.ufmg.aserg.topicviewer.gui.AbstractView;
+import br.ufmg.aserg.topicviewer.gui.PanelUpdateListener;
+import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 
 public class JavaVocabularyExtractionView extends AbstractView {
@@ -33,6 +36,9 @@ public class JavaVocabularyExtractionView extends AbstractView {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTextField minimalTermLengthField;
+    
+    private AddStopwordsFrame addStopwordsFrame;
+    
     @SuppressWarnings("rawtypes")
     private javax.swing.JList projectList;
     
@@ -72,6 +78,8 @@ public class JavaVocabularyExtractionView extends AbstractView {
         projectsLabel = new javax.swing.JLabel("Projects");
         selectProjectsButton = new javax.swing.JButton("Select");
         projectList = new javax.swing.JList();
+        
+        addStopwordsFrame = new AddStopwordsFrame();
         
         setTitle("Java Vocabulary Extraction");
         setToolTipText("Extracting Vocabulary From Java Source Code");
@@ -271,16 +279,32 @@ public class JavaVocabularyExtractionView extends AbstractView {
         });
     }
     
+    @Override
+    public void addListener(PanelUpdateListener panelUpdateListener) {
+    	super.addListener(panelUpdateListener);
+    	
+    	for (PanelUpdateListener listener : this.listeners)
+    		listener.notifyNewWindow(this.addStopwordsFrame);
+    }
+    
     private void setDefaultValues() {
     	allInformationCheckBox.setSelected(true);
     	includeCommentInfoCheckBox.setSelected(true);
     	includeJavaDocInfoCheckBox.setSelected(true);
     	
     	filterStopwordsCheckBox.setSelected(true);
-//    	resetStopwords(); // TODO
+    	resetStopwordList();
     	
     	filterSmallWordsCheckBox.setSelected(true);
     	minimalTermLengthField.setText("4");
+    }
+    
+    private void resetStopwordList() {
+    	try {
+			FileUtilities.copyFile(Properties.ORIGINAL_STOPWORDS_FILE, Properties.STOPWORDS_FILE);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "Could not reset stopwords.", "Error", JOptionPane.ERROR_MESSAGE);
+		}
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -302,7 +326,7 @@ public class JavaVocabularyExtractionView extends AbstractView {
     }
     
     private void addStopwordActionPerformed(java.awt.event.ActionEvent evt) { 
-    	
+    	this.addStopwordsFrame.setVisible(true);
     }
     
     @SuppressWarnings("deprecation")
