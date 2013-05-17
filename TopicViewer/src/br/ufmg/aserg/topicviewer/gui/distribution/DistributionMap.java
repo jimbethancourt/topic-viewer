@@ -1,5 +1,9 @@
 package br.ufmg.aserg.topicviewer.gui.distribution;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -67,6 +71,10 @@ public class DistributionMap {
 		return this.classMapping.get(className).clusterIndex;
 	}
 	
+	public Double getCCP(String packageName) {
+		return this.packageMapping.get(packageName).ccp;
+	}
+	
 	public Double getSpread(int clusterIndex) {
 		return this.topicMapping.get(clusterIndex).spread;
 	}
@@ -122,6 +130,42 @@ public class DistributionMap {
 		TopicInfo(double spread, double focus) {
 			this.spread = spread;
 			this.focus = focus;
+		}
+	}
+	
+	// TODO temporary
+	public void saveMetricResults() {
+		final String TAB = "\t";
+		final String SEPARATOR = System.getProperty("line.separator");
+		
+		String resultFolderName = "C:\\Users\\admin\\Dropbox\\experiments\\resultswcre";
+		
+		StringBuffer buffer = new StringBuffer();
+		
+		// CCP
+		buffer.append(this.projectName + " NOP: " + this.packageMapping.size());
+		buffer.append("Package" + TAB + "CCP" + SEPARATOR);
+		
+		List<String> packages = this.getPackages();
+		Collections.sort(packages);
+		for (String packageName : packages)
+			buffer.append(packageName + TAB + this.getCCP(packageName) + SEPARATOR);
+		
+		buffer.append(SEPARATOR);
+		
+		// Spread and Focus
+		buffer.append("Cluster" + TAB + "Spread" + TAB + "Focus" + SEPARATOR);
+		
+		int numClusters = this.topicMapping.size();
+		for (int i = 0; i < numClusters; i++)
+			buffer.append(i + TAB + this.getSpread(i) + TAB + this.getFocus(i) + SEPARATOR);
+		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(resultFolderName + File.separator + this.getProjectName() + "txt"));
+			writer.write(buffer.toString());
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
