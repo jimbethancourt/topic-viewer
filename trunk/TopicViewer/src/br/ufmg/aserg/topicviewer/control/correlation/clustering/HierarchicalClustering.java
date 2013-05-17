@@ -152,10 +152,12 @@ public class HierarchicalClustering {
 		return clusterSet;
 	}
 	
-	public double getBestThreshold(DoubleMatrix2D correlationMatrix) {
+	public double getBestThreshold(DoubleMatrix2D correlationMatrix) throws IOException {
 		final double[] thresholdSet = {.55, .60, .65, .70, .75};
 		double[] clusteringQuality = new double[thresholdSet.length];
 		int thresholdIndex = thresholdSet.length-1;
+		
+		DoubleMatrix2D originalCorrelationMatrix = correlationMatrix.copy();
 		
 		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, true);
 		while (leastDissimilarPair != null && thresholdIndex >= 0) {
@@ -171,9 +173,10 @@ public class HierarchicalClustering {
 			
 			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
 			
-			if (leastDissimilarPair == null && thresholdIndex > 0) {
+			if (leastDissimilarPair == null && thresholdIndex >= 0) {
 				this.generateClusters();
-				clusteringQuality[thresholdIndex] = ClusteringEvaluationController.calculateCCClus(correlationMatrix, clusters);
+				clusteringQuality[thresholdIndex] = ClusteringEvaluationController.calculateCCClus(originalCorrelationMatrix, clusters);
+				System.out.print(clusteringQuality[thresholdIndex] + "\t");
 				
 				thresholdIndex--;
 				this.threshold = thresholdSet[thresholdIndex];
@@ -190,6 +193,7 @@ public class HierarchicalClustering {
 				bestQuality = clusteringQuality[i];
 			}
 		
+		System.out.println("Best threshold: " + bestThreshold);
 		return bestThreshold;
 	}
 	
