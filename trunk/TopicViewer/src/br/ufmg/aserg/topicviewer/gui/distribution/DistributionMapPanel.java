@@ -97,7 +97,9 @@ public class DistributionMapPanel extends JPanel {
 					+ (numLines-1)*classSpace;
 			maxPackageHeight = Math.max(packageHeight, maxPackageHeight);
 			
-			this.packageRectangles.add(new DistributionRectangle(packageX, packageY, packageWidth, packageHeight, packageName));
+			String packageInfo = packageName + " [CCP=" + this.distributionMap.getCCP(packageName) + "]";
+			
+			this.packageRectangles.add(new DistributionRectangle(packageX, packageY, packageWidth, packageHeight, packageInfo));
 			this.buildDistributionMap(classes, packageX, packageY);
 			
 			this.pckgLabelRectangles.add(new DistributionRectangle(packageX, packageY + packageHeight + packageStroke + 2*packageSpace, classSize, classSize, packageName));
@@ -119,7 +121,9 @@ public class DistributionMapPanel extends JPanel {
 		int labelX = packageSpace;
 		int labelY = this.yBound + packageSpace;
 		for (int i = 0; i < this.semanticTopics.length; i++) {
-			this.labelRectangles.add(new DistributionRectangle(labelX, labelY, classSize, classSize, "", i, this.semanticTopics[i]));
+			String topicInfo = "[Spread=" + this.distributionMap.getSpread(i) + ", Focus=" + this.distributionMap.getFocus(i) + "]";
+			
+			this.labelRectangles.add(new DistributionRectangle(labelX, labelY, classSize, classSize, topicInfo, i, this.semanticTopics[i]));
 			labelY += classSize + classSpace;
 		}
 		
@@ -254,6 +258,13 @@ public class DistributionMapPanel extends JPanel {
 				for (DistributionRectangle pckg : packageRectangles)
 					if (pckg.contains(e.getPoint())) {
 						setToolTipText(pckg.toString());
+						ToolTipManager.sharedInstance().mouseMoved(e);
+						return;
+					}
+				
+				for (DistributionRectangle lbl : labelRectangles)
+					if (lbl.contains(e.getPoint())) {
+						setToolTipText(lbl.getEntityName());
 						ToolTipManager.sharedInstance().mouseMoved(e);
 						return;
 					}
