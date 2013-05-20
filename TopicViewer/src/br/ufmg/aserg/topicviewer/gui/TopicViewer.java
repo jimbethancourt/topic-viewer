@@ -2,6 +2,7 @@ package br.ufmg.aserg.topicviewer.gui;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +51,8 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
     private JMenuItem exitItem;
     private JMenu aboutMenu;
     private JMenu helpMenu;
+    private JMenuItem generalHelpItem;
+    private JMenuItem paramenterHelpMenuItem;
     
     private Map<String, AbstractView> internalFrames;
 	
@@ -82,10 +85,12 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
         exitItem = new JMenuItem("Exit");
         exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         
-        aboutMenu = new javax.swing.JMenu("About");
+        aboutMenu = new JMenu("About");
         aboutMenu.setMnemonic('b');
         
-        helpMenu = new javax.swing.JMenu("Help");
+        helpMenu = new JMenu("Help");
+        generalHelpItem = new JMenuItem("General Information");
+        paramenterHelpMenuItem = new JMenuItem("About the Parameters");
         helpMenu.setMnemonic('H');        
         
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -104,6 +109,9 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
         viewResultsMenu.add(distributionMapLoadItem);
         activitiesMenu.add(itemSeparator);
         activitiesMenu.add(exitItem);
+        
+        helpMenu.add(generalHelpItem);
+        helpMenu.add(paramenterHelpMenuItem);
 
         mainMenuBar.add(activitiesMenu);
         mainMenuBar.add(aboutMenu);
@@ -143,6 +151,24 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
     	distributionMapLoadItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuDistributionMapViewerActionPerformed(evt);
+            }
+        });
+    	
+    	aboutMenu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuAboutActionPerformed(evt);
+            }
+        });
+    	
+    	generalHelpItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuGeneralHelpActionPerformed(evt);
+            }
+        });
+    	
+    	paramenterHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuParameterHelpActionPerformed(evt);
             }
         });
     	
@@ -198,6 +224,76 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
     		this.internalFrames.put(DISTRIBUTION_MAP_VIEWER_PANEL, distributionMapViewer);
     		this.desktop.add(distributionMapViewer);
     	}
+    }
+    
+    private void menuAboutActionPerformed(MouseEvent evt) {
+		JOptionPane.showMessageDialog(this, 
+				"Welcome to TopicViewer. This open-source tool allows\n" +
+				"text extraction from Java source code, and displays do-\n" +
+				"main concepts across a system's package structure. All\n" +
+				"generated files are stored in a folder given by the user\n" +
+				"and are available for consulting. Our code is available \n" +
+				"as a GoogleCode project at:\n"+
+				">> http://code.google.com/p/topic-viewer/\n\n" +
+				"This tool was developed by Gustavo Jansen de S. Santos \n" +
+				"from Federal University of Minas Gerais, along with the\n" +
+				"Software Practices Lab of Federal University of Campina\n" +
+				"Grande. All information about our research can be ob- \n" +
+				"tained on LINK.\n\n" +
+				"Our research's been supported by CAPES, FAPEMIG and \n" +
+				"CNPq.", "About", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    private void menuGeneralHelpActionPerformed(java.awt.event.ActionEvent evt) {
+    	JOptionPane.showMessageDialog(this, 
+				"The first activity available for a user, as he starts this tool, is configuring\n" +
+				"a workspace, i.e. a folder which any output data will be stored.\n\n" +
+				"All remaining available tasks in TopicViewer are divided as Extraction and\n" +
+				"Displaying. The Extraction tasks include text extraction from Java source \n" +
+				"code, resulting in a term-document matrix (two files with extensions .ma-\n" +
+				"trix and .ids), along with a .vocabulary file containing information about\n" +
+				"text and structure of one system.\n\n" +
+				"The second Extraction process is Semantic Clustering, which groups si-\n" +
+				"milar classes and extracts a set of frequent terms from these groups. This\n" +
+				"process will generate four files: a correlation matrix (.cmatrix) with simi-\n" +
+				"larities between all classes, pairwise; an .ids file with all class names; a\n" +
+				".clusters file with the clustering output (all groups of classes); and final-\n" +
+				"ly a text file displaying the frequent words -or semantic topics- from all\n" +
+				"generated groups, in a .topics file. For visualization purposes, no file can\n" +
+				"be deleted, as every information saved in files are important for analysis\n\n" +
+				"Finally, the Displaying tasks include two kinds of visualization: the Cor-\n" +
+				"relation Matrix View allows the user to view how the classes of a system \n" +
+				"are similar to each other. The visualization is a simple matrix in which \n" +
+				"darker colors represent higher cosine similarities between two class vo-\n" +
+				"cabularies. On the other hand, the Distribution Map View shows the sys-\n" +
+				"tem's package organization in boxes, and each class is represented in a\n" +
+				"color referencing the group to which it was assigned. In this visualization,\n" +
+				"quality metric values can be viewed as well, in a tooltip soon as a entity\n" +
+				"is selected. Both visualization can be saved in a PNG file with the right\n" +
+				"click of the mouse.", "General Help", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    private void menuParameterHelpActionPerformed(java.awt.event.ActionEvent evt) {
+    	JOptionPane.showMessageDialog(this, 
+				"Java Vocabulary Extraction:\n" +
+				"- Information Type: Selects if comments and documentation in JavaDoc\n" +
+				"will be included in the class vocabulary\n" +
+				"- Filter Stopwords: A previously generated list of words too common in\n" +
+				"English language will be dismissed in the extraction\n" +
+				"- Filter Small Words: Any word with size smaller than the given value\n" + 
+				"will be dismissed in the extraction\n\n" +
+				"Semantic Clustering:\n" +
+				"- Low-Rank Value: Number of lines of the reduced term-document\n" +
+				"matrix. This value can be replaced by any positive number\n" +
+				"- Similarity Threshold: As an agglomerative clustering, if no cluster \n" +
+				"has similarity greater than the threshold with another cluster, the al-\n" +
+				"gorithm will stop\n" +
+				"- Choose Best Threshold: Chooses the best value among the given\n" +
+				"values, according to internal vocabulary cohesion of the resulting\n" +
+				"clusters. This process will consume a considering amount of time\n" +
+				"Distribution Map View:\n" +
+				"- Class Ordering: orders the classes alphabetically or groups classes\n" +
+				"with groups -or colors- in common", "Parameter Help", JOptionPane.INFORMATION_MESSAGE);
     }
     
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {

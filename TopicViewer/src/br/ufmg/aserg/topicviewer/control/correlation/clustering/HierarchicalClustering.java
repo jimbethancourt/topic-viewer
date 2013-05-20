@@ -35,7 +35,8 @@ public class HierarchicalClustering {
 			clustersTree.makeSet(new Vertex(i));
 		}
 		
-		if (useBestThreshold)
+		if (!useThreshold) this.threshold = 0D;
+		else if (useBestThreshold)
 			this.threshold = getBestThreshold(correlationMatrix.getCorrelationMatrix());
 		
 		initClustering(correlationMatrix2D.copy());
@@ -179,7 +180,7 @@ public class HierarchicalClustering {
 				System.out.print(clusteringQuality[thresholdIndex] + "\t");
 				
 				thresholdIndex--;
-				this.threshold = thresholdSet[thresholdIndex];
+				if (thresholdIndex >= 0) this.threshold = thresholdSet[thresholdIndex];
 				
 				leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
 			}
