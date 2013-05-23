@@ -76,10 +76,14 @@ public class SemanticClusteringController extends AbstractController {
 		return correlationMatrix;
 	}
 	
-	private static double getCosineDistance(DoubleMatrix1D vector1, DoubleMatrix1D vector2) {
-		double cosineSimilarity = vector1.zDotProduct(vector2);
+	private static Double getCosineDistance(DoubleMatrix1D vector1, DoubleMatrix1D vector2) {
+		double numerator = vector1.zDotProduct(vector2);
 		double denominator = Math.sqrt(vector1.zDotProduct(vector1) * vector2.zDotProduct(vector2));
-		return denominator == 0 ? 1D : cosineSimilarity / denominator;
+		
+		double cosineSimilarity = denominator == 0 ? (numerator < 0 ? -1D : 1D) : numerator / denominator;
+		if (cosineSimilarity < -1D) cosineSimilarity = -1D;
+		if (cosineSimilarity > 1D) cosineSimilarity = 1D;
+		return cosineSimilarity;
 	}
 	
 	@Override
