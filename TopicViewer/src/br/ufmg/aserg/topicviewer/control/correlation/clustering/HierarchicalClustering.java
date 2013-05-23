@@ -26,24 +26,26 @@ public class HierarchicalClustering {
 		this.minClusters = numClusters;
 		this.threshold = threshold;
 		
-		this.clustersTree = new DisjointTree();
+		this.initDisjointTree();
 		DoubleMatrix2D correlationMatrix2D = correlationMatrix.getCorrelationMatrix();
 		
-		int[] documents = new int[numDocuments];
-		for (int i = 0; i < documents.length; i++) {
-			documents[i] = i;
-			clustersTree.makeSet(new Vertex(i));
-		}
-		
 		if (!useThreshold) this.threshold = 0D;
-		else if (useBestThreshold)
-			this.threshold = getBestThreshold(correlationMatrix.getCorrelationMatrix());
+		else if (useBestThreshold) {
+			this.threshold = getBestThreshold(correlationMatrix2D.copy());
+			this.initDisjointTree();
+		}
 		
 		initClustering(correlationMatrix2D.copy());
 	}
 	
 	public int[][] getClusters() {
 		return this.clusters;
+	}
+	
+	private void initDisjointTree() {
+		this.clustersTree = new DisjointTree();
+		for (int i = 0; i < this.numDocuments; i++)
+			this.clustersTree.makeSet(new Vertex(i));
 	}
 	
 	private void initClustering(DoubleMatrix2D correlationMatrix) {

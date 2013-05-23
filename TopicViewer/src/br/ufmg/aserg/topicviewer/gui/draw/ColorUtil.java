@@ -6,8 +6,8 @@ import br.ufmg.aserg.topicviewer.util.UnsufficientNumberOfColorsException;
 
 public class ColorUtil {
 	
-	public static Color generateGreyColor(double value, double minValue, double maxValue) { 
-		int colorValue = (int) (((value + 1) / 2) * 245 + 10F);
+	public static Color generateGreyColor(double value) { 
+		int colorValue = (int) (((value + 1D) / 2D) * 245D + 10D);
 		colorValue = 255 - colorValue;
 		return new Color(colorValue, colorValue, colorValue);
 	}

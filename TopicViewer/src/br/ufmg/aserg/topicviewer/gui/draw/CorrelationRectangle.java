@@ -8,9 +8,6 @@ public class CorrelationRectangle extends Rectangle2D.Double {
 	private static final long serialVersionUID = 1667564662506252314L;
 	private static final char stringSeparator = ':';
 	
-	private static final int MIN_VALUE = -1;
-	private static final int MAX_VALUE = 1;
-	
 	private String xEntityId;
 	private String yEntityId;
 	private double value;
@@ -23,7 +20,7 @@ public class CorrelationRectangle extends Rectangle2D.Double {
 		this.xEntityId = xEntityId.substring(xEntityId.lastIndexOf(stringSeparator)+1);
 		this.yEntityId = yEntityId.substring(yEntityId.lastIndexOf(stringSeparator)+1);
 		this.value = value;
-		this.color = ColorUtil.generateGreyColor(value, MIN_VALUE, MAX_VALUE);
+		this.color = ColorUtil.generateGreyColor(value);
 	}
 	
 	public CorrelationRectangle(int x, int y, int width, int height, double value) {
