@@ -179,7 +179,7 @@ public class HierarchicalClustering {
 			if (leastDissimilarPair == null && thresholdIndex >= 0) {
 				this.generateClusters();
 				clusteringQuality[thresholdIndex] = ClusteringEvaluationController.calculateCCClus(originalCorrelationMatrix, clusters);
-				System.out.print(clusteringQuality[thresholdIndex] + "\t");
+				System.out.print(this.clusters.length + "\t");
 				
 				thresholdIndex--;
 				if (thresholdIndex >= 0) this.threshold = thresholdSet[thresholdIndex];

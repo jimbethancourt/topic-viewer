@@ -1,5 +1,6 @@
 package br.ufmg.aserg.topicviewer.control.distribution;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,7 +31,9 @@ public class ComparativeDistributionMapController {
 		String projectBefore = null;
 		int projectIndex = 0;
 		for (String project : projects) {
-			DistributionMap distributionMap = new DistributionMap(project + "-merge");
+			String projectName = project.substring(project.lastIndexOf(File.separatorChar)+1);
+			
+			DistributionMap distributionMap = new DistributionMap(projectName + "-merge");
         	DoubleMatrix2D termDocumentMatrix = new DoubleMatrix2D(project.replace(Properties.CORRELATION_MATRIX_OUTPUT, Properties.TERM_DOC_MATRIX_OUTPUT) + "-lsi.matrix");
 			String[] documentIds = FileUtilities.readDocumentIds(project + ".ids");
 			int[][] clusters = FileUtilities.readClustering(project + ".clusters");

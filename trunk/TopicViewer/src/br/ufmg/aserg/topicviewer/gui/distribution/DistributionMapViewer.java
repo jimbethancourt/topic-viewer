@@ -233,9 +233,7 @@ public class DistributionMapViewer extends AbstractView {
             try {
             	this.jTabbedPane1.setVisible(true);
             	
-            	String projectName = selectedFile.getName().contains("clustered") ?
-            			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('-')) : 
-            			selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('.'));
+            	String projectName = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().lastIndexOf('.'));
             	String projectSimpleName = projectName.substring(projectName.lastIndexOf(File.separatorChar)+1);
             	
             	String idsFileName = projectName + ".ids";
@@ -250,7 +248,7 @@ public class DistributionMapViewer extends AbstractView {
             	String clustersFileName = projectName + ".clusters";
         		int[][] clusters = FileUtilities.readClustering(clustersFileName);
             	
-            	DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(projectName, termDocumentMatrix, documentIds, clusters, nameOrderingButton.isSelected());
+            	DistributionMap distributionMap = DistributionMapCalculator.generateDistributionMap(projectSimpleName, termDocumentMatrix, documentIds, clusters, nameOrderingButton.isSelected());
             	DistributionMapPanel graphicPanel = new DistributionMapPanel(distributionMap, semanticTopics);
             	
             	graphicPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, Boolean.TRUE);

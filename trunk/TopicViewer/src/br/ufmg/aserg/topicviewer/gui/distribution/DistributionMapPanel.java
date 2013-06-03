@@ -73,6 +73,9 @@ public class DistributionMapPanel extends JPanel {
 		this.externalView = new Rectangle2D.Double(5, 5, this.xBound, this.yBound);
 		this.setSize(new Dimension(this.xBound, this.yBound));
 		this.setPreferredSize(new Dimension(this.xBound, this.yBound));
+		
+		// TODO
+		this.distributionMap.saveMetricResults();
 	}
 	
 	private void buildDistributionMap() throws UnsufficientNumberOfColorsException {
