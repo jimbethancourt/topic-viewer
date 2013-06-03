@@ -120,7 +120,6 @@ public class JavaVocabularyExtractionController extends AbstractController {
 				this.loadVXLFile(vocabularyFile);
 				this.createIRInfoTermsPerEntity();
 				
-				System.out.println(this.retrievedInfo.getTermDocumentMatrix().rows() + " " + this.retrievedInfo.getTermDocumentMatrix().columns());
 				FileUtilities.saveTermDocumentInfo(this.retrievedInfo, this.termDocResultFolder + File.separator + projectName + ".ids");
 				new DoubleMatrix2D(this.retrievedInfo.getTermDocumentMatrix()).save(this.termDocResultFolder + File.separator + projectName + ".matrix");
 				

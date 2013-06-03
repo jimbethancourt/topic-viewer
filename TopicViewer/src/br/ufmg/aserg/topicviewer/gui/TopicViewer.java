@@ -299,6 +299,8 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {
         System.gc();
         System.exit(0);
+        
+        // TODO
     }
     
     private void verifyProperties() {

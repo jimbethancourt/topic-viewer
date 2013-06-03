@@ -76,11 +76,11 @@ public class DistributionMap {
 	}
 	
 	public Double getSpread(int clusterIndex) {
-		return this.topicMapping.get(clusterIndex).spread;
+		return this.topicMapping.containsKey(clusterIndex) ? this.topicMapping.get(clusterIndex).spread : 0D;
 	}
 	
 	public Double getFocus(int clusterIndex) {
-		return this.topicMapping.get(clusterIndex).focus;
+		return this.topicMapping.containsKey(clusterIndex) ? this.topicMapping.get(clusterIndex).focus : 0D;
 	}
 	
 	/**
@@ -143,7 +143,7 @@ public class DistributionMap {
 		StringBuffer buffer = new StringBuffer();
 		
 		// CCP
-		buffer.append(this.projectName + " NOP: " + this.packageMapping.size());
+		buffer.append(this.projectName + " NOP: " + this.packageMapping.size() + SEPARATOR);
 		buffer.append("Package" + TAB + "CCP" + SEPARATOR);
 		
 		List<String> packages = this.getPackages();
@@ -161,7 +161,7 @@ public class DistributionMap {
 			buffer.append(i + TAB + this.getSpread(i) + TAB + this.getFocus(i) + SEPARATOR);
 		
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(resultFolderName + File.separator + this.getProjectName() + "txt"));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(resultFolderName + File.separator + this.getProjectName() + ".txt"));
 			writer.write(buffer.toString());
 			writer.close();
 		} catch (IOException e) {
