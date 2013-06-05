@@ -3,6 +3,8 @@ package br.ufmg.aserg.topicviewer.gui;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -177,6 +179,12 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
                 menuExitActionPerformed(evt);
             }
         });
+    	
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				menuExitActionPerformed(null);
+			}
+		});
     }
 
     private void menuConfigureWorkspaceActionPerformed(java.awt.event.ActionEvent evt) {
@@ -297,10 +305,22 @@ public class TopicViewer extends javax.swing.JFrame implements PanelUpdateListen
     }
     
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {
+    	// Delete all temporary files
+    	try {
+    		File tempFile = File.createTempFile("test", null);
+    		File tempFolderFile = tempFile.getParentFile();
+    		
+    		for (File temporaryFile : tempFolderFile.listFiles())
+    			if (temporaryFile.getName().contains("temporarymatrix-"))
+    				temporaryFile.delete();
+    		
+    		tempFile.delete();
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    	
         System.gc();
         System.exit(0);
-        
-        // TODO
     }
     
     private void verifyProperties() {

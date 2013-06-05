@@ -32,8 +32,8 @@ public class DoubleMatrix2DTest {
 				if (coltMatrix.get(i, j) != myMatrix.get(i, j))
 					System.err.println("different values: " + coltMatrix.get(i, j) + " " + myMatrix.get(i, j));
 		
-		myMatrix.save("C:\\Users\\admin\\Downloads\\matrixTest.matrix");
-		myMatrix = new br.ufmg.aserg.topicviewer.util.DoubleMatrix2D("C:\\Users\\admin\\Downloads\\matrixTest.matrix");
+		myMatrix.save("E:\\matrixTest.matrix");
+		myMatrix = new br.ufmg.aserg.topicviewer.util.DoubleMatrix2D("E:\\matrixTest.matrix");
 		
 		if (rows != myMatrix.rows()) System.err.println("different row number from file");
 		if (columns != myMatrix.columns()) System.err.println("different column number from file");

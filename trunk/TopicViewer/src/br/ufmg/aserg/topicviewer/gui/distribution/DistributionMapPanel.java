@@ -49,6 +49,7 @@ public class DistributionMapPanel extends JPanel {
 	private List<DistributionRectangle> packageRectangles;
 	private List<DistributionRectangle> pckgLabelRectangles;
 	private List<DistributionRectangle> classRectangles;
+	private List<DistributionRectangle> classLabelRectangles;
 	private List<DistributionRectangle> labelRectangles;
 	
 	private JMenuItem saveImageMenuItem;
@@ -63,6 +64,7 @@ public class DistributionMapPanel extends JPanel {
 		this.packageRectangles = new LinkedList<DistributionRectangle>();
 		this.pckgLabelRectangles = new LinkedList<DistributionRectangle>();
 		this.classRectangles = new LinkedList<DistributionRectangle>();
+		this.classLabelRectangles = new LinkedList<DistributionRectangle>();
 		this.labelRectangles = new LinkedList<DistributionRectangle>();
 		
 		this.buildDistributionMap();
@@ -73,9 +75,6 @@ public class DistributionMapPanel extends JPanel {
 		this.externalView = new Rectangle2D.Double(5, 5, this.xBound, this.yBound);
 		this.setSize(new Dimension(this.xBound, this.yBound));
 		this.setPreferredSize(new Dimension(this.xBound, this.yBound));
-		
-		// TODO
-		this.distributionMap.saveMetricResults();
 	}
 	
 	private void buildDistributionMap() throws UnsufficientNumberOfColorsException {
@@ -148,6 +147,9 @@ public class DistributionMapPanel extends JPanel {
 			String[] topics = (clusterIndex != -1) ? this.semanticTopics[clusterIndex] : new String[]{};
 			this.classRectangles.add(new DistributionRectangle(classX, classY, classWidth, classHeight, className, clusterIndex, topics));
 			
+			if (clusterIndex != -1)
+				this.classLabelRectangles.add(new DistributionRectangle(classX+5, classY+15, classSize, classSize, String.valueOf(clusterIndex)));
+			
 			classX += classWidth + classSpace;
 			
 			classIndex++;
@@ -186,6 +188,18 @@ public class DistributionMapPanel extends JPanel {
 			graphics.setStroke(new BasicStroke(classStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			graphics.setColor(clazz.getColor());
 			graphics.fill(clazz);
+			
+			if (clazz.hasBorder()) {
+				graphics.setColor(new Color(0, 0, 0));
+				graphics.setStroke(new BasicStroke(classStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				graphics.draw(clazz);
+			}
+		}
+		
+		graphics.setColor(new Color(0, 0, 0));
+		for (DistributionRectangle classLabel : this.classLabelRectangles) {
+			graphics.setFont(graphics.getFont().deriveFont(10f));
+			graphics.drawString(classLabel.getEntityName(), (int) classLabel.getX(), (int) classLabel.getY());
 		}
 		
 		// paint labels

@@ -13,6 +13,7 @@ public class DistributionRectangle extends Rectangle2D.Double {
 	private String entityName;
 	private String clusterTopics;
 	private Color clusterColor;
+	private boolean hasBorder;
 	
 	public DistributionRectangle(int x, int y, int width, int height, String className, int clusterIndex, String[] clusterTopics) throws UnsufficientNumberOfColorsException {
 		this.setRect(x, y, width, height);
@@ -20,6 +21,7 @@ public class DistributionRectangle extends Rectangle2D.Double {
 		this.entityName = className;
 		this.clusterTopics = getClusterTopics(clusterTopics);
 		this.clusterColor = (clusterIndex != -1) ? ColorUtil.getDistributionColor(clusterIndex) : new Color(255, 255, 255);
+		this.hasBorder = clusterIndex >= ColorUtil.getNumColors();
 	}
 	
 	public DistributionRectangle(int x, int y, int width, int height, String packageName) {
@@ -58,5 +60,9 @@ public class DistributionRectangle extends Rectangle2D.Double {
 
 	public Color getColor() {
 		return this.clusterColor;
+	}
+	
+	public boolean hasBorder() {
+		return this.hasBorder;
 	}
 }
