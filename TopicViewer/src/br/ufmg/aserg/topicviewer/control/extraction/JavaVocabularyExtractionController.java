@@ -1,7 +1,6 @@
 package br.ufmg.aserg.topicviewer.control.extraction;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,23 +74,34 @@ public class JavaVocabularyExtractionController extends AbstractController {
 	}
 	
 	private void createIRInfoTermsPerEntity() throws PTStemmerException {
-		Map<String,List<String>> termsEntitiesMap = new HashMap<String, List<String>>(); 
+		Map<String, Map<String, Integer>> termsByEntity = new HashMap<String, Map<String, Integer>>();
 		
-		VXLIterator iterator = vxlReader.iterator();
-		while (iterator.hasNext()) {
-			ContainerEntity container = iterator.next();
+		VXLIterator entityIterator = vxlReader.iterator();
+		while (entityIterator.hasNext()) {
+			ContainerEntity entity = entityIterator.next();
 			
-			List<String> currentEntityTerms = new ArrayList<String>();
-			for (String identifier : container.getListIdentifiers()) {
-				for (String term : identifierFilter.filterIdentifiers(new String[] {identifier})) {
-					currentEntityTerms.add(term);
+			List<String> identifiers = entity.getListIdentifiers();
+			identifiers.add(entity.getEntityIdentifier());
+			
+			Map<String, Integer> entityTerms = new HashMap<String, Integer>();
+			for (String identifier : identifiers) {
+				
+				String[] identifierArray = {identifier};
+				String[] terms = this.identifierFilter.filterIdentifiers(identifierArray);
+				
+				for (String term : terms) {
+					if (entityTerms.containsKey(term)) {
+						entityTerms.put(term, entityTerms.get(term) + 1);
+					} else {
+						entityTerms.put(term, 1);
+					}
 				}
 			}
 			
-			termsEntitiesMap.put(container.getEntityIdentifier(), currentEntityTerms);
+			termsByEntity.put(entity.getEntityIdentifier(), entityTerms);
 		}
 		
-		IR ir = new IR(termsEntitiesMap, props);
+		IR ir = new IR(termsByEntity, props);
 		retrievedInfo = new IRInfo(ir.calculate(), props);
 	}
 	
