@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
+import br.ufmg.aserg.topicviewer.control.distribution.DistributionMap;
 
 public class TopicConcentration extends AbstractSemanticTopicMetric {
 	

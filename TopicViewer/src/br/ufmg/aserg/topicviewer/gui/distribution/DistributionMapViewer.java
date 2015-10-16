@@ -8,6 +8,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 
+import br.ufmg.aserg.topicviewer.control.distribution.DistributionMap;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 
 import br.ufmg.aserg.topicviewer.control.distribution.ComparativeDistributionMapController;

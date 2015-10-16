@@ -3,7 +3,7 @@ package br.ufmg.aserg.topicviewer.control.measurement.metrics;
 import java.util.List;
 import java.util.Map;
 
-import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
+import br.ufmg.aserg.topicviewer.control.distribution.DistributionMap;
 
 public abstract class AbstractSemanticTopicMetric {
 	

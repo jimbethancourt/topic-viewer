@@ -10,7 +10,6 @@ import java.util.Map;
 import ptstemmer.exceptions.PTStemmerException;
 import br.ufmg.aserg.topicviewer.control.measurement.metrics.ConceptualCohesionOfPackages;
 import br.ufmg.aserg.topicviewer.control.semantic.SemanticTopicsCalculator;
-import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;

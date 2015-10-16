@@ -5,7 +5,6 @@ import java.util.Map;
 import br.ufmg.aserg.topicviewer.control.measurement.metrics.ConceptualCohesionOfPackages;
 import br.ufmg.aserg.topicviewer.control.measurement.metrics.TopicFocus;
 import br.ufmg.aserg.topicviewer.control.measurement.metrics.TopicSpread;
-import br.ufmg.aserg.topicviewer.gui.distribution.DistributionMap;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 
 public class DistributionMapCalculator {

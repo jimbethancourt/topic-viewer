@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
 
+import br.ufmg.aserg.topicviewer.control.distribution.DistributionMap;
 import br.ufmg.aserg.topicviewer.util.Properties;
 import br.ufmg.aserg.topicviewer.util.UnsufficientNumberOfColorsException;
 
