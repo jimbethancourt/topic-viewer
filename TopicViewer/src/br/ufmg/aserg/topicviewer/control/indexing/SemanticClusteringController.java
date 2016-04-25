@@ -15,7 +15,7 @@ import br.ufmg.aserg.topicviewer.control.semantic.SemanticTopicsCalculator;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
-import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.tdouble.DoubleMatrix1D;
 
 public class SemanticClusteringController extends AbstractController {
 	

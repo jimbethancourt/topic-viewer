@@ -3,7 +3,7 @@ package br.ufmg.aserg.topicviewer.control.measurement.metrics;
 import java.io.IOException;
 
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
-import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.tdouble.DoubleMatrix1D;
 
 public class ConceptualCouplingBetweenPackages extends AbstractConceptualMetric {
 	

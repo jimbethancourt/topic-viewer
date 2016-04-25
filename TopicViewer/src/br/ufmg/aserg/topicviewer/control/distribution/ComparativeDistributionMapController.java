@@ -14,9 +14,9 @@ import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.FileUtilities;
 import br.ufmg.aserg.topicviewer.util.Properties;
 import br.ufmg.aserg.topicviewer.util.UnsufficientNumberOfColorsException;
-import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.impl.SparseDoubleMatrix1D;
-import cern.colt.matrix.linalg.Algebra;
+import cern.colt.matrix.tdouble.DoubleMatrix1D;
+import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix1D;
+import cern.colt.matrix.tdouble.algo.DenseDoubleAlgebra;
 
 public class ComparativeDistributionMapController {
 	
@@ -94,11 +94,11 @@ public class ComparativeDistributionMapController {
 		return -1;
 	}
 	
-	// Retorna o vetor de termos do documento em um novo espaço vetorial
-	private static DoubleMatrix1D buildDocumentNewVectorSpace(DoubleMatrix1D document, String[] oldSpaceTerms, String[] newSpaceTerms, cern.colt.matrix.DoubleMatrix2D lsiTransformMatrix) {
+	// Retorna o vetor de termos do documento em um novo espaï¿½o vetorial
+	private static DoubleMatrix1D buildDocumentNewVectorSpace(DoubleMatrix1D document, String[] oldSpaceTerms, String[] newSpaceTerms, cern.colt.matrix.tdouble.DoubleMatrix2D lsiTransformMatrix) {
 		
 		// a partir do vetor de termos da matriz original, construir o seu equivalente
-		// no novo espaço. termos não encontrados são dados com valor 0
+		// no novo espaï¿½o. termos nï¿½o encontrados sï¿½o dados com valor 0
 		DoubleMatrix1D documentNewSpace = new SparseDoubleMatrix1D(newSpaceTerms.length);
 		for (int i = 0; i < oldSpaceTerms.length; i++) {
 			int newIndex = getStringIndex(oldSpaceTerms[i], newSpaceTerms);
@@ -106,9 +106,9 @@ public class ComparativeDistributionMapController {
 				documentNewSpace.set(newIndex, document.get(i));
 		}
 		
-		// com o vetor mapeado para o novo espaço, é em seguida transformado para o 
-		// espaço reduzido pelo LSI
-		Algebra matrixAlgebra = new Algebra();
+		// com o vetor mapeado para o novo espaï¿½o, ï¿½ em seguida transformado para o 
+		// espaï¿½o reduzido pelo LSI
+		DenseDoubleAlgebra matrixAlgebra = new DenseDoubleAlgebra();
 		return documentNewSpace = matrixAlgebra.mult(lsiTransformMatrix, documentNewSpace);
 	}
 	
@@ -118,8 +118,8 @@ public class ComparativeDistributionMapController {
 		return denominator == 0 ? 1D : cosineSimilarity / denominator;
 	}
 	
-	// Retorna a nova configuração de clusters, dado o agrupamento de um projeto semente. Cada classe
-	// da versão mais nova será alocada para o cluster (da versão antiga) mais similar
+	// Retorna a nova configuraï¿½ï¿½o de clusters, dado o agrupamento de um projeto semente. Cada classe
+	// da versï¿½o mais nova serï¿½ alocada para o cluster (da versï¿½o antiga) mais similar
 	private static int[][] getNewClustersFromFirstProject(String projectBefore, String projectAfter) throws IOException {
 		
 		// construindo conjunto de termos para o agrupamento antigo
@@ -127,10 +127,10 @@ public class ComparativeDistributionMapController {
 		String[] termIds = FileUtilities.readTermIds(projectBefore + ".ids");
 		int[][] clusteringBefore = FileUtilities.readClustering(projectBefore + ".clusters");
 		
-		// atribuindo classes da versão nova para o cluster mais similar da versão antiga, segundo a
+		// atribuindo classes da versï¿½o nova para o cluster mais similar da versï¿½o antiga, segundo a
 		// similaridade do cosseno
 		String lsiTransformFileName = projectBefore.replace(Properties.CORRELATION_MATRIX_OUTPUT, Properties.TERM_DOC_MATRIX_OUTPUT) + ".lsi";
-		cern.colt.matrix.DoubleMatrix2D lsiTransform = SemanticTopicsCalculator.getLsiTransformCopy(new DoubleMatrix2D(lsiTransformFileName));
+		cern.colt.matrix.tdouble.DoubleMatrix2D lsiTransform = SemanticTopicsCalculator.getLsiTransformCopy(new DoubleMatrix2D(lsiTransformFileName));
 				
 		DoubleMatrix2D afterTermDocMatrix = new DoubleMatrix2D(projectAfter.replace(Properties.CORRELATION_MATRIX_OUTPUT, Properties.TERM_DOC_MATRIX_OUTPUT) + ".matrix");
 		String[] afterTermIds = FileUtilities.readTermIds(projectAfter + ".ids");
@@ -151,7 +151,7 @@ public class ComparativeDistributionMapController {
 				similarities[j] = similarity / numClasses;
 			}
 			
-			// verificando qual cluster é mais similar
+			// verificando qual cluster ï¿½ mais similar
 			int newClusterIndex = -1;
 			double bestSimilarity = Double.NEGATIVE_INFINITY;
 			for (int j = 0; j < similarities.length; j++)

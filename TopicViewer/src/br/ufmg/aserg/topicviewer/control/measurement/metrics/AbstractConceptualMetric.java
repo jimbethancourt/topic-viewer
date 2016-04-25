@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
-import cern.colt.function.DoubleDoubleFunction;
-import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.impl.DenseDoubleMatrix1D;
-import cern.jet.math.PlusMult;
+import cern.colt.function.tdouble.DoubleDoubleFunction;
+import cern.colt.matrix.tdouble.DoubleMatrix1D;
+import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
+import cern.jet.math.tdouble.DoubleFunctions;
 
 public abstract class AbstractConceptualMetric {
 
@@ -54,7 +54,7 @@ public abstract class AbstractConceptualMetric {
 	
 	protected void buildPackageTermDocMatrix() throws IOException {
 		final int rows = this.termDocMatrix.rows();
-		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
+		final DoubleDoubleFunction sumFunction = DoubleFunctions.plusMultFirst(1);
 		
 		this.packageMatrix = new DoubleMatrix2D(rows, this.packageMapping.size());
 		

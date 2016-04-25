@@ -4,30 +4,31 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import cern.jet.math.tdouble.DoubleFunctions;
+import cern.jet.math.tdouble.DoublePlusMultFirst;
 import org.splabs.vocabulary.filter.IdentifierFilter;
 
 import ptstemmer.exceptions.PTStemmerException;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
 import br.ufmg.aserg.topicviewer.util.Properties;
-import cern.colt.function.DoubleDoubleFunction;
-import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
-import cern.colt.matrix.impl.SparseDoubleMatrix1D;
-import cern.colt.matrix.linalg.Algebra;
-import cern.jet.math.PlusMult;
+import cern.colt.function.tdouble.DoubleDoubleFunction;
+import cern.colt.matrix.tdouble.DoubleMatrix1D;
+import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix1D;
+import cern.colt.matrix.tdouble.algo.DenseDoubleAlgebra;
 
 public class SemanticTopicsCalculator {
 	
 	private static final int NUM_SELECTED_TERMS = 10;
 	
 	public static String[][] generateSemanticTopicsFromVocabulary(int[][] clusters, DoubleMatrix2D lsiTermDocMatrix, DoubleMatrix2D lsiTransform, String[] termIds, boolean mostRelevant) throws IOException {
-		
-		Algebra matrixAlgebra = Algebra.ZERO;
+
+		DenseDoubleAlgebra matrixAlgebra = DenseDoubleAlgebra.ZERO;
 		
 		final int numTerms = termIds.length;
 		final int numClusters = clusters.length;
-		cern.colt.matrix.DoubleMatrix2D lsiTransformCopy = getLsiTransformCopy(lsiTransform);
+		cern.colt.matrix.tdouble.DoubleMatrix2D lsiTransformCopy = getLsiTransformCopy(lsiTransform);
 		
 		DoubleMatrix2D clusterSimilarity = new DoubleMatrix2D(numTerms, numClusters);
 		for (int i = 0; i < numTerms; i++) {
@@ -84,9 +85,9 @@ public class SemanticTopicsCalculator {
 	}
 	
 	private static DoubleMatrix2D getRelevanceMatrix(int numTerms, int numClusters, DoubleMatrix2D similarityMatrix) throws IOException {
-		final DoubleDoubleFunction sumFunction = PlusMult.plusMult(1);
-		final DoubleDoubleFunction relevanceFunction = PlusMult.minusDiv(numClusters-1);
-		
+		final DoubleDoubleFunction sumFunction = DoubleFunctions.plusMultFirst(1);
+		final DoubleDoubleFunction relevanceFunction = DoublePlusMultFirst.minusDiv(numClusters-1);
+
 		DoubleMatrix2D clusterRelevance = new DoubleMatrix2D(numTerms, numClusters);
 		for (int i = 0; i < numClusters; i++) {
 			DoubleMatrix1D termRelevance = similarityMatrix.viewColumn(i);
@@ -121,12 +122,12 @@ public class SemanticTopicsCalculator {
 	
 	public static String[][] generateSemanticTopics(int[][] clusters, DoubleMatrix2D lsiTermDocMatrix, DoubleMatrix2D lsiTransform, String[] termIds) throws IOException {
 		
-		Algebra matrixAlgebra = Algebra.ZERO;
+		DenseDoubleAlgebra matrixAlgebra = DenseDoubleAlgebra.ZERO;
 		
 		final int numTerms = termIds.length;
 //		final int numDocuments = lsiTermDocMatrix.columns();
 		final int numClusters = clusters.length;
-		cern.colt.matrix.DoubleMatrix2D lsiTransformCopy = getLsiTransformCopy(lsiTransform);
+		cern.colt.matrix.tdouble.DoubleMatrix2D lsiTransformCopy = getLsiTransformCopy(lsiTransform);
 		
 		DoubleMatrix2D clusterSimilarity = new DoubleMatrix2D(numTerms, numClusters);
 		for (int i = 0; i < numTerms; i++) {
@@ -219,7 +220,7 @@ public class SemanticTopicsCalculator {
 		int[] relevantTerms = new int[NUM_SELECTED_TERMS];
 		
 		int newTermIndex = 0;
-		int numTerms = termRelevance.size();
+		long numTerms = termRelevance.size();
 		
 		Set<Integer> visitedTerms = new HashSet<Integer>(); 
 		while (newTermIndex < NUM_SELECTED_TERMS && visitedTerms.size() < numTerms) {
@@ -243,8 +244,8 @@ public class SemanticTopicsCalculator {
 		return relevantTerms;
 	}
 	
-	public static cern.colt.matrix.DoubleMatrix2D getLsiTransformCopy(DoubleMatrix2D lsiTransform) {
-		cern.colt.matrix.DoubleMatrix2D matrix = new DenseDoubleMatrix2D(lsiTransform.rows(), lsiTransform.columns());
+	public static cern.colt.matrix.tdouble.DoubleMatrix2D getLsiTransformCopy(DoubleMatrix2D lsiTransform) {
+		cern.colt.matrix.tdouble.DoubleMatrix2D matrix = new DenseDoubleMatrix2D(lsiTransform.rows(), lsiTransform.columns());
 		for (int i = 0; i < lsiTransform.rows(); i++)
     		for (int j = 0; j < lsiTransform.columns(); j++) 
     			matrix.set(i, j, lsiTransform.get(i, j));
