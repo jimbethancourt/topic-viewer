@@ -2,6 +2,7 @@ package org.splabs.vocabulary.iR.info;
 
 import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.tdouble.algo.DenseDoubleAlgebra;
 import cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleSingularValueDecomposition;
@@ -99,7 +100,7 @@ public class LSIInfo extends RetrievedInfo
   {
     if (termDocumentMatrix.rows() < termDocumentMatrix.columns()) {
       int bounds = termDocumentMatrix.columns();
-      DoubleMatrix2D newMatrix = new SparseDoubleMatrix2D(bounds, bounds);
+      DoubleMatrix2D newMatrix = new DenseDoubleMatrix2D(bounds, bounds);
 
       for (int i = 0; i < termDocumentMatrix.rows(); i++) {
         for (int j = 0; j < termDocumentMatrix.columns(); j++)
