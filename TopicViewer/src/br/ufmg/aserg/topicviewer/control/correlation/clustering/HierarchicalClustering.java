@@ -232,7 +232,7 @@ public class HierarchicalClustering {
 		public Vertex findSet(Vertex v) {
 			Vertex mapped = vertexMapping.get(v);
 			if (mapped == null) return null;
-			if (v != mapped.parent) mapped.parent = findSet(mapped.parent);
+			if (!v.equals(mapped.parent)) mapped.parent = findSet(mapped.parent);
 			return mapped.parent;
 		}
 		
