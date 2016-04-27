@@ -75,7 +75,7 @@ public class LSIInfo extends RetrievedInfo
   private void generateLowRankApproximation()
   {
     DoubleMatrix2D termDocumentMatrix = ensureRectangular();
-    DenseDoubleSingularValueDecomposition svd = new DenseDoubleSingularValueDecomposition(termDocumentMatrix, true, true);
+    DenseDoubleSingularValueDecomposition svd = new DenseDoubleSingularValueDecomposition(termDocumentMatrix, true, false);
 
     DoubleMatrix2D u = svd.getU();
     DoubleMatrix2D s = svd.getS();
