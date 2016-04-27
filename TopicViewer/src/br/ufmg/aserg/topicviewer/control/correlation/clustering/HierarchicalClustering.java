@@ -56,7 +56,7 @@ public class HierarchicalClustering {
 			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
 			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
 			
-			if (set1 != set2) {
+			if (!set1.equals(set2)) {
 				this.clustersTree.union(set1, set2);
 				updateCorrelationMatrix(set1.index, correlationMatrix);
 				numClusters--;
@@ -169,7 +169,7 @@ public class HierarchicalClustering {
 			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
 			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
 			
-			if (set1 != set2) {
+			if (!set1.equals(set2)) {
 				this.clustersTree.union(set1, set2);
 				updateCorrelationMatrix(set1.index, correlationMatrix);
 			}
@@ -238,7 +238,7 @@ public class HierarchicalClustering {
 		
 		public void union(Vertex v1, Vertex v2) {
 			Vertex set1 = findSet(v1); Vertex set2 = findSet(v2);
-			if (set1 == null || set2 == null || set1 == set2) return;
+			if (set1 == null || set2 == null || set1.equals(set2)) return;
 			Vertex mapped1 = vertexMapping.get(set1);
 			Vertex mapped2 = vertexMapping.get(set2);
 			
@@ -272,10 +272,10 @@ public class HierarchicalClustering {
 	    	if (other instanceof Pair) {
 	    		Pair otherPair = (Pair) other;
 	    		return 
-	    		((  this.first == otherPair.first ||
+	    		((  this.first.equals(otherPair.first) ||
 	    			( this.first != null && otherPair.first != null &&
 	    			  this.first.equals(otherPair.first))) &&
-	    		 (	this.second == otherPair.second ||
+	    		 (	this.second.equals(otherPair.second) ||
 	    			( this.second != null && otherPair.second != null &&
 	    			  this.second.equals(otherPair.second))) );
 	    	}
