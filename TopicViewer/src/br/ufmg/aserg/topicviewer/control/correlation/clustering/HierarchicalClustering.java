@@ -53,8 +53,8 @@ public class HierarchicalClustering {
 		
 		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, true);
 		while (this.minClusters < numClusters && leastDissimilarPair != null) {
-			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
-			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
+			Vertex set1 = this.clustersTree.findSet(leastDissimilarPair[0]);
+			Vertex set2 = this.clustersTree.findSet(leastDissimilarPair[1]);
 			
 			if (!set1.equals(set2)) {
 				this.clustersTree.union(set1, set2);
@@ -72,7 +72,7 @@ public class HierarchicalClustering {
 		Map<Integer, List<Integer>> mapping = new HashMap<Integer, List<Integer>>();
 		
 		for (int i = 0; i < this.numDocuments; i++) {
-			Vertex set = this.clustersTree.findSet(new Vertex(i));
+			Vertex set = this.clustersTree.findSet(i);
 			List<Integer> treeList = (mapping.containsKey(set.index) ? mapping.get(set.index) : new LinkedList<Integer>());
 			treeList.add(i); mapping.put(set.index, treeList);
 		}
@@ -109,13 +109,13 @@ public class HierarchicalClustering {
 	
 	// implementing average linkage
 	private void updateCorrelationMatrix(int unionSet, DoubleMatrix2D correlationMatrix) {
-		int union = this.clustersTree.findSet(new Vertex(unionSet)).index;
+		int union = this.clustersTree.findSet(unionSet).index;
 		
 		Set<Pair<Integer, Integer>> calculatedClusters = new HashSet<Pair<Integer, Integer>>();
 		for (int i = 0; i < correlationMatrix.rows()-1; i++)
 			for (int j = i+1; j < correlationMatrix.rows(); j++) {
-				int set1Index = this.clustersTree.findSet(new Vertex(i)).index;
-				int set2Index = this.clustersTree.findSet(new Vertex(j)).index;
+				int set1Index = this.clustersTree.findSet(i).index;
+				int set2Index = this.clustersTree.findSet(j).index;
 				
 				Pair<Integer, Integer> newPair = (set1Index < set2Index) ? 
 						new Pair<Integer, Integer>(set1Index, set2Index) : 
@@ -150,7 +150,7 @@ public class HierarchicalClustering {
 	private Set<Integer> getClusterSet(int rootIndex) {
 		Set<Integer> clusterSet = new HashSet<Integer>();
 		for (int i = 0; i < this.numDocuments; i++)
-			if (this.clustersTree.findSet(new Vertex(i)).index == rootIndex)
+			if (this.clustersTree.findSet(i).index == rootIndex)
 				clusterSet.add(i);
 		return clusterSet;
 	}
@@ -166,8 +166,8 @@ public class HierarchicalClustering {
 		while (leastDissimilarPair != null && thresholdIndex >= 0) {
 			this.threshold = thresholdSet[thresholdIndex];
 			
-			Vertex set1 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[0]));
-			Vertex set2 = this.clustersTree.findSet(new Vertex(leastDissimilarPair[1]));
+			Vertex set1 = this.clustersTree.findSet(leastDissimilarPair[0]);
+			Vertex set2 = this.clustersTree.findSet(leastDissimilarPair[1]);
 			
 			if (!set1.equals(set2)) {
 				this.clustersTree.union(set1, set2);
@@ -200,7 +200,7 @@ public class HierarchicalClustering {
 		return bestThreshold;
 	}
 	
-	static class Vertex {
+	class Vertex {
 		int index;
 		int rank;
 		Vertex parent;
@@ -210,7 +210,15 @@ public class HierarchicalClustering {
 			this.rank = 0;
 			this.parent = this;
 		}
-		
+
+		public Vertex getParent() {
+			return parent;
+		}
+
+		public void setParent(Vertex parent) {
+			this.parent = parent;
+		}
+
 		@Override
 		public boolean equals(Object obj) {
 			return this.index == ((Vertex) obj).index;
@@ -222,25 +230,32 @@ public class HierarchicalClustering {
 		}
 	}
 	
-	static class DisjointTree {
-		Map<Vertex, Vertex> vertexMapping = new HashMap<Vertex, Vertex>();
-		
+	class DisjointTree {
+		Vertex[] vertexMapping = new Vertex[numDocuments];
+
 		public void makeSet(Vertex v) {
-			vertexMapping.put(v, v);
+			vertexMapping[v.index] =  v;
 		}
 		
-		public Vertex findSet(Vertex v) {
-			Vertex mapped = vertexMapping.get(v);
-			if (mapped == null) return null;
-			if (!v.equals(mapped.parent)) mapped.parent = findSet(mapped.parent);
-			return mapped.parent;
+		public Vertex findSet(int v) {
+			Vertex mapped = vertexMapping[v];
+
+			if (mapped == null)
+				return null;
+
+			Vertex parent = mapped.getParent();
+			if (v != parent.index) {
+				mapped.setParent(findSet(parent.index));
+			}
+
+			return mapped.getParent();
 		}
 		
 		public void union(Vertex v1, Vertex v2) {
-			Vertex set1 = findSet(v1); Vertex set2 = findSet(v2);
+			Vertex set1 = findSet(v1.index); Vertex set2 = findSet(v2.index);
 			if (set1 == null || set2 == null || set1.equals(set2)) return;
-			Vertex mapped1 = vertexMapping.get(set1);
-			Vertex mapped2 = vertexMapping.get(set2);
+			Vertex mapped1 = vertexMapping[set1.index];
+			Vertex mapped2 = vertexMapping[set2.index];
 			
 			if (mapped1.rank > mapped2.rank) {
 				mapped2.parent = v1;
