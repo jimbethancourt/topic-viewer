@@ -1,12 +1,7 @@
 package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
@@ -16,73 +11,73 @@ public class HierarchicalClustering {
 	private int numDocuments;
 	private int minClusters;
 	private double threshold;
-	
+
 	private DisjointTree clustersTree;
-	
+
 	private int[][] clusters;
-	
+
 	public HierarchicalClustering(CorrelationMatrix correlationMatrix, boolean useThreshold, boolean useBestThreshold, int numClusters, double threshold) throws IOException {
 		this.numDocuments = correlationMatrix.getNumEntities();
 		this.minClusters = numClusters;
 		this.threshold = threshold;
-		
+
 		this.initDisjointTree();
 		DoubleMatrix2D correlationMatrix2D = correlationMatrix.getCorrelationMatrix();
-		
+
 		if (!useThreshold) this.threshold = 0D;
 		else if (useBestThreshold) {
 			this.threshold = getBestThreshold(correlationMatrix2D.copy());
 			this.initDisjointTree();
 		}
-		
+
 		initClustering(correlationMatrix2D.copy());
 	}
-	
+
 	public int[][] getClusters() {
 		return this.clusters;
 	}
-	
+
 	private void initDisjointTree() {
 		this.clustersTree = new DisjointTree();
 		for (int i = 0; i < this.numDocuments; i++)
 			this.clustersTree.makeSet(new Vertex(i));
 	}
-	
+
 	private void initClustering(DoubleMatrix2D correlationMatrix) {
 		int numClusters = this.numDocuments;
-		
+
 		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, true);
 		while (this.minClusters < numClusters && leastDissimilarPair != null) {
 			Vertex set1 = this.clustersTree.findSet(leastDissimilarPair[0]);
 			Vertex set2 = this.clustersTree.findSet(leastDissimilarPair[1]);
-			
+
 			if (!set1.equals(set2)) {
 				this.clustersTree.union(set1, set2);
 				updateCorrelationMatrix(set1.index, correlationMatrix);
 				numClusters--;
 			}
-			
+
 			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
 		}
-		
+
 		this.generateClusters();
 	}
-	
+
 	private void generateClusters() {
 		Map<Integer, List<Integer>> mapping = new HashMap<Integer, List<Integer>>();
-		
+
 		for (int i = 0; i < this.numDocuments; i++) {
 			Vertex set = this.clustersTree.findSet(i);
 			List<Integer> treeList = (mapping.containsKey(set.index) ? mapping.get(set.index) : new LinkedList<Integer>());
 			treeList.add(i); mapping.put(set.index, treeList);
 		}
-		
+
 		this.clusters = new int[mapping.keySet().size()][0];
 		int i = 0;
 		for (Integer set : mapping.keySet()) {
 			List<Integer> tree = mapping.get(set);
 			this.clusters[i] = new int[tree.size()];
-			
+
 			int j = 0;
 			for (Integer v : tree) {
 				this.clusters[i][j] = v; j++;
@@ -90,11 +85,11 @@ public class HierarchicalClustering {
 			i++;
 		}
 	}
-	
+
 	private int[] getLeastDissimilarPair(DoubleMatrix2D correlationMatrix, boolean force) {
 		double bestSimilarity = Double.NEGATIVE_INFINITY;
 		int[] leastDissimilarPair = {0,0};
-		
+
 		for (int i = 0; i < this.numDocuments; i++)
 			for (int j = 0; j < this.numDocuments; j++) {
 				double similarity = correlationMatrix.get(i, j);
@@ -103,24 +98,24 @@ public class HierarchicalClustering {
 					leastDissimilarPair = new int[] {i,j};
 				}
 			}
-		
+
 		return (bestSimilarity < this.threshold) ? (force ? leastDissimilarPair : null) : leastDissimilarPair;
 	}
-	
+
 	// implementing average linkage
 	private void updateCorrelationMatrix(int unionSet, DoubleMatrix2D correlationMatrix) {
 		int union = this.clustersTree.findSet(unionSet).index;
-		
-		Set<Pair<Integer, Integer>> calculatedClusters = new HashSet<Pair<Integer, Integer>>();
+
+		Set<Pair> calculatedClusters = new HashSet<Pair>();
 		for (int i = 0; i < correlationMatrix.rows()-1; i++)
 			for (int j = i+1; j < correlationMatrix.rows(); j++) {
 				int set1Index = this.clustersTree.findSet(i).index;
 				int set2Index = this.clustersTree.findSet(j).index;
-				
-				Pair<Integer, Integer> newPair = (set1Index < set2Index) ? 
-						new Pair<Integer, Integer>(set1Index, set2Index) : 
-						new Pair<Integer, Integer>(set2Index, set1Index);
-						
+
+				Pair newPair = (set1Index < set2Index) ?
+						new Pair(set1Index, set2Index) :
+						new Pair(set2Index, set1Index);
+
 				if ((set1Index == union || set2Index == union) && !calculatedClusters.contains(newPair)) {
 					double newValue;
 					Set<Integer> set1 = getClusterSet(set1Index);
@@ -132,16 +127,16 @@ public class HierarchicalClustering {
 						for (int doc1 : set1)
 							for (int doc2 : set2)
 								distance += correlationMatrix.get(doc1, doc2);
-						
+
 						newValue = distance / (set1.size() * set2.size());
 					}
-					
+
 					for (int doc1 : set1)
 						for (int doc2 : set2) {
 							correlationMatrix.set(doc1, doc2, newValue);
 							correlationMatrix.set(doc2, doc1, newValue);
 						}
-					
+
 					calculatedClusters.add(newPair);
 				}
 			}
@@ -182,7 +177,8 @@ public class HierarchicalClustering {
 				System.out.print(this.clusters.length + "\t");
 				
 				thresholdIndex--;
-				if (thresholdIndex >= 0) this.threshold = thresholdSet[thresholdIndex];
+				if (thresholdIndex >= 0)
+					this.threshold = thresholdSet[thresholdIndex];
 				
 				leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
 			}
@@ -252,8 +248,12 @@ public class HierarchicalClustering {
 		}
 		
 		public void union(Vertex v1, Vertex v2) {
-			Vertex set1 = findSet(v1.index); Vertex set2 = findSet(v2.index);
-			if (set1 == null || set2 == null || set1.equals(set2)) return;
+			Vertex set1 = findSet(v1.index);
+			Vertex set2 = findSet(v2.index);
+
+			if (set1 == null || set2 == null || set1.equals(set2))
+				return;
+
 			Vertex mapped1 = vertexMapping[set1.index];
 			Vertex mapped2 = vertexMapping[set2.index];
 			
@@ -266,36 +266,31 @@ public class HierarchicalClustering {
 		}
 	}
 	
-	public class Pair<A, B> {
-	    private A first;
-	    private B second;
+	public class Pair{
+	    private int first;
+	    private int second;
 
-	    public Pair(A first, B second) {
+	    public Pair(int first, int second) {
 	    	super();
 	    	this.first = first;
 	    	this.second = second;
 	    }
 
-	    public int hashCode() {
-	    	int hashFirst = first != null ? first.hashCode() : 0;
-	    	int hashSecond = second != null ? second.hashCode() : 0;
-	    	return (hashFirst + hashSecond) * hashSecond + hashFirst;
-	    }
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
 
-	    @SuppressWarnings("rawtypes")
-		public boolean equals(Object other) {
-	    	if (other instanceof Pair) {
-	    		Pair otherPair = (Pair) other;
-	    		return 
-	    		((  this.first== otherPair.first ||
-	    			( this.first != null && otherPair.first != null &&
-	    			  this.first.equals(otherPair.first))) &&
-	    		 (	this.second == otherPair.second ||
-	    			( this.second != null && otherPair.second != null &&
-	    			  this.second.equals(otherPair.second))) );
-	    	}
+			Pair pair = (Pair) o;
 
-	    	return false;
-	    }
+			return first == pair.first && second == pair.second;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = first;
+			result = 31 * result + second;
+			return result;
+		}
 	}
 }
