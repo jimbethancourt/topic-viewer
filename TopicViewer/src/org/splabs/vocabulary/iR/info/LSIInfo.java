@@ -17,6 +17,7 @@ public class LSIInfo extends RetrievedInfo
   private DoubleMatrix2D lsiTermDocumentMatrix;
   protected DoubleMatrix2D lsiTransform;
   private int lowRank = 0;
+  private boolean makeSparse = false;
 
   public LSIInfo(Map<String, List<TermWeightTuple>> tupleMap, Properties props)
   {
@@ -94,11 +95,18 @@ public class LSIInfo extends RetrievedInfo
     lsiTransform = matrixOperations.mult(sPrimeInverse, uPrimeTranspose);
 
     lsiTermDocumentMatrix = matrixOperations.mult(lsiTransform, termDocumentMatrix);
+
+    if(makeSparse) {
+      DoubleMatrix2D sparseMatrix = new SparseDoubleMatrix2D(lsiTermDocumentMatrix.rows(), lsiTermDocumentMatrix.columns());
+      sparseMatrix.assign(lsiTermDocumentMatrix);
+      lsiTermDocumentMatrix = sparseMatrix;
+    }
   }
 
   private DoubleMatrix2D ensureRectangular()
   {
     if (termDocumentMatrix.rows() < termDocumentMatrix.columns()) {
+      makeSparse = true;
       int bounds = termDocumentMatrix.columns();
       DoubleMatrix2D newMatrix = new DenseDoubleMatrix2D(bounds, bounds);
 
