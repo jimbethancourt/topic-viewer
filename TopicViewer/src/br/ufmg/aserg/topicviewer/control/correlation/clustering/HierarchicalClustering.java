@@ -46,7 +46,8 @@ public class HierarchicalClustering {
 	private void initClustering(DoubleMatrix2D correlationMatrix) {
 		int numClusters = this.numDocuments;
 
-		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, true);
+
+		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, numDocuments, true);
 		while (this.minClusters < numClusters && leastDissimilarPair != null) {
 			Vertex set1 = this.clustersTree.findSet(leastDissimilarPair[0]);
 			Vertex set2 = this.clustersTree.findSet(leastDissimilarPair[1]);
@@ -57,7 +58,7 @@ public class HierarchicalClustering {
 				numClusters--;
 			}
 
-			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
+			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, numDocuments, false);
 		}
 
 		this.generateClusters();
@@ -86,12 +87,12 @@ public class HierarchicalClustering {
 		}
 	}
 
-	private int[] getLeastDissimilarPair(DoubleMatrix2D correlationMatrix, boolean force) {
+	private int[] getLeastDissimilarPair(DoubleMatrix2D correlationMatrix, int numDocuments, boolean force) {
 		double bestSimilarity = Double.NEGATIVE_INFINITY;
 		int[] leastDissimilarPair = {0,0};
 
-		for (int i = 0; i < this.numDocuments; i++)
-			for (int j = 0; j < this.numDocuments; j++) {
+		for (int i = 0; i < numDocuments; i++)
+			for (int j = 0; j < numDocuments; j++) {
 				if (i < j) {
 					double similarity = correlationMatrix.get(i, j);
 					if (similarity != Double.NEGATIVE_INFINITY && similarity > bestSimilarity) {
@@ -107,6 +108,7 @@ public class HierarchicalClustering {
 	// implementing average linkage
 	private void updateCorrelationMatrix(int unionSet, DoubleMatrix2D correlationMatrix) {
 		int union = this.clustersTree.findSet(unionSet).index;
+		int localNumDocuments = this.numDocuments;
 
 		Set<Pair> calculatedClusters = new HashSet<Pair>();
 		for (int i = 0; i < correlationMatrix.rows()-1; i++)
@@ -120,10 +122,11 @@ public class HierarchicalClustering {
 
 				if ((set1Index == union || set2Index == union) && !calculatedClusters.contains(newPair)) {
 					double newValue;
-					Set<Integer> set1 = getClusterSet(set1Index);
-					Set<Integer> set2 = getClusterSet(set2Index);
-					
-					if (set1Index == set2Index) newValue = Double.NEGATIVE_INFINITY;
+					Set<Integer> set1 = getClusterSet(set1Index, localNumDocuments);
+					Set<Integer> set2 = getClusterSet(set2Index, localNumDocuments);
+
+					if (set1Index == set2Index)
+						newValue = Double.NEGATIVE_INFINITY;
 					else {
 						double distance = 0D;
 						for (int doc1 : set1)
@@ -143,10 +146,10 @@ public class HierarchicalClustering {
 				}
 			}
 	}
-	
-	private Set<Integer> getClusterSet(int rootIndex) {
+
+	private Set<Integer> getClusterSet(int rootIndex, int numDocuments) {
 		Set<Integer> clusterSet = new HashSet<Integer>();
-		for (int i = 0; i < this.numDocuments; i++)
+		for (int i = 0; i < numDocuments; i++)
 			if (this.clustersTree.findSet(i).index == rootIndex)
 				clusterSet.add(i);
 		return clusterSet;
@@ -158,8 +161,8 @@ public class HierarchicalClustering {
 		int thresholdIndex = thresholdSet.length-1;
 		
 		DoubleMatrix2D originalCorrelationMatrix = correlationMatrix.copy();
-		
-		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, true);
+
+		int[] leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, numDocuments, true);
 		while (leastDissimilarPair != null && thresholdIndex >= 0) {
 			this.threshold = thresholdSet[thresholdIndex];
 			
@@ -170,19 +173,19 @@ public class HierarchicalClustering {
 				this.clustersTree.union(set1, set2);
 				updateCorrelationMatrix(set1.index, correlationMatrix);
 			}
-			
-			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
-			
+
+			leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, numDocuments, false);
+
 			if (leastDissimilarPair == null && thresholdIndex >= 0) {
 				this.generateClusters();
 				clusteringQuality[thresholdIndex] = ClusteringEvaluationController.calculateCCClus(originalCorrelationMatrix, clusters);
 				System.out.print(this.clusters.length + "\t");
-				
+
 				thresholdIndex--;
 				if (thresholdIndex >= 0)
 					this.threshold = thresholdSet[thresholdIndex];
-				
-				leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, false);
+
+				leastDissimilarPair = getLeastDissimilarPair(correlationMatrix, numDocuments, false);
 			}
 		}
 		
