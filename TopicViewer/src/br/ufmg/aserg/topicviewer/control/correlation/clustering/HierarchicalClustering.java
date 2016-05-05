@@ -92,10 +92,12 @@ public class HierarchicalClustering {
 
 		for (int i = 0; i < this.numDocuments; i++)
 			for (int j = 0; j < this.numDocuments; j++) {
-				double similarity = correlationMatrix.get(i, j);
-				if (i < j && similarity != Double.NEGATIVE_INFINITY && similarity > bestSimilarity) {
-					bestSimilarity = similarity;
-					leastDissimilarPair = new int[] {i,j};
+				if (i < j) {
+					double similarity = correlationMatrix.get(i, j);
+					if (similarity != Double.NEGATIVE_INFINITY && similarity > bestSimilarity) {
+						bestSimilarity = similarity;
+						leastDissimilarPair = new int[]{i, j};
+					}
 				}
 			}
 
