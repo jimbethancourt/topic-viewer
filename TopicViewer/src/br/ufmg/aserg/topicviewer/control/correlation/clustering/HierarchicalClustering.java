@@ -2,6 +2,12 @@ package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
@@ -110,41 +116,59 @@ public class HierarchicalClustering {
 		int union = this.clustersTree.findSet(unionSet).index;
 		int localNumDocuments = this.numDocuments;
 
-		Set<Pair> calculatedClusters = new HashSet<Pair>();
-		for (int i = 0; i < correlationMatrix.rows()-1; i++)
-			for (int j = i+1; j < correlationMatrix.rows(); j++) {
-				int set1Index = this.clustersTree.findSet(i).index;
-				int set2Index = this.clustersTree.findSet(j).index;
+		//ExecutorService executorService = Executors.newCachedThreadPool();
+		//CountDownLatch latch = new CountDownLatch((correlationMatrix.rows() * correlationMatrix.rows())/2);
 
-				Pair newPair = (set1Index < set2Index) ?
-						new Pair(set1Index, set2Index) :
-						new Pair(set2Index, set1Index);
+		ConcurrentHashMap<Pair, Pair> calculatedClusterMap = new ConcurrentHashMap<>();
+		for (int i = 0; i < correlationMatrix.rows() - 1; i++)
+			for (int j = i + 1; j < correlationMatrix.rows(); j++) {
+				final int finalI = i;
+				final int finalJ = j;
+				//executorService.submit(() -> {
+					int set1Index = clustersTree.findSet(finalI).index;
+					int set2Index = clustersTree.findSet(finalJ).index;
 
-				if ((set1Index == union || set2Index == union) && !calculatedClusters.contains(newPair)) {
-					double newValue;
-					Set<Integer> set1 = getClusterSet(set1Index, localNumDocuments);
-					Set<Integer> set2 = getClusterSet(set2Index, localNumDocuments);
+					Pair newPair = (set1Index < set2Index) ?
+							new Pair(set1Index, set2Index) :
+							new Pair(set2Index, set1Index);
 
-					if (set1Index == set2Index)
-						newValue = Double.NEGATIVE_INFINITY;
-					else {
-						double distance = 0D;
-						for (int doc1 : set1)
-							for (int doc2 : set2)
-								distance += correlationMatrix.get(doc1, doc2);
-
-						newValue = distance / (set1.size() * set2.size());
+					if (set1Index == union || set2Index == union) {
+						calculatedClusterMap.computeIfAbsent(newPair, k ->
+								concurrentlyUpdateCorrelationMatrix(correlationMatrix, newPair, localNumDocuments, set1Index, set2Index));
 					}
-
-					for (int doc1 : set1)
-						for (int doc2 : set2) {
-							correlationMatrix.set(doc1, doc2, newValue);
-							correlationMatrix.set(doc2, doc1, newValue);
-						}
-
-					calculatedClusters.add(newPair);
-				}
+					//latch.countDown();
+				//});
 			}
+		/*try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}*/
+	}
+
+	private Pair concurrentlyUpdateCorrelationMatrix(DoubleMatrix2D correlationMatrix, Pair newPair, int localNumDocuments, int set1Index, int set2Index) {
+		double newValue;
+		Set<Integer> set1 = getClusterSet(set1Index, localNumDocuments);
+		Set<Integer> set2 = getClusterSet(set2Index, localNumDocuments);
+
+		if (set1Index == set2Index)
+            newValue = Double.NEGATIVE_INFINITY;
+        else {
+            double distance = 0D;
+            for (int doc1 : set1)
+                for (int doc2 : set2)
+                    distance += correlationMatrix.get(doc1, doc2);
+
+            newValue = distance / (set1.size() * set2.size());
+        }
+
+		for (int doc1 : set1)
+            for (int doc2 : set2) {
+                correlationMatrix.set(doc1, doc2, newValue);
+                correlationMatrix.set(doc2, doc1, newValue);
+            }
+
+		return newPair;
 	}
 
 	private Set<Integer> getClusterSet(int rootIndex, int numDocuments) {
@@ -224,20 +248,20 @@ public class HierarchicalClustering {
 		public boolean equals(Object obj) {
 			return this.index == ((Vertex) obj).index;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			return this.index;
 		}
 	}
-	
+
 	class DisjointTree {
 		Vertex[] vertexMapping = new Vertex[numDocuments];
 
 		public void makeSet(Vertex v) {
 			vertexMapping[v.index] =  v;
 		}
-		
+
 		public Vertex findSet(int v) {
 			Vertex mapped = vertexMapping[v];
 
@@ -251,7 +275,7 @@ public class HierarchicalClustering {
 
 			return mapped.getParent();
 		}
-		
+
 		public void union(Vertex v1, Vertex v2) {
 			Vertex set1 = findSet(v1.index);
 			Vertex set2 = findSet(v2.index);
@@ -261,11 +285,11 @@ public class HierarchicalClustering {
 
 			Vertex mapped1 = vertexMapping[set1.index];
 			Vertex mapped2 = vertexMapping[set2.index];
-			
+
 			if (mapped1.rank > mapped2.rank) {
-				mapped2.parent = v1;
+				mapped2.setParent(v1);
 			} else {
-				mapped1.parent = v2;
+				mapped1.setParent(v2);
 				if (mapped1.rank == mapped2.rank) mapped2.rank++;
 			}
 		}
