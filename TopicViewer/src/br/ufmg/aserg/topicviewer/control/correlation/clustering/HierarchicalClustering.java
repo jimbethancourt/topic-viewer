@@ -111,8 +111,8 @@ public class HierarchicalClustering {
 		int localNumDocuments = this.numDocuments;
 
 		Set<Pair> calculatedClusters = new HashSet<Pair>();
-		for (int i = 0; i < correlationMatrix.rows()-1; i++)
-			for (int j = i+1; j < correlationMatrix.rows(); j++) {
+		for (int i = 0; i < correlationMatrix.rows()-1; i++) {
+			for (int j = i + 1; j < correlationMatrix.rows(); j++) {
 				int set1Index = this.clustersTree.findSet(i).index;
 				int set2Index = this.clustersTree.findSet(j).index;
 
@@ -120,35 +120,40 @@ public class HierarchicalClustering {
 						new Pair(set1Index, set2Index) :
 						new Pair(set2Index, set1Index);
 
-				if ((set1Index == union || set2Index == union) && !calculatedClusters.contains(newPair)) {
-					double newValue;
-					Set<Integer> set1 = getClusterSet(set1Index, localNumDocuments);
-					Set<Integer> set2 = getClusterSet(set2Index, localNumDocuments);
-
-					if (set1Index == set2Index)
-						newValue = Double.NEGATIVE_INFINITY;
-					else {
-						double distance = 0D;
-						for (int doc1 : set1)
-							for (int doc2 : set2)
-								distance += correlationMatrix.get(doc1, doc2);
-
-						newValue = distance / (set1.size() * set2.size());
-					}
-
-					for (int doc1 : set1)
-						for (int doc2 : set2) {
-							correlationMatrix.set(doc1, doc2, newValue);
-							correlationMatrix.set(doc2, doc1, newValue);
-						}
-
+				if (set1Index == union || set2Index == union) {
 					calculatedClusters.add(newPair);
 				}
 			}
+		}
+
+		calculatedClusters.parallelStream().forEach(pair -> {
+			double newValue;
+			int set1Index = pair.first;
+			int set2Index = pair.second;
+			Set<Integer> set1 = getClusterSet(set1Index, localNumDocuments);
+			Set<Integer> set2 = getClusterSet(set2Index, localNumDocuments);
+
+			if (set1Index == set2Index)
+				newValue = Double.NEGATIVE_INFINITY;
+			else {
+				double distance = 0D;
+				for (int doc1 : set1)
+					for (int doc2 : set2)
+						distance += correlationMatrix.get(doc1, doc2);
+
+				newValue = distance / (set1.size() * set2.size());
+			}
+
+			for (int doc1 : set1)
+				for (int doc2 : set2) {
+					correlationMatrix.set(doc1, doc2, newValue);
+					correlationMatrix.set(doc2, doc1, newValue);
+				}
+		});
 	}
 
 	private Set<Integer> getClusterSet(int rootIndex, int numDocuments) {
-		Set<Integer> clusterSet = new HashSet<Integer>();
+		Set<Integer> clusterSet = new LinkedHashSet<>();
 		for (int i = 0; i < numDocuments; i++)
 			if (this.clustersTree.findSet(i).index == rootIndex)
 				clusterSet.add(i);
