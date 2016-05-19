@@ -2,6 +2,7 @@ package br.ufmg.aserg.topicviewer.control.correlation.clustering;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import br.ufmg.aserg.topicviewer.control.correlation.CorrelationMatrix;
 import br.ufmg.aserg.topicviewer.util.DoubleMatrix2D;
@@ -15,6 +16,7 @@ public class HierarchicalClustering {
 	private DisjointTree clustersTree;
 
 	private int[][] clusters;
+	private Set<Integer> rowsForUpdating = new HashSet<>();
 
 	public HierarchicalClustering(CorrelationMatrix correlationMatrix, boolean useThreshold, boolean useBestThreshold, int numClusters, double threshold) throws IOException {
 		this.numDocuments = correlationMatrix.getNumEntities();
@@ -28,6 +30,11 @@ public class HierarchicalClustering {
 		else if (useBestThreshold) {
 			this.threshold = getBestThreshold(correlationMatrix2D.copy());
 			this.initDisjointTree();
+		}
+
+		rowsForUpdating = new HashSet<>();
+		for (int i = 0; i < correlationMatrix2D.rows()-1; i++) {
+			rowsForUpdating.add(i);
 		}
 
 		initClustering(correlationMatrix2D.copy());
@@ -110,8 +117,9 @@ public class HierarchicalClustering {
 		int union = this.clustersTree.findSet(unionSet).index;
 		int localNumDocuments = this.numDocuments;
 
-		Set<Pair> calculatedClusters = new HashSet<Pair>();
-		for (int i = 0; i < correlationMatrix.rows()-1; i++) {
+		//only using a CHM for the concurrent write properties
+		ConcurrentHashMap<Pair, Integer> calculatedClusters = new ConcurrentHashMap<>();
+		rowsForUpdating.parallelStream().forEach(i -> {
 			for (int j = i + 1; j < correlationMatrix.rows(); j++) {
 				int set1Index = this.clustersTree.findSet(i).index;
 				int set2Index = this.clustersTree.findSet(j).index;
@@ -121,12 +129,13 @@ public class HierarchicalClustering {
 						new Pair(set2Index, set1Index);
 
 				if (set1Index == union || set2Index == union) {
-					calculatedClusters.add(newPair);
+					//we only care about the unique Pair objects
+					calculatedClusters.put(newPair, 0);
 				}
 			}
-		}
+		});
 
-		calculatedClusters.parallelStream().forEach(pair -> {
+		calculatedClusters.keySet().parallelStream().forEach(pair -> {
 			double newValue;
 			int set1Index = pair.first;
 			int set2Index = pair.second;
